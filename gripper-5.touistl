@@ -1,0 +1,758 @@
+bigand $f in $I: $f(0) end
+bigand $f in diff($F,$I): not $f(0) end
+bigand $f in $G: $f($length) end
+bigand $i in [1..$length]:
+  bigand $a in $O:
+    ($a($i) =>
+      ((bigand $f in $Cond($a): $f($i-1) end)
+        and
+        (bigand $f in $Add($a): $f($i) end)
+        and
+        (bigand $f in $Del($a): (not $f($i)) end)))
+  end
+end
+bigand $i in [1..$length]:
+  bigand $f in $F:
+    ($f($i-1) and not $f($i))
+    => (bigor $a in $O when $f in $Del($a): $a($i) end)
+  end
+end
+bigand $i in [1..$length]:
+  bigand $f in $F:
+    (not $f($i-1) and $f($i))
+    => (bigor $a in $O when $f in $Add($a): $a($i) end)
+  end
+
+end
+bigand $i in [1..$length]:
+  bigand $a1 in $O:
+    bigand $f in $Cond($a1):
+      bigand $a2 in $O when ($a1 != $a2) and ($f in $Del($a2)):
+        (not $a1($i) or not $a2($i))
+      end
+    end
+  end
+end
+
+data
+
+$length = 11
+
+$I = [free_left,free_right,at_ball1_rooma,at_ball2_rooma,at_ball3_rooma,at_ball4_rooma,at_ball5_rooma,at_robby_rooma]
+
+$G = [at_ball1_roomb,at_ball2_roomb,at_ball3_roomb,at_ball4_roomb,at_ball5_roomb]
+
+$O = [MOVE_roomb_rooma,MOVE_rooma_roomb,PICK_ball5_rooma_right,PICK_ball5_rooma_left,PICK_ball4_rooma_right,PICK_ball4_rooma_left,PICK_ball3_rooma_right,PICK_ball3_rooma_left,PICK_ball2_rooma_right,PICK_ball2_rooma_left,PICK_ball1_rooma_right,PICK_ball1_rooma_left,PICK_ball5_roomb_left,PICK_ball5_roomb_right,DROP_ball5_roomb_right,DROP_ball5_roomb_left,DROP_ball5_rooma_right,DROP_ball5_rooma_left,PICK_ball4_roomb_left,PICK_ball4_roomb_right,DROP_ball4_roomb_right,DROP_ball4_roomb_left,DROP_ball4_rooma_right,DROP_ball4_rooma_left,PICK_ball3_roomb_left,PICK_ball3_roomb_right,DROP_ball3_roomb_right,DROP_ball3_roomb_left,DROP_ball3_rooma_right,DROP_ball3_rooma_left,PICK_ball2_roomb_left,PICK_ball2_roomb_right,DROP_ball2_roomb_right,DROP_ball2_roomb_left,DROP_ball2_rooma_right,DROP_ball2_rooma_left,PICK_ball1_roomb_left,PICK_ball1_roomb_right,DROP_ball1_roomb_right,DROP_ball1_roomb_left,DROP_ball1_rooma_right,DROP_ball1_rooma_left]
+
+$F = [free_right,carry_ball4_right,carry_ball5_left,carry_ball3_right,carry_ball4_left,at_ball1_roomb,at_robby_rooma,at_ball5_rooma,at_ball3_rooma,free_left,at_ball2_roomb,at_robby_roomb,at_ball3_roomb,carry_ball2_right,at_ball4_roomb,carry_ball3_left,at_ball5_roomb,carry_ball5_right,at_ball2_rooma,at_ball1_rooma,carry_ball1_left,at_ball4_rooma,carry_ball1_right,carry_ball2_left]
+
+$Fp = [carry_ball2_left,carry_ball1_right,at_ball4_rooma,carry_ball1_left,at_ball1_rooma,at_ball2_rooma,carry_ball5_right,at_ball5_roomb,carry_ball3_left,at_ball4_roomb,carry_ball2_right,at_ball3_roomb,at_robby_roomb,at_ball2_roomb,free_left,at_ball3_rooma,at_ball5_rooma,at_robby_rooma,at_ball1_roomb,carry_ball4_left,carry_ball3_right,carry_ball5_left,carry_ball4_right,free_right]
+
+$Fa = [carry_ball2_left,carry_ball1_right,at_ball4_rooma,carry_ball1_left,at_ball1_rooma,at_ball2_rooma,carry_ball5_right,at_ball5_roomb,carry_ball3_left,at_ball4_roomb,carry_ball2_right,at_ball3_roomb,at_robby_roomb,at_ball2_roomb,free_left,at_ball3_rooma,at_ball5_rooma,at_robby_rooma,at_ball1_roomb,carry_ball4_left,carry_ball3_right,carry_ball5_left,carry_ball4_right,free_right]
+
+$Fd = [carry_ball2_left,carry_ball1_right,at_ball4_rooma,carry_ball1_left,at_ball1_rooma,at_ball2_rooma,carry_ball5_right,at_ball5_roomb,carry_ball3_left,at_ball4_roomb,carry_ball2_right,at_ball3_roomb,at_robby_roomb,at_ball2_roomb,free_left,at_ball3_rooma,at_ball5_rooma,at_robby_rooma,at_ball1_roomb,carry_ball4_left,carry_ball3_right,carry_ball5_left,carry_ball4_right,free_right]
+
+
+$Cond(DROP_ball1_rooma_left) = [at_robby_rooma,carry_ball1_left]
+$Add(DROP_ball1_rooma_left) = [free_left,at_ball1_rooma]
+$Del(DROP_ball1_rooma_left) = [carry_ball1_left]
+$minlevel(DROP_ball1_rooma_left) = 2
+$maxlevel(DROP_ball1_rooma_left) = 9
+$t_cond_begin(at_robby_rooma,DROP_ball1_rooma_left) = 0.000000
+$t_cond_end(at_robby_rooma,DROP_ball1_rooma_left) = 1.000000
+$t_cond_begin(carry_ball1_left,DROP_ball1_rooma_left) = 0.000000
+$t_cond_end(carry_ball1_left,DROP_ball1_rooma_left) = 1.000000
+$t_add_begin(DROP_ball1_rooma_left,free_left) = 1.000000
+$t_add_end(DROP_ball1_rooma_left,free_left) = 1.000000
+$t_add_begin(DROP_ball1_rooma_left,at_ball1_rooma) = 1.000000
+$t_add_end(DROP_ball1_rooma_left,at_ball1_rooma) = 1.000000
+$t_del_begin(DROP_ball1_rooma_left,carry_ball1_left) = 1.000000
+$t_del_end(DROP_ball1_rooma_left,carry_ball1_left) = 1.000000
+
+$Cond(DROP_ball1_rooma_right) = [at_robby_rooma,carry_ball1_right]
+$Add(DROP_ball1_rooma_right) = [free_right,at_ball1_rooma]
+$Del(DROP_ball1_rooma_right) = [carry_ball1_right]
+$minlevel(DROP_ball1_rooma_right) = 2
+$maxlevel(DROP_ball1_rooma_right) = 9
+$t_cond_begin(at_robby_rooma,DROP_ball1_rooma_right) = 0.000000
+$t_cond_end(at_robby_rooma,DROP_ball1_rooma_right) = 1.000000
+$t_cond_begin(carry_ball1_right,DROP_ball1_rooma_right) = 0.000000
+$t_cond_end(carry_ball1_right,DROP_ball1_rooma_right) = 1.000000
+$t_add_begin(DROP_ball1_rooma_right,free_right) = 1.000000
+$t_add_end(DROP_ball1_rooma_right,free_right) = 1.000000
+$t_add_begin(DROP_ball1_rooma_right,at_ball1_rooma) = 1.000000
+$t_add_end(DROP_ball1_rooma_right,at_ball1_rooma) = 1.000000
+$t_del_begin(DROP_ball1_rooma_right,carry_ball1_right) = 1.000000
+$t_del_end(DROP_ball1_rooma_right,carry_ball1_right) = 1.000000
+
+$Cond(DROP_ball1_roomb_left) = [at_robby_roomb,carry_ball1_left]
+$Add(DROP_ball1_roomb_left) = [free_left,at_ball1_roomb]
+$Del(DROP_ball1_roomb_left) = [carry_ball1_left]
+$minlevel(DROP_ball1_roomb_left) = 2
+$maxlevel(DROP_ball1_roomb_left) = 11
+$t_cond_begin(at_robby_roomb,DROP_ball1_roomb_left) = 0.000000
+$t_cond_end(at_robby_roomb,DROP_ball1_roomb_left) = 1.000000
+$t_cond_begin(carry_ball1_left,DROP_ball1_roomb_left) = 0.000000
+$t_cond_end(carry_ball1_left,DROP_ball1_roomb_left) = 1.000000
+$t_add_begin(DROP_ball1_roomb_left,free_left) = 1.000000
+$t_add_end(DROP_ball1_roomb_left,free_left) = 1.000000
+$t_add_begin(DROP_ball1_roomb_left,at_ball1_roomb) = 1.000000
+$t_add_end(DROP_ball1_roomb_left,at_ball1_roomb) = 1.000000
+$t_del_begin(DROP_ball1_roomb_left,carry_ball1_left) = 1.000000
+$t_del_end(DROP_ball1_roomb_left,carry_ball1_left) = 1.000000
+
+$Cond(DROP_ball1_roomb_right) = [at_robby_roomb,carry_ball1_right]
+$Add(DROP_ball1_roomb_right) = [free_right,at_ball1_roomb]
+$Del(DROP_ball1_roomb_right) = [carry_ball1_right]
+$minlevel(DROP_ball1_roomb_right) = 2
+$maxlevel(DROP_ball1_roomb_right) = 11
+$t_cond_begin(at_robby_roomb,DROP_ball1_roomb_right) = 0.000000
+$t_cond_end(at_robby_roomb,DROP_ball1_roomb_right) = 1.000000
+$t_cond_begin(carry_ball1_right,DROP_ball1_roomb_right) = 0.000000
+$t_cond_end(carry_ball1_right,DROP_ball1_roomb_right) = 1.000000
+$t_add_begin(DROP_ball1_roomb_right,free_right) = 1.000000
+$t_add_end(DROP_ball1_roomb_right,free_right) = 1.000000
+$t_add_begin(DROP_ball1_roomb_right,at_ball1_roomb) = 1.000000
+$t_add_end(DROP_ball1_roomb_right,at_ball1_roomb) = 1.000000
+$t_del_begin(DROP_ball1_roomb_right,carry_ball1_right) = 1.000000
+$t_del_end(DROP_ball1_roomb_right,carry_ball1_right) = 1.000000
+
+$Cond(PICK_ball1_roomb_right) = [free_right,at_robby_roomb,at_ball1_roomb]
+$Add(PICK_ball1_roomb_right) = [carry_ball1_right]
+$Del(PICK_ball1_roomb_right) = [free_right,at_ball1_roomb]
+$minlevel(PICK_ball1_roomb_right) = 3
+$maxlevel(PICK_ball1_roomb_right) = 10
+$t_cond_begin(free_right,PICK_ball1_roomb_right) = 0.000000
+$t_cond_end(free_right,PICK_ball1_roomb_right) = 1.000000
+$t_cond_begin(at_robby_roomb,PICK_ball1_roomb_right) = 0.000000
+$t_cond_end(at_robby_roomb,PICK_ball1_roomb_right) = 1.000000
+$t_cond_begin(at_ball1_roomb,PICK_ball1_roomb_right) = 0.000000
+$t_cond_end(at_ball1_roomb,PICK_ball1_roomb_right) = 1.000000
+$t_add_begin(PICK_ball1_roomb_right,carry_ball1_right) = 1.000000
+$t_add_end(PICK_ball1_roomb_right,carry_ball1_right) = 1.000000
+$t_del_begin(PICK_ball1_roomb_right,free_right) = 1.000000
+$t_del_end(PICK_ball1_roomb_right,free_right) = 1.000000
+$t_del_begin(PICK_ball1_roomb_right,at_ball1_roomb) = 1.000000
+$t_del_end(PICK_ball1_roomb_right,at_ball1_roomb) = 1.000000
+
+$Cond(PICK_ball1_roomb_left) = [free_left,at_robby_roomb,at_ball1_roomb]
+$Add(PICK_ball1_roomb_left) = [carry_ball1_left]
+$Del(PICK_ball1_roomb_left) = [free_left,at_ball1_roomb]
+$minlevel(PICK_ball1_roomb_left) = 3
+$maxlevel(PICK_ball1_roomb_left) = 10
+$t_cond_begin(free_left,PICK_ball1_roomb_left) = 0.000000
+$t_cond_end(free_left,PICK_ball1_roomb_left) = 1.000000
+$t_cond_begin(at_robby_roomb,PICK_ball1_roomb_left) = 0.000000
+$t_cond_end(at_robby_roomb,PICK_ball1_roomb_left) = 1.000000
+$t_cond_begin(at_ball1_roomb,PICK_ball1_roomb_left) = 0.000000
+$t_cond_end(at_ball1_roomb,PICK_ball1_roomb_left) = 1.000000
+$t_add_begin(PICK_ball1_roomb_left,carry_ball1_left) = 1.000000
+$t_add_end(PICK_ball1_roomb_left,carry_ball1_left) = 1.000000
+$t_del_begin(PICK_ball1_roomb_left,free_left) = 1.000000
+$t_del_end(PICK_ball1_roomb_left,free_left) = 1.000000
+$t_del_begin(PICK_ball1_roomb_left,at_ball1_roomb) = 1.000000
+$t_del_end(PICK_ball1_roomb_left,at_ball1_roomb) = 1.000000
+
+$Cond(DROP_ball2_rooma_left) = [at_robby_rooma,carry_ball2_left]
+$Add(DROP_ball2_rooma_left) = [free_left,at_ball2_rooma]
+$Del(DROP_ball2_rooma_left) = [carry_ball2_left]
+$minlevel(DROP_ball2_rooma_left) = 2
+$maxlevel(DROP_ball2_rooma_left) = 9
+$t_cond_begin(at_robby_rooma,DROP_ball2_rooma_left) = 0.000000
+$t_cond_end(at_robby_rooma,DROP_ball2_rooma_left) = 1.000000
+$t_cond_begin(carry_ball2_left,DROP_ball2_rooma_left) = 0.000000
+$t_cond_end(carry_ball2_left,DROP_ball2_rooma_left) = 1.000000
+$t_add_begin(DROP_ball2_rooma_left,free_left) = 1.000000
+$t_add_end(DROP_ball2_rooma_left,free_left) = 1.000000
+$t_add_begin(DROP_ball2_rooma_left,at_ball2_rooma) = 1.000000
+$t_add_end(DROP_ball2_rooma_left,at_ball2_rooma) = 1.000000
+$t_del_begin(DROP_ball2_rooma_left,carry_ball2_left) = 1.000000
+$t_del_end(DROP_ball2_rooma_left,carry_ball2_left) = 1.000000
+
+$Cond(DROP_ball2_rooma_right) = [at_robby_rooma,carry_ball2_right]
+$Add(DROP_ball2_rooma_right) = [free_right,at_ball2_rooma]
+$Del(DROP_ball2_rooma_right) = [carry_ball2_right]
+$minlevel(DROP_ball2_rooma_right) = 2
+$maxlevel(DROP_ball2_rooma_right) = 9
+$t_cond_begin(at_robby_rooma,DROP_ball2_rooma_right) = 0.000000
+$t_cond_end(at_robby_rooma,DROP_ball2_rooma_right) = 1.000000
+$t_cond_begin(carry_ball2_right,DROP_ball2_rooma_right) = 0.000000
+$t_cond_end(carry_ball2_right,DROP_ball2_rooma_right) = 1.000000
+$t_add_begin(DROP_ball2_rooma_right,free_right) = 1.000000
+$t_add_end(DROP_ball2_rooma_right,free_right) = 1.000000
+$t_add_begin(DROP_ball2_rooma_right,at_ball2_rooma) = 1.000000
+$t_add_end(DROP_ball2_rooma_right,at_ball2_rooma) = 1.000000
+$t_del_begin(DROP_ball2_rooma_right,carry_ball2_right) = 1.000000
+$t_del_end(DROP_ball2_rooma_right,carry_ball2_right) = 1.000000
+
+$Cond(DROP_ball2_roomb_left) = [at_robby_roomb,carry_ball2_left]
+$Add(DROP_ball2_roomb_left) = [free_left,at_ball2_roomb]
+$Del(DROP_ball2_roomb_left) = [carry_ball2_left]
+$minlevel(DROP_ball2_roomb_left) = 2
+$maxlevel(DROP_ball2_roomb_left) = 11
+$t_cond_begin(at_robby_roomb,DROP_ball2_roomb_left) = 0.000000
+$t_cond_end(at_robby_roomb,DROP_ball2_roomb_left) = 1.000000
+$t_cond_begin(carry_ball2_left,DROP_ball2_roomb_left) = 0.000000
+$t_cond_end(carry_ball2_left,DROP_ball2_roomb_left) = 1.000000
+$t_add_begin(DROP_ball2_roomb_left,free_left) = 1.000000
+$t_add_end(DROP_ball2_roomb_left,free_left) = 1.000000
+$t_add_begin(DROP_ball2_roomb_left,at_ball2_roomb) = 1.000000
+$t_add_end(DROP_ball2_roomb_left,at_ball2_roomb) = 1.000000
+$t_del_begin(DROP_ball2_roomb_left,carry_ball2_left) = 1.000000
+$t_del_end(DROP_ball2_roomb_left,carry_ball2_left) = 1.000000
+
+$Cond(DROP_ball2_roomb_right) = [at_robby_roomb,carry_ball2_right]
+$Add(DROP_ball2_roomb_right) = [free_right,at_ball2_roomb]
+$Del(DROP_ball2_roomb_right) = [carry_ball2_right]
+$minlevel(DROP_ball2_roomb_right) = 2
+$maxlevel(DROP_ball2_roomb_right) = 11
+$t_cond_begin(at_robby_roomb,DROP_ball2_roomb_right) = 0.000000
+$t_cond_end(at_robby_roomb,DROP_ball2_roomb_right) = 1.000000
+$t_cond_begin(carry_ball2_right,DROP_ball2_roomb_right) = 0.000000
+$t_cond_end(carry_ball2_right,DROP_ball2_roomb_right) = 1.000000
+$t_add_begin(DROP_ball2_roomb_right,free_right) = 1.000000
+$t_add_end(DROP_ball2_roomb_right,free_right) = 1.000000
+$t_add_begin(DROP_ball2_roomb_right,at_ball2_roomb) = 1.000000
+$t_add_end(DROP_ball2_roomb_right,at_ball2_roomb) = 1.000000
+$t_del_begin(DROP_ball2_roomb_right,carry_ball2_right) = 1.000000
+$t_del_end(DROP_ball2_roomb_right,carry_ball2_right) = 1.000000
+
+$Cond(PICK_ball2_roomb_right) = [free_right,at_robby_roomb,at_ball2_roomb]
+$Add(PICK_ball2_roomb_right) = [carry_ball2_right]
+$Del(PICK_ball2_roomb_right) = [free_right,at_ball2_roomb]
+$minlevel(PICK_ball2_roomb_right) = 3
+$maxlevel(PICK_ball2_roomb_right) = 10
+$t_cond_begin(free_right,PICK_ball2_roomb_right) = 0.000000
+$t_cond_end(free_right,PICK_ball2_roomb_right) = 1.000000
+$t_cond_begin(at_robby_roomb,PICK_ball2_roomb_right) = 0.000000
+$t_cond_end(at_robby_roomb,PICK_ball2_roomb_right) = 1.000000
+$t_cond_begin(at_ball2_roomb,PICK_ball2_roomb_right) = 0.000000
+$t_cond_end(at_ball2_roomb,PICK_ball2_roomb_right) = 1.000000
+$t_add_begin(PICK_ball2_roomb_right,carry_ball2_right) = 1.000000
+$t_add_end(PICK_ball2_roomb_right,carry_ball2_right) = 1.000000
+$t_del_begin(PICK_ball2_roomb_right,free_right) = 1.000000
+$t_del_end(PICK_ball2_roomb_right,free_right) = 1.000000
+$t_del_begin(PICK_ball2_roomb_right,at_ball2_roomb) = 1.000000
+$t_del_end(PICK_ball2_roomb_right,at_ball2_roomb) = 1.000000
+
+$Cond(PICK_ball2_roomb_left) = [free_left,at_robby_roomb,at_ball2_roomb]
+$Add(PICK_ball2_roomb_left) = [carry_ball2_left]
+$Del(PICK_ball2_roomb_left) = [free_left,at_ball2_roomb]
+$minlevel(PICK_ball2_roomb_left) = 3
+$maxlevel(PICK_ball2_roomb_left) = 10
+$t_cond_begin(free_left,PICK_ball2_roomb_left) = 0.000000
+$t_cond_end(free_left,PICK_ball2_roomb_left) = 1.000000
+$t_cond_begin(at_robby_roomb,PICK_ball2_roomb_left) = 0.000000
+$t_cond_end(at_robby_roomb,PICK_ball2_roomb_left) = 1.000000
+$t_cond_begin(at_ball2_roomb,PICK_ball2_roomb_left) = 0.000000
+$t_cond_end(at_ball2_roomb,PICK_ball2_roomb_left) = 1.000000
+$t_add_begin(PICK_ball2_roomb_left,carry_ball2_left) = 1.000000
+$t_add_end(PICK_ball2_roomb_left,carry_ball2_left) = 1.000000
+$t_del_begin(PICK_ball2_roomb_left,free_left) = 1.000000
+$t_del_end(PICK_ball2_roomb_left,free_left) = 1.000000
+$t_del_begin(PICK_ball2_roomb_left,at_ball2_roomb) = 1.000000
+$t_del_end(PICK_ball2_roomb_left,at_ball2_roomb) = 1.000000
+
+$Cond(DROP_ball3_rooma_left) = [at_robby_rooma,carry_ball3_left]
+$Add(DROP_ball3_rooma_left) = [free_left,at_ball3_rooma]
+$Del(DROP_ball3_rooma_left) = [carry_ball3_left]
+$minlevel(DROP_ball3_rooma_left) = 2
+$maxlevel(DROP_ball3_rooma_left) = 9
+$t_cond_begin(at_robby_rooma,DROP_ball3_rooma_left) = 0.000000
+$t_cond_end(at_robby_rooma,DROP_ball3_rooma_left) = 1.000000
+$t_cond_begin(carry_ball3_left,DROP_ball3_rooma_left) = 0.000000
+$t_cond_end(carry_ball3_left,DROP_ball3_rooma_left) = 1.000000
+$t_add_begin(DROP_ball3_rooma_left,free_left) = 1.000000
+$t_add_end(DROP_ball3_rooma_left,free_left) = 1.000000
+$t_add_begin(DROP_ball3_rooma_left,at_ball3_rooma) = 1.000000
+$t_add_end(DROP_ball3_rooma_left,at_ball3_rooma) = 1.000000
+$t_del_begin(DROP_ball3_rooma_left,carry_ball3_left) = 1.000000
+$t_del_end(DROP_ball3_rooma_left,carry_ball3_left) = 1.000000
+
+$Cond(DROP_ball3_rooma_right) = [at_robby_rooma,carry_ball3_right]
+$Add(DROP_ball3_rooma_right) = [free_right,at_ball3_rooma]
+$Del(DROP_ball3_rooma_right) = [carry_ball3_right]
+$minlevel(DROP_ball3_rooma_right) = 2
+$maxlevel(DROP_ball3_rooma_right) = 9
+$t_cond_begin(at_robby_rooma,DROP_ball3_rooma_right) = 0.000000
+$t_cond_end(at_robby_rooma,DROP_ball3_rooma_right) = 1.000000
+$t_cond_begin(carry_ball3_right,DROP_ball3_rooma_right) = 0.000000
+$t_cond_end(carry_ball3_right,DROP_ball3_rooma_right) = 1.000000
+$t_add_begin(DROP_ball3_rooma_right,free_right) = 1.000000
+$t_add_end(DROP_ball3_rooma_right,free_right) = 1.000000
+$t_add_begin(DROP_ball3_rooma_right,at_ball3_rooma) = 1.000000
+$t_add_end(DROP_ball3_rooma_right,at_ball3_rooma) = 1.000000
+$t_del_begin(DROP_ball3_rooma_right,carry_ball3_right) = 1.000000
+$t_del_end(DROP_ball3_rooma_right,carry_ball3_right) = 1.000000
+
+$Cond(DROP_ball3_roomb_left) = [at_robby_roomb,carry_ball3_left]
+$Add(DROP_ball3_roomb_left) = [free_left,at_ball3_roomb]
+$Del(DROP_ball3_roomb_left) = [carry_ball3_left]
+$minlevel(DROP_ball3_roomb_left) = 2
+$maxlevel(DROP_ball3_roomb_left) = 11
+$t_cond_begin(at_robby_roomb,DROP_ball3_roomb_left) = 0.000000
+$t_cond_end(at_robby_roomb,DROP_ball3_roomb_left) = 1.000000
+$t_cond_begin(carry_ball3_left,DROP_ball3_roomb_left) = 0.000000
+$t_cond_end(carry_ball3_left,DROP_ball3_roomb_left) = 1.000000
+$t_add_begin(DROP_ball3_roomb_left,free_left) = 1.000000
+$t_add_end(DROP_ball3_roomb_left,free_left) = 1.000000
+$t_add_begin(DROP_ball3_roomb_left,at_ball3_roomb) = 1.000000
+$t_add_end(DROP_ball3_roomb_left,at_ball3_roomb) = 1.000000
+$t_del_begin(DROP_ball3_roomb_left,carry_ball3_left) = 1.000000
+$t_del_end(DROP_ball3_roomb_left,carry_ball3_left) = 1.000000
+
+$Cond(DROP_ball3_roomb_right) = [at_robby_roomb,carry_ball3_right]
+$Add(DROP_ball3_roomb_right) = [free_right,at_ball3_roomb]
+$Del(DROP_ball3_roomb_right) = [carry_ball3_right]
+$minlevel(DROP_ball3_roomb_right) = 2
+$maxlevel(DROP_ball3_roomb_right) = 11
+$t_cond_begin(at_robby_roomb,DROP_ball3_roomb_right) = 0.000000
+$t_cond_end(at_robby_roomb,DROP_ball3_roomb_right) = 1.000000
+$t_cond_begin(carry_ball3_right,DROP_ball3_roomb_right) = 0.000000
+$t_cond_end(carry_ball3_right,DROP_ball3_roomb_right) = 1.000000
+$t_add_begin(DROP_ball3_roomb_right,free_right) = 1.000000
+$t_add_end(DROP_ball3_roomb_right,free_right) = 1.000000
+$t_add_begin(DROP_ball3_roomb_right,at_ball3_roomb) = 1.000000
+$t_add_end(DROP_ball3_roomb_right,at_ball3_roomb) = 1.000000
+$t_del_begin(DROP_ball3_roomb_right,carry_ball3_right) = 1.000000
+$t_del_end(DROP_ball3_roomb_right,carry_ball3_right) = 1.000000
+
+$Cond(PICK_ball3_roomb_right) = [free_right,at_robby_roomb,at_ball3_roomb]
+$Add(PICK_ball3_roomb_right) = [carry_ball3_right]
+$Del(PICK_ball3_roomb_right) = [free_right,at_ball3_roomb]
+$minlevel(PICK_ball3_roomb_right) = 3
+$maxlevel(PICK_ball3_roomb_right) = 10
+$t_cond_begin(free_right,PICK_ball3_roomb_right) = 0.000000
+$t_cond_end(free_right,PICK_ball3_roomb_right) = 1.000000
+$t_cond_begin(at_robby_roomb,PICK_ball3_roomb_right) = 0.000000
+$t_cond_end(at_robby_roomb,PICK_ball3_roomb_right) = 1.000000
+$t_cond_begin(at_ball3_roomb,PICK_ball3_roomb_right) = 0.000000
+$t_cond_end(at_ball3_roomb,PICK_ball3_roomb_right) = 1.000000
+$t_add_begin(PICK_ball3_roomb_right,carry_ball3_right) = 1.000000
+$t_add_end(PICK_ball3_roomb_right,carry_ball3_right) = 1.000000
+$t_del_begin(PICK_ball3_roomb_right,free_right) = 1.000000
+$t_del_end(PICK_ball3_roomb_right,free_right) = 1.000000
+$t_del_begin(PICK_ball3_roomb_right,at_ball3_roomb) = 1.000000
+$t_del_end(PICK_ball3_roomb_right,at_ball3_roomb) = 1.000000
+
+$Cond(PICK_ball3_roomb_left) = [free_left,at_robby_roomb,at_ball3_roomb]
+$Add(PICK_ball3_roomb_left) = [carry_ball3_left]
+$Del(PICK_ball3_roomb_left) = [free_left,at_ball3_roomb]
+$minlevel(PICK_ball3_roomb_left) = 3
+$maxlevel(PICK_ball3_roomb_left) = 10
+$t_cond_begin(free_left,PICK_ball3_roomb_left) = 0.000000
+$t_cond_end(free_left,PICK_ball3_roomb_left) = 1.000000
+$t_cond_begin(at_robby_roomb,PICK_ball3_roomb_left) = 0.000000
+$t_cond_end(at_robby_roomb,PICK_ball3_roomb_left) = 1.000000
+$t_cond_begin(at_ball3_roomb,PICK_ball3_roomb_left) = 0.000000
+$t_cond_end(at_ball3_roomb,PICK_ball3_roomb_left) = 1.000000
+$t_add_begin(PICK_ball3_roomb_left,carry_ball3_left) = 1.000000
+$t_add_end(PICK_ball3_roomb_left,carry_ball3_left) = 1.000000
+$t_del_begin(PICK_ball3_roomb_left,free_left) = 1.000000
+$t_del_end(PICK_ball3_roomb_left,free_left) = 1.000000
+$t_del_begin(PICK_ball3_roomb_left,at_ball3_roomb) = 1.000000
+$t_del_end(PICK_ball3_roomb_left,at_ball3_roomb) = 1.000000
+
+$Cond(DROP_ball4_rooma_left) = [at_robby_rooma,carry_ball4_left]
+$Add(DROP_ball4_rooma_left) = [free_left,at_ball4_rooma]
+$Del(DROP_ball4_rooma_left) = [carry_ball4_left]
+$minlevel(DROP_ball4_rooma_left) = 2
+$maxlevel(DROP_ball4_rooma_left) = 9
+$t_cond_begin(at_robby_rooma,DROP_ball4_rooma_left) = 0.000000
+$t_cond_end(at_robby_rooma,DROP_ball4_rooma_left) = 1.000000
+$t_cond_begin(carry_ball4_left,DROP_ball4_rooma_left) = 0.000000
+$t_cond_end(carry_ball4_left,DROP_ball4_rooma_left) = 1.000000
+$t_add_begin(DROP_ball4_rooma_left,free_left) = 1.000000
+$t_add_end(DROP_ball4_rooma_left,free_left) = 1.000000
+$t_add_begin(DROP_ball4_rooma_left,at_ball4_rooma) = 1.000000
+$t_add_end(DROP_ball4_rooma_left,at_ball4_rooma) = 1.000000
+$t_del_begin(DROP_ball4_rooma_left,carry_ball4_left) = 1.000000
+$t_del_end(DROP_ball4_rooma_left,carry_ball4_left) = 1.000000
+
+$Cond(DROP_ball4_rooma_right) = [at_robby_rooma,carry_ball4_right]
+$Add(DROP_ball4_rooma_right) = [free_right,at_ball4_rooma]
+$Del(DROP_ball4_rooma_right) = [carry_ball4_right]
+$minlevel(DROP_ball4_rooma_right) = 2
+$maxlevel(DROP_ball4_rooma_right) = 9
+$t_cond_begin(at_robby_rooma,DROP_ball4_rooma_right) = 0.000000
+$t_cond_end(at_robby_rooma,DROP_ball4_rooma_right) = 1.000000
+$t_cond_begin(carry_ball4_right,DROP_ball4_rooma_right) = 0.000000
+$t_cond_end(carry_ball4_right,DROP_ball4_rooma_right) = 1.000000
+$t_add_begin(DROP_ball4_rooma_right,free_right) = 1.000000
+$t_add_end(DROP_ball4_rooma_right,free_right) = 1.000000
+$t_add_begin(DROP_ball4_rooma_right,at_ball4_rooma) = 1.000000
+$t_add_end(DROP_ball4_rooma_right,at_ball4_rooma) = 1.000000
+$t_del_begin(DROP_ball4_rooma_right,carry_ball4_right) = 1.000000
+$t_del_end(DROP_ball4_rooma_right,carry_ball4_right) = 1.000000
+
+$Cond(DROP_ball4_roomb_left) = [at_robby_roomb,carry_ball4_left]
+$Add(DROP_ball4_roomb_left) = [free_left,at_ball4_roomb]
+$Del(DROP_ball4_roomb_left) = [carry_ball4_left]
+$minlevel(DROP_ball4_roomb_left) = 2
+$maxlevel(DROP_ball4_roomb_left) = 11
+$t_cond_begin(at_robby_roomb,DROP_ball4_roomb_left) = 0.000000
+$t_cond_end(at_robby_roomb,DROP_ball4_roomb_left) = 1.000000
+$t_cond_begin(carry_ball4_left,DROP_ball4_roomb_left) = 0.000000
+$t_cond_end(carry_ball4_left,DROP_ball4_roomb_left) = 1.000000
+$t_add_begin(DROP_ball4_roomb_left,free_left) = 1.000000
+$t_add_end(DROP_ball4_roomb_left,free_left) = 1.000000
+$t_add_begin(DROP_ball4_roomb_left,at_ball4_roomb) = 1.000000
+$t_add_end(DROP_ball4_roomb_left,at_ball4_roomb) = 1.000000
+$t_del_begin(DROP_ball4_roomb_left,carry_ball4_left) = 1.000000
+$t_del_end(DROP_ball4_roomb_left,carry_ball4_left) = 1.000000
+
+$Cond(DROP_ball4_roomb_right) = [at_robby_roomb,carry_ball4_right]
+$Add(DROP_ball4_roomb_right) = [free_right,at_ball4_roomb]
+$Del(DROP_ball4_roomb_right) = [carry_ball4_right]
+$minlevel(DROP_ball4_roomb_right) = 2
+$maxlevel(DROP_ball4_roomb_right) = 11
+$t_cond_begin(at_robby_roomb,DROP_ball4_roomb_right) = 0.000000
+$t_cond_end(at_robby_roomb,DROP_ball4_roomb_right) = 1.000000
+$t_cond_begin(carry_ball4_right,DROP_ball4_roomb_right) = 0.000000
+$t_cond_end(carry_ball4_right,DROP_ball4_roomb_right) = 1.000000
+$t_add_begin(DROP_ball4_roomb_right,free_right) = 1.000000
+$t_add_end(DROP_ball4_roomb_right,free_right) = 1.000000
+$t_add_begin(DROP_ball4_roomb_right,at_ball4_roomb) = 1.000000
+$t_add_end(DROP_ball4_roomb_right,at_ball4_roomb) = 1.000000
+$t_del_begin(DROP_ball4_roomb_right,carry_ball4_right) = 1.000000
+$t_del_end(DROP_ball4_roomb_right,carry_ball4_right) = 1.000000
+
+$Cond(PICK_ball4_roomb_right) = [free_right,at_robby_roomb,at_ball4_roomb]
+$Add(PICK_ball4_roomb_right) = [carry_ball4_right]
+$Del(PICK_ball4_roomb_right) = [free_right,at_ball4_roomb]
+$minlevel(PICK_ball4_roomb_right) = 3
+$maxlevel(PICK_ball4_roomb_right) = 10
+$t_cond_begin(free_right,PICK_ball4_roomb_right) = 0.000000
+$t_cond_end(free_right,PICK_ball4_roomb_right) = 1.000000
+$t_cond_begin(at_robby_roomb,PICK_ball4_roomb_right) = 0.000000
+$t_cond_end(at_robby_roomb,PICK_ball4_roomb_right) = 1.000000
+$t_cond_begin(at_ball4_roomb,PICK_ball4_roomb_right) = 0.000000
+$t_cond_end(at_ball4_roomb,PICK_ball4_roomb_right) = 1.000000
+$t_add_begin(PICK_ball4_roomb_right,carry_ball4_right) = 1.000000
+$t_add_end(PICK_ball4_roomb_right,carry_ball4_right) = 1.000000
+$t_del_begin(PICK_ball4_roomb_right,free_right) = 1.000000
+$t_del_end(PICK_ball4_roomb_right,free_right) = 1.000000
+$t_del_begin(PICK_ball4_roomb_right,at_ball4_roomb) = 1.000000
+$t_del_end(PICK_ball4_roomb_right,at_ball4_roomb) = 1.000000
+
+$Cond(PICK_ball4_roomb_left) = [free_left,at_robby_roomb,at_ball4_roomb]
+$Add(PICK_ball4_roomb_left) = [carry_ball4_left]
+$Del(PICK_ball4_roomb_left) = [free_left,at_ball4_roomb]
+$minlevel(PICK_ball4_roomb_left) = 3
+$maxlevel(PICK_ball4_roomb_left) = 10
+$t_cond_begin(free_left,PICK_ball4_roomb_left) = 0.000000
+$t_cond_end(free_left,PICK_ball4_roomb_left) = 1.000000
+$t_cond_begin(at_robby_roomb,PICK_ball4_roomb_left) = 0.000000
+$t_cond_end(at_robby_roomb,PICK_ball4_roomb_left) = 1.000000
+$t_cond_begin(at_ball4_roomb,PICK_ball4_roomb_left) = 0.000000
+$t_cond_end(at_ball4_roomb,PICK_ball4_roomb_left) = 1.000000
+$t_add_begin(PICK_ball4_roomb_left,carry_ball4_left) = 1.000000
+$t_add_end(PICK_ball4_roomb_left,carry_ball4_left) = 1.000000
+$t_del_begin(PICK_ball4_roomb_left,free_left) = 1.000000
+$t_del_end(PICK_ball4_roomb_left,free_left) = 1.000000
+$t_del_begin(PICK_ball4_roomb_left,at_ball4_roomb) = 1.000000
+$t_del_end(PICK_ball4_roomb_left,at_ball4_roomb) = 1.000000
+
+$Cond(DROP_ball5_rooma_left) = [at_robby_rooma,carry_ball5_left]
+$Add(DROP_ball5_rooma_left) = [free_left,at_ball5_rooma]
+$Del(DROP_ball5_rooma_left) = [carry_ball5_left]
+$minlevel(DROP_ball5_rooma_left) = 2
+$maxlevel(DROP_ball5_rooma_left) = 9
+$t_cond_begin(at_robby_rooma,DROP_ball5_rooma_left) = 0.000000
+$t_cond_end(at_robby_rooma,DROP_ball5_rooma_left) = 1.000000
+$t_cond_begin(carry_ball5_left,DROP_ball5_rooma_left) = 0.000000
+$t_cond_end(carry_ball5_left,DROP_ball5_rooma_left) = 1.000000
+$t_add_begin(DROP_ball5_rooma_left,free_left) = 1.000000
+$t_add_end(DROP_ball5_rooma_left,free_left) = 1.000000
+$t_add_begin(DROP_ball5_rooma_left,at_ball5_rooma) = 1.000000
+$t_add_end(DROP_ball5_rooma_left,at_ball5_rooma) = 1.000000
+$t_del_begin(DROP_ball5_rooma_left,carry_ball5_left) = 1.000000
+$t_del_end(DROP_ball5_rooma_left,carry_ball5_left) = 1.000000
+
+$Cond(DROP_ball5_rooma_right) = [at_robby_rooma,carry_ball5_right]
+$Add(DROP_ball5_rooma_right) = [free_right,at_ball5_rooma]
+$Del(DROP_ball5_rooma_right) = [carry_ball5_right]
+$minlevel(DROP_ball5_rooma_right) = 2
+$maxlevel(DROP_ball5_rooma_right) = 9
+$t_cond_begin(at_robby_rooma,DROP_ball5_rooma_right) = 0.000000
+$t_cond_end(at_robby_rooma,DROP_ball5_rooma_right) = 1.000000
+$t_cond_begin(carry_ball5_right,DROP_ball5_rooma_right) = 0.000000
+$t_cond_end(carry_ball5_right,DROP_ball5_rooma_right) = 1.000000
+$t_add_begin(DROP_ball5_rooma_right,free_right) = 1.000000
+$t_add_end(DROP_ball5_rooma_right,free_right) = 1.000000
+$t_add_begin(DROP_ball5_rooma_right,at_ball5_rooma) = 1.000000
+$t_add_end(DROP_ball5_rooma_right,at_ball5_rooma) = 1.000000
+$t_del_begin(DROP_ball5_rooma_right,carry_ball5_right) = 1.000000
+$t_del_end(DROP_ball5_rooma_right,carry_ball5_right) = 1.000000
+
+$Cond(DROP_ball5_roomb_left) = [at_robby_roomb,carry_ball5_left]
+$Add(DROP_ball5_roomb_left) = [free_left,at_ball5_roomb]
+$Del(DROP_ball5_roomb_left) = [carry_ball5_left]
+$minlevel(DROP_ball5_roomb_left) = 2
+$maxlevel(DROP_ball5_roomb_left) = 11
+$t_cond_begin(at_robby_roomb,DROP_ball5_roomb_left) = 0.000000
+$t_cond_end(at_robby_roomb,DROP_ball5_roomb_left) = 1.000000
+$t_cond_begin(carry_ball5_left,DROP_ball5_roomb_left) = 0.000000
+$t_cond_end(carry_ball5_left,DROP_ball5_roomb_left) = 1.000000
+$t_add_begin(DROP_ball5_roomb_left,free_left) = 1.000000
+$t_add_end(DROP_ball5_roomb_left,free_left) = 1.000000
+$t_add_begin(DROP_ball5_roomb_left,at_ball5_roomb) = 1.000000
+$t_add_end(DROP_ball5_roomb_left,at_ball5_roomb) = 1.000000
+$t_del_begin(DROP_ball5_roomb_left,carry_ball5_left) = 1.000000
+$t_del_end(DROP_ball5_roomb_left,carry_ball5_left) = 1.000000
+
+$Cond(DROP_ball5_roomb_right) = [at_robby_roomb,carry_ball5_right]
+$Add(DROP_ball5_roomb_right) = [free_right,at_ball5_roomb]
+$Del(DROP_ball5_roomb_right) = [carry_ball5_right]
+$minlevel(DROP_ball5_roomb_right) = 2
+$maxlevel(DROP_ball5_roomb_right) = 11
+$t_cond_begin(at_robby_roomb,DROP_ball5_roomb_right) = 0.000000
+$t_cond_end(at_robby_roomb,DROP_ball5_roomb_right) = 1.000000
+$t_cond_begin(carry_ball5_right,DROP_ball5_roomb_right) = 0.000000
+$t_cond_end(carry_ball5_right,DROP_ball5_roomb_right) = 1.000000
+$t_add_begin(DROP_ball5_roomb_right,free_right) = 1.000000
+$t_add_end(DROP_ball5_roomb_right,free_right) = 1.000000
+$t_add_begin(DROP_ball5_roomb_right,at_ball5_roomb) = 1.000000
+$t_add_end(DROP_ball5_roomb_right,at_ball5_roomb) = 1.000000
+$t_del_begin(DROP_ball5_roomb_right,carry_ball5_right) = 1.000000
+$t_del_end(DROP_ball5_roomb_right,carry_ball5_right) = 1.000000
+
+$Cond(PICK_ball5_roomb_right) = [free_right,at_robby_roomb,at_ball5_roomb]
+$Add(PICK_ball5_roomb_right) = [carry_ball5_right]
+$Del(PICK_ball5_roomb_right) = [free_right,at_ball5_roomb]
+$minlevel(PICK_ball5_roomb_right) = 3
+$maxlevel(PICK_ball5_roomb_right) = 10
+$t_cond_begin(free_right,PICK_ball5_roomb_right) = 0.000000
+$t_cond_end(free_right,PICK_ball5_roomb_right) = 1.000000
+$t_cond_begin(at_robby_roomb,PICK_ball5_roomb_right) = 0.000000
+$t_cond_end(at_robby_roomb,PICK_ball5_roomb_right) = 1.000000
+$t_cond_begin(at_ball5_roomb,PICK_ball5_roomb_right) = 0.000000
+$t_cond_end(at_ball5_roomb,PICK_ball5_roomb_right) = 1.000000
+$t_add_begin(PICK_ball5_roomb_right,carry_ball5_right) = 1.000000
+$t_add_end(PICK_ball5_roomb_right,carry_ball5_right) = 1.000000
+$t_del_begin(PICK_ball5_roomb_right,free_right) = 1.000000
+$t_del_end(PICK_ball5_roomb_right,free_right) = 1.000000
+$t_del_begin(PICK_ball5_roomb_right,at_ball5_roomb) = 1.000000
+$t_del_end(PICK_ball5_roomb_right,at_ball5_roomb) = 1.000000
+
+$Cond(PICK_ball5_roomb_left) = [free_left,at_robby_roomb,at_ball5_roomb]
+$Add(PICK_ball5_roomb_left) = [carry_ball5_left]
+$Del(PICK_ball5_roomb_left) = [free_left,at_ball5_roomb]
+$minlevel(PICK_ball5_roomb_left) = 3
+$maxlevel(PICK_ball5_roomb_left) = 10
+$t_cond_begin(free_left,PICK_ball5_roomb_left) = 0.000000
+$t_cond_end(free_left,PICK_ball5_roomb_left) = 1.000000
+$t_cond_begin(at_robby_roomb,PICK_ball5_roomb_left) = 0.000000
+$t_cond_end(at_robby_roomb,PICK_ball5_roomb_left) = 1.000000
+$t_cond_begin(at_ball5_roomb,PICK_ball5_roomb_left) = 0.000000
+$t_cond_end(at_ball5_roomb,PICK_ball5_roomb_left) = 1.000000
+$t_add_begin(PICK_ball5_roomb_left,carry_ball5_left) = 1.000000
+$t_add_end(PICK_ball5_roomb_left,carry_ball5_left) = 1.000000
+$t_del_begin(PICK_ball5_roomb_left,free_left) = 1.000000
+$t_del_end(PICK_ball5_roomb_left,free_left) = 1.000000
+$t_del_begin(PICK_ball5_roomb_left,at_ball5_roomb) = 1.000000
+$t_del_end(PICK_ball5_roomb_left,at_ball5_roomb) = 1.000000
+
+$Cond(PICK_ball1_rooma_left) = [free_left,at_robby_rooma,at_ball1_rooma]
+$Add(PICK_ball1_rooma_left) = [carry_ball1_left]
+$Del(PICK_ball1_rooma_left) = [free_left,at_ball1_rooma]
+$minlevel(PICK_ball1_rooma_left) = 1
+$maxlevel(PICK_ball1_rooma_left) = 10
+$t_cond_begin(free_left,PICK_ball1_rooma_left) = 0.000000
+$t_cond_end(free_left,PICK_ball1_rooma_left) = 1.000000
+$t_cond_begin(at_robby_rooma,PICK_ball1_rooma_left) = 0.000000
+$t_cond_end(at_robby_rooma,PICK_ball1_rooma_left) = 1.000000
+$t_cond_begin(at_ball1_rooma,PICK_ball1_rooma_left) = 0.000000
+$t_cond_end(at_ball1_rooma,PICK_ball1_rooma_left) = 1.000000
+$t_add_begin(PICK_ball1_rooma_left,carry_ball1_left) = 1.000000
+$t_add_end(PICK_ball1_rooma_left,carry_ball1_left) = 1.000000
+$t_del_begin(PICK_ball1_rooma_left,free_left) = 1.000000
+$t_del_end(PICK_ball1_rooma_left,free_left) = 1.000000
+$t_del_begin(PICK_ball1_rooma_left,at_ball1_rooma) = 1.000000
+$t_del_end(PICK_ball1_rooma_left,at_ball1_rooma) = 1.000000
+
+$Cond(PICK_ball1_rooma_right) = [free_right,at_robby_rooma,at_ball1_rooma]
+$Add(PICK_ball1_rooma_right) = [carry_ball1_right]
+$Del(PICK_ball1_rooma_right) = [free_right,at_ball1_rooma]
+$minlevel(PICK_ball1_rooma_right) = 1
+$maxlevel(PICK_ball1_rooma_right) = 10
+$t_cond_begin(free_right,PICK_ball1_rooma_right) = 0.000000
+$t_cond_end(free_right,PICK_ball1_rooma_right) = 1.000000
+$t_cond_begin(at_robby_rooma,PICK_ball1_rooma_right) = 0.000000
+$t_cond_end(at_robby_rooma,PICK_ball1_rooma_right) = 1.000000
+$t_cond_begin(at_ball1_rooma,PICK_ball1_rooma_right) = 0.000000
+$t_cond_end(at_ball1_rooma,PICK_ball1_rooma_right) = 1.000000
+$t_add_begin(PICK_ball1_rooma_right,carry_ball1_right) = 1.000000
+$t_add_end(PICK_ball1_rooma_right,carry_ball1_right) = 1.000000
+$t_del_begin(PICK_ball1_rooma_right,free_right) = 1.000000
+$t_del_end(PICK_ball1_rooma_right,free_right) = 1.000000
+$t_del_begin(PICK_ball1_rooma_right,at_ball1_rooma) = 1.000000
+$t_del_end(PICK_ball1_rooma_right,at_ball1_rooma) = 1.000000
+
+$Cond(PICK_ball2_rooma_left) = [free_left,at_robby_rooma,at_ball2_rooma]
+$Add(PICK_ball2_rooma_left) = [carry_ball2_left]
+$Del(PICK_ball2_rooma_left) = [free_left,at_ball2_rooma]
+$minlevel(PICK_ball2_rooma_left) = 1
+$maxlevel(PICK_ball2_rooma_left) = 10
+$t_cond_begin(free_left,PICK_ball2_rooma_left) = 0.000000
+$t_cond_end(free_left,PICK_ball2_rooma_left) = 1.000000
+$t_cond_begin(at_robby_rooma,PICK_ball2_rooma_left) = 0.000000
+$t_cond_end(at_robby_rooma,PICK_ball2_rooma_left) = 1.000000
+$t_cond_begin(at_ball2_rooma,PICK_ball2_rooma_left) = 0.000000
+$t_cond_end(at_ball2_rooma,PICK_ball2_rooma_left) = 1.000000
+$t_add_begin(PICK_ball2_rooma_left,carry_ball2_left) = 1.000000
+$t_add_end(PICK_ball2_rooma_left,carry_ball2_left) = 1.000000
+$t_del_begin(PICK_ball2_rooma_left,free_left) = 1.000000
+$t_del_end(PICK_ball2_rooma_left,free_left) = 1.000000
+$t_del_begin(PICK_ball2_rooma_left,at_ball2_rooma) = 1.000000
+$t_del_end(PICK_ball2_rooma_left,at_ball2_rooma) = 1.000000
+
+$Cond(PICK_ball2_rooma_right) = [free_right,at_robby_rooma,at_ball2_rooma]
+$Add(PICK_ball2_rooma_right) = [carry_ball2_right]
+$Del(PICK_ball2_rooma_right) = [free_right,at_ball2_rooma]
+$minlevel(PICK_ball2_rooma_right) = 1
+$maxlevel(PICK_ball2_rooma_right) = 10
+$t_cond_begin(free_right,PICK_ball2_rooma_right) = 0.000000
+$t_cond_end(free_right,PICK_ball2_rooma_right) = 1.000000
+$t_cond_begin(at_robby_rooma,PICK_ball2_rooma_right) = 0.000000
+$t_cond_end(at_robby_rooma,PICK_ball2_rooma_right) = 1.000000
+$t_cond_begin(at_ball2_rooma,PICK_ball2_rooma_right) = 0.000000
+$t_cond_end(at_ball2_rooma,PICK_ball2_rooma_right) = 1.000000
+$t_add_begin(PICK_ball2_rooma_right,carry_ball2_right) = 1.000000
+$t_add_end(PICK_ball2_rooma_right,carry_ball2_right) = 1.000000
+$t_del_begin(PICK_ball2_rooma_right,free_right) = 1.000000
+$t_del_end(PICK_ball2_rooma_right,free_right) = 1.000000
+$t_del_begin(PICK_ball2_rooma_right,at_ball2_rooma) = 1.000000
+$t_del_end(PICK_ball2_rooma_right,at_ball2_rooma) = 1.000000
+
+$Cond(PICK_ball3_rooma_left) = [free_left,at_robby_rooma,at_ball3_rooma]
+$Add(PICK_ball3_rooma_left) = [carry_ball3_left]
+$Del(PICK_ball3_rooma_left) = [free_left,at_ball3_rooma]
+$minlevel(PICK_ball3_rooma_left) = 1
+$maxlevel(PICK_ball3_rooma_left) = 10
+$t_cond_begin(free_left,PICK_ball3_rooma_left) = 0.000000
+$t_cond_end(free_left,PICK_ball3_rooma_left) = 1.000000
+$t_cond_begin(at_robby_rooma,PICK_ball3_rooma_left) = 0.000000
+$t_cond_end(at_robby_rooma,PICK_ball3_rooma_left) = 1.000000
+$t_cond_begin(at_ball3_rooma,PICK_ball3_rooma_left) = 0.000000
+$t_cond_end(at_ball3_rooma,PICK_ball3_rooma_left) = 1.000000
+$t_add_begin(PICK_ball3_rooma_left,carry_ball3_left) = 1.000000
+$t_add_end(PICK_ball3_rooma_left,carry_ball3_left) = 1.000000
+$t_del_begin(PICK_ball3_rooma_left,free_left) = 1.000000
+$t_del_end(PICK_ball3_rooma_left,free_left) = 1.000000
+$t_del_begin(PICK_ball3_rooma_left,at_ball3_rooma) = 1.000000
+$t_del_end(PICK_ball3_rooma_left,at_ball3_rooma) = 1.000000
+
+$Cond(PICK_ball3_rooma_right) = [free_right,at_robby_rooma,at_ball3_rooma]
+$Add(PICK_ball3_rooma_right) = [carry_ball3_right]
+$Del(PICK_ball3_rooma_right) = [free_right,at_ball3_rooma]
+$minlevel(PICK_ball3_rooma_right) = 1
+$maxlevel(PICK_ball3_rooma_right) = 10
+$t_cond_begin(free_right,PICK_ball3_rooma_right) = 0.000000
+$t_cond_end(free_right,PICK_ball3_rooma_right) = 1.000000
+$t_cond_begin(at_robby_rooma,PICK_ball3_rooma_right) = 0.000000
+$t_cond_end(at_robby_rooma,PICK_ball3_rooma_right) = 1.000000
+$t_cond_begin(at_ball3_rooma,PICK_ball3_rooma_right) = 0.000000
+$t_cond_end(at_ball3_rooma,PICK_ball3_rooma_right) = 1.000000
+$t_add_begin(PICK_ball3_rooma_right,carry_ball3_right) = 1.000000
+$t_add_end(PICK_ball3_rooma_right,carry_ball3_right) = 1.000000
+$t_del_begin(PICK_ball3_rooma_right,free_right) = 1.000000
+$t_del_end(PICK_ball3_rooma_right,free_right) = 1.000000
+$t_del_begin(PICK_ball3_rooma_right,at_ball3_rooma) = 1.000000
+$t_del_end(PICK_ball3_rooma_right,at_ball3_rooma) = 1.000000
+
+$Cond(PICK_ball4_rooma_left) = [free_left,at_robby_rooma,at_ball4_rooma]
+$Add(PICK_ball4_rooma_left) = [carry_ball4_left]
+$Del(PICK_ball4_rooma_left) = [free_left,at_ball4_rooma]
+$minlevel(PICK_ball4_rooma_left) = 1
+$maxlevel(PICK_ball4_rooma_left) = 10
+$t_cond_begin(free_left,PICK_ball4_rooma_left) = 0.000000
+$t_cond_end(free_left,PICK_ball4_rooma_left) = 1.000000
+$t_cond_begin(at_robby_rooma,PICK_ball4_rooma_left) = 0.000000
+$t_cond_end(at_robby_rooma,PICK_ball4_rooma_left) = 1.000000
+$t_cond_begin(at_ball4_rooma,PICK_ball4_rooma_left) = 0.000000
+$t_cond_end(at_ball4_rooma,PICK_ball4_rooma_left) = 1.000000
+$t_add_begin(PICK_ball4_rooma_left,carry_ball4_left) = 1.000000
+$t_add_end(PICK_ball4_rooma_left,carry_ball4_left) = 1.000000
+$t_del_begin(PICK_ball4_rooma_left,free_left) = 1.000000
+$t_del_end(PICK_ball4_rooma_left,free_left) = 1.000000
+$t_del_begin(PICK_ball4_rooma_left,at_ball4_rooma) = 1.000000
+$t_del_end(PICK_ball4_rooma_left,at_ball4_rooma) = 1.000000
+
+$Cond(PICK_ball4_rooma_right) = [free_right,at_robby_rooma,at_ball4_rooma]
+$Add(PICK_ball4_rooma_right) = [carry_ball4_right]
+$Del(PICK_ball4_rooma_right) = [free_right,at_ball4_rooma]
+$minlevel(PICK_ball4_rooma_right) = 1
+$maxlevel(PICK_ball4_rooma_right) = 10
+$t_cond_begin(free_right,PICK_ball4_rooma_right) = 0.000000
+$t_cond_end(free_right,PICK_ball4_rooma_right) = 1.000000
+$t_cond_begin(at_robby_rooma,PICK_ball4_rooma_right) = 0.000000
+$t_cond_end(at_robby_rooma,PICK_ball4_rooma_right) = 1.000000
+$t_cond_begin(at_ball4_rooma,PICK_ball4_rooma_right) = 0.000000
+$t_cond_end(at_ball4_rooma,PICK_ball4_rooma_right) = 1.000000
+$t_add_begin(PICK_ball4_rooma_right,carry_ball4_right) = 1.000000
+$t_add_end(PICK_ball4_rooma_right,carry_ball4_right) = 1.000000
+$t_del_begin(PICK_ball4_rooma_right,free_right) = 1.000000
+$t_del_end(PICK_ball4_rooma_right,free_right) = 1.000000
+$t_del_begin(PICK_ball4_rooma_right,at_ball4_rooma) = 1.000000
+$t_del_end(PICK_ball4_rooma_right,at_ball4_rooma) = 1.000000
+
+$Cond(PICK_ball5_rooma_left) = [free_left,at_robby_rooma,at_ball5_rooma]
+$Add(PICK_ball5_rooma_left) = [carry_ball5_left]
+$Del(PICK_ball5_rooma_left) = [free_left,at_ball5_rooma]
+$minlevel(PICK_ball5_rooma_left) = 1
+$maxlevel(PICK_ball5_rooma_left) = 10
+$t_cond_begin(free_left,PICK_ball5_rooma_left) = 0.000000
+$t_cond_end(free_left,PICK_ball5_rooma_left) = 1.000000
+$t_cond_begin(at_robby_rooma,PICK_ball5_rooma_left) = 0.000000
+$t_cond_end(at_robby_rooma,PICK_ball5_rooma_left) = 1.000000
+$t_cond_begin(at_ball5_rooma,PICK_ball5_rooma_left) = 0.000000
+$t_cond_end(at_ball5_rooma,PICK_ball5_rooma_left) = 1.000000
+$t_add_begin(PICK_ball5_rooma_left,carry_ball5_left) = 1.000000
+$t_add_end(PICK_ball5_rooma_left,carry_ball5_left) = 1.000000
+$t_del_begin(PICK_ball5_rooma_left,free_left) = 1.000000
+$t_del_end(PICK_ball5_rooma_left,free_left) = 1.000000
+$t_del_begin(PICK_ball5_rooma_left,at_ball5_rooma) = 1.000000
+$t_del_end(PICK_ball5_rooma_left,at_ball5_rooma) = 1.000000
+
+$Cond(PICK_ball5_rooma_right) = [free_right,at_robby_rooma,at_ball5_rooma]
+$Add(PICK_ball5_rooma_right) = [carry_ball5_right]
+$Del(PICK_ball5_rooma_right) = [free_right,at_ball5_rooma]
+$minlevel(PICK_ball5_rooma_right) = 1
+$maxlevel(PICK_ball5_rooma_right) = 10
+$t_cond_begin(free_right,PICK_ball5_rooma_right) = 0.000000
+$t_cond_end(free_right,PICK_ball5_rooma_right) = 1.000000
+$t_cond_begin(at_robby_rooma,PICK_ball5_rooma_right) = 0.000000
+$t_cond_end(at_robby_rooma,PICK_ball5_rooma_right) = 1.000000
+$t_cond_begin(at_ball5_rooma,PICK_ball5_rooma_right) = 0.000000
+$t_cond_end(at_ball5_rooma,PICK_ball5_rooma_right) = 1.000000
+$t_add_begin(PICK_ball5_rooma_right,carry_ball5_right) = 1.000000
+$t_add_end(PICK_ball5_rooma_right,carry_ball5_right) = 1.000000
+$t_del_begin(PICK_ball5_rooma_right,free_right) = 1.000000
+$t_del_end(PICK_ball5_rooma_right,free_right) = 1.000000
+$t_del_begin(PICK_ball5_rooma_right,at_ball5_rooma) = 1.000000
+$t_del_end(PICK_ball5_rooma_right,at_ball5_rooma) = 1.000000
+
+$Cond(MOVE_rooma_roomb) = [at_robby_rooma]
+$Add(MOVE_rooma_roomb) = [at_robby_roomb]
+$Del(MOVE_rooma_roomb) = [at_robby_rooma]
+$minlevel(MOVE_rooma_roomb) = 1
+$maxlevel(MOVE_rooma_roomb) = 10
+$t_cond_begin(at_robby_rooma,MOVE_rooma_roomb) = 0.000000
+$t_cond_end(at_robby_rooma,MOVE_rooma_roomb) = 1.000000
+$t_add_begin(MOVE_rooma_roomb,at_robby_roomb) = 1.000000
+$t_add_end(MOVE_rooma_roomb,at_robby_roomb) = 1.000000
+$t_del_begin(MOVE_rooma_roomb,at_robby_rooma) = 1.000000
+$t_del_end(MOVE_rooma_roomb,at_robby_rooma) = 1.000000
+
+$Cond(MOVE_roomb_rooma) = [at_robby_roomb]
+$Add(MOVE_roomb_rooma) = [at_robby_rooma]
+$Del(MOVE_roomb_rooma) = [at_robby_roomb]
+$minlevel(MOVE_roomb_rooma) = 2
+$maxlevel(MOVE_roomb_rooma) = 9
+$t_cond_begin(at_robby_roomb,MOVE_roomb_rooma) = 0.000000
+$t_cond_end(at_robby_roomb,MOVE_roomb_rooma) = 1.000000
+$t_add_begin(MOVE_roomb_rooma,at_robby_rooma) = 1.000000
+$t_add_end(MOVE_roomb_rooma,at_robby_rooma) = 1.000000
+$t_del_begin(MOVE_roomb_rooma,at_robby_roomb) = 1.000000
+$t_del_end(MOVE_roomb_rooma,at_robby_roomb) = 1.000000
