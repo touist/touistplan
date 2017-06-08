@@ -52,7 +52,7 @@ object
 end
 
 class constraints :
-  string -> domain -> constraints list -> SymbSet.t -> Typeset.attribute_space_set -> (Atom.t * float) list ->
+  string -> domain -> constraints_t list -> SymbSet.t -> Typeset.attribute_space_set -> (Atom.t * float) list ->
 object
   method name : string
   method domain : domain

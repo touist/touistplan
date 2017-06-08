@@ -1,7 +1,7 @@
 %{
 
 
-  type constraints = 
+  type constraints_t = 
     NecessarlyBefore
   | ImmediatlyLeadsTo
   | Choice
