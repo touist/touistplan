@@ -1,18 +1,6 @@
 %{
 
 
-  type constraints_t = 
-    NecessarlyBefore
-  | ImmediatlyLeadsTo
-  | Choice
-  | Parallel
-  | PossiblyBefore
-  | EventuallyLeadsTo
-  | Fill
-  
-
-
-
   let action_relative_end_time = ref (FunctionFormula.Number 1.0)
 
   let current_time_set = ref ((FunctionFormula.Number 0.0),(FunctionFormula.Number 0.0))
@@ -204,18 +192,19 @@ constraints:
 | LP DEFINE LP CONSTRAINTS IDENT RP
       LP CDOMAIN IDENT RP constraints_list {create_constraints $5 $9 $11}
 
-rule: 
-| necessarlyBefore_definition {(NecessarlyBefore, $1)}
-| possiblyBefore_definition  {(PossiblyBefore, $1)}
-| fill_definition   {(Fill, $1)}
-| choice_definition  {(Choice, $1)} 
-| immediatlyLeadsTo_definition   {(ImmediatlyLeadsTo, $1)}
-| eventualyLeadsTo_definition {(EventuallyLeadsTo, $1)}
-| parallel_definition  {(Parallel, $1)}    
-
 constraints_list:
 | RP { [] }
-| rule constraints_list { $1::$2 }
+| constraints_definition constraints_list { $1::$2 }
+
+constraints_definition: 
+| necessarlyBefore_definition {(ConstraintsType.constraints_t.NecessarlyBefore, $1)}
+| possiblyBefore_definition  {(ConstraintsType.constraints_t.PossiblyBefore, $1)}
+| fill_definition   {(ConstraintsType.constraints_t.Fill, $1)}
+| choice_definition  {(ConstraintsType.constraints_t.Choice, $1)} 
+| immediatlyLeadsTo_definition   {(ConstraintsType.constraints_t.ImmediatlyLeadsTo, $1)}
+| eventualyLeadsTo_definition {(ConstraintsType.constraints_t.EventuallyLeadsTo, $1)}
+| parallel_definition  {(ConstraintsType.constraints_t.Parallel, $1)}    
+
 
 necessarlyBefore_definition:
 | LP NECESSARLYBEFORE atom atom RP { ($3::$4) }
@@ -238,7 +227,6 @@ eventualyLeadsTo_definition:
 
 parallel_definition:
 | LP PARALLEL atom atom RP {$3::$4}
-
 
 
 metric:

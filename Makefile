@@ -28,6 +28,7 @@ SOURCES = \
 	$(S)atom.ml \
 	$(S)typeset.ml \
 	$(S)formula.ml \
+	$(S)constraintsType.ml \
 	$(S)domain.ml \
 	$(S)parser.mli\
 	$(S)lexer.ml\

@@ -52,17 +52,12 @@ object
 end
 
 class constraints :
-  string -> domain -> constraints_t list -> SymbSet.t -> Typeset.attribute_space_set -> (Atom.t * float) list ->
+  string -> domain -> ConstraintsType.constraints_t list ->
 object
   method name : string
   method domain : domain
-  method init : Atom.t list
-  method goal : Formula.t
-  method functions_value_list : (Atom.t * float) list
-
   method to_string : string
   method to_complete_string : string
-
   method add_atom_constants : Atom.t -> unit
   method finalize : unit
 end
