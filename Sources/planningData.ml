@@ -364,3 +364,5 @@ let action = new (Node#action "Init" [| |] 0 0 [| |] self#goal [| |]) in actions
       final_parsing_time <- lexing_time +. parsing_time
 
 end
+
+

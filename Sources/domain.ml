@@ -187,6 +187,13 @@ object
       attribute_spaces#create_domains ;
 end
 
+class constraints name (domain: domain) ConstraintsType.constraints_t list=
+object 
+val cst = []
+method name = name
+method domain = domain
+end
 
 let domain_void = new domain "" [] [||]
 let problem_void = new problem "" domain_void [] [] Formula.Top (new SymbSet.t) (new Typeset.attribute_space_set (new SymbSet.t)) []
+let constraint_void= new constraints "" domain_void []  
