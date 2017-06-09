@@ -1,4 +1,4 @@
-# Constraints grammar in PDDL to TWIST tool using Ocaml
+# Constraints grammar in PDDL to TOUIST tool using Ocaml
 
 ## Overview 
 
