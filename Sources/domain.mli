@@ -56,10 +56,6 @@ class constraints :
 object
   method name : string
   method domain : domain
-  method to_string : string
-  method to_complete_string : string
-  method add_atom_constants : Atom.t -> unit
-  method finalize : unit
 end
 
 val domain_void : domain

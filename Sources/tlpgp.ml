@@ -235,6 +235,10 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
 end\nbigand $i in [1..$length]:\n  bigand $a1 in $O:\n    bigand $f in $Cond($a1):\n      bigand $a2 in $O when ($a1 != $a2) and ($f in $Del($a2)):\n        (not $a1($i) or not $a2($i))\n      end\n    end\n  end\nend\n";
 
     Utils.print "\ndata\n\n";
+    
+    (* Constraints goes here on List.iter over pdata#constraints_list *)
+    (* We can find action list with pdata#actions as an array *)
+    (* Save duplciates actions *)
 
     let changedash s = (String.map (fun c -> if c=='-' then '_' else c) s) in
     let string_of_fluent_array fluents = Utils.string_of_array "," Utils.to_string fluents in
