@@ -67,8 +67,6 @@ type token =
 open Parsing;;
 let _ = parse_error;;
 # 2 "Sources/parser.mly"
-
-
   let action_relative_end_time = ref (FunctionFormula.Number 1.0)
 
   let current_time_set = ref ((FunctionFormula.Number 0.0),(FunctionFormula.Number 0.0))
@@ -110,7 +108,9 @@ let _ = parse_error;;
     end ;
     new Domain.problem name !domain objects init goal symb_set attribute_spaces !functions_value_list
   
-  let create_constraints name domain_name =
+  Definition Cst_l=ConstraintsType.constraints_t list;;
+
+  let create_constraints name domain_name Cst_l =
     Utils.eprint "%s..... " name ;
     if domain_name <> !domain#name then begin
       Utils.eprint "\n\Constraints %s not for domain %s !\n\n" name !domain#name ;
