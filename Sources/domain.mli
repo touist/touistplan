@@ -54,8 +54,8 @@ end
 class constraints :
   string -> domain -> ConstraintsType.constraints_t list ->
 object
-  method name_c : string
-  method domain_c : domain
+  method name : string
+  method domain : domain
 end
 
 val domain_void : domain

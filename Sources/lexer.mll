@@ -68,7 +68,7 @@ rule token = parse
     | ':' f i l l                   { FILL }
     | ':' c h o i c e               { CHOICE }
     | ':' i m m e d i a t l y l e a d s t o   { IMMEDIATLYLEADSTO }
-    | ':' e v e n t u a l y l e a d s t o     { EVENTUALYLEADSTO }
+    | ':' e v e n t u a ll y l e a d s t o     { EVENTUALLYLEADSTO }
     | ':' p a r a l l e l           { PARALLEL }
     
     | m i n i m i z e               { MINIMIZE }

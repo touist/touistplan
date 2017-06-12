@@ -1030,7 +1030,7 @@ let yyact = [|
     let _4 = (Parsing.peek_val __caml_parser_env 1 : 'atom) in
     Obj.repr(
 # 210 "Sources/parser.mly"
-                                   ( (_3::_4) )
+                                    (_3::_4)
 # 1035 "Sources/parser.ml"
                : 'necessarlyBefore_definition))
 ; (fun __caml_parser_env ->
