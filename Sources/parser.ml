@@ -980,49 +980,49 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'necessarlyBefore_definition) in
     Obj.repr(
 # 200 "Sources/parser.mly"
-                              ((ConstraintsType.constraints_t.NecessarlyBefore, _1))
+                              ((ConstraintsType.NecessarlyBefore , _1))
 # 985 "Sources/parser.ml"
                : 'constraints_definition))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'possiblyBefore_definition) in
     Obj.repr(
 # 201 "Sources/parser.mly"
-                             ((ConstraintsType.constraints_t.PossiblyBefore, _1))
+                             ((ConstraintsType.PossiblyBefore, _1))
 # 992 "Sources/parser.ml"
                : 'constraints_definition))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'fill_definition) in
     Obj.repr(
 # 202 "Sources/parser.mly"
-                    ((ConstraintsType.constraints_t.Fill, _1))
+                    ((ConstraintsType.Fill, _1))
 # 999 "Sources/parser.ml"
                : 'constraints_definition))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'choice_definition) in
     Obj.repr(
 # 203 "Sources/parser.mly"
-                     ((ConstraintsType.constraints_t.Choice, _1))
+                     ((ConstraintsType.Choice, _1))
 # 1006 "Sources/parser.ml"
                : 'constraints_definition))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'immediatlyLeadsTo_definition) in
     Obj.repr(
 # 204 "Sources/parser.mly"
-                                 ((ConstraintsType.constraints_t.ImmediatlyLeadsTo, _1))
+                                 ((ConstraintsType.ImmediatlyLeadsTo, _1))
 # 1013 "Sources/parser.ml"
                : 'constraints_definition))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'eventualyLeadsTo_definition) in
     Obj.repr(
 # 205 "Sources/parser.mly"
-                              ((ConstraintsType.constraints_t.EventuallyLeadsTo, _1))
+                              ((ConstraintsType.EventuallyLeadsTo, _1))
 # 1020 "Sources/parser.ml"
                : 'constraints_definition))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'parallel_definition) in
     Obj.repr(
 # 206 "Sources/parser.mly"
-                       ((ConstraintsType.constraints_t.Parallel, _1))
+                       ((ConstraintsType.Parallel, _1))
 # 1027 "Sources/parser.ml"
                : 'constraints_definition))
 ; (fun __caml_parser_env ->

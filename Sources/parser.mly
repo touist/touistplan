@@ -197,13 +197,13 @@ constraints_list:
 | constraints_definition constraints_list { $1::$2 }
 
 constraints_definition: 
-| necessarlyBefore_definition {(ConstraintsType.constraints_t.NecessarlyBefore, $1)}
-| possiblyBefore_definition  {(ConstraintsType.constraints_t.PossiblyBefore, $1)}
-| fill_definition   {(ConstraintsType.constraints_t.Fill, $1)}
-| choice_definition  {(ConstraintsType.constraints_t.Choice, $1)} 
-| immediatlyLeadsTo_definition   {(ConstraintsType.constraints_t.ImmediatlyLeadsTo, $1)}
-| eventualyLeadsTo_definition {(ConstraintsType.constraints_t.EventuallyLeadsTo, $1)}
-| parallel_definition  {(ConstraintsType.constraints_t.Parallel, $1)}    
+| necessarlyBefore_definition {(ConstraintsType.NecessarlyBefore , $1)}
+| possiblyBefore_definition  {(ConstraintsType.PossiblyBefore, $1)}
+| fill_definition   {(ConstraintsType.Fill, $1)}
+| choice_definition  {(ConstraintsType.Choice, $1)} 
+| immediatlyLeadsTo_definition   {(ConstraintsType.ImmediatlyLeadsTo, $1)}
+| eventualyLeadsTo_definition {(ConstraintsType.EventuallyLeadsTo, $1)}
+| parallel_definition  {(ConstraintsType.Parallel, $1)}    
 
 
 necessarlyBefore_definition:
