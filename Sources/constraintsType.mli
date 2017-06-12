@@ -1,2 +1,2 @@
   (* Definition of type constraints *)
-  type constraints_t
+  type constraints_t  

@@ -207,7 +207,7 @@ constraints_definition:
 
 
 necessarlyBefore_definition:
-| LP NECESSARLYBEFORE atom atom RP { ($3::$4) }
+| LP NECESSARLYBEFORE atom atom RP  ($3::$4) 
 
 
 possiblyBefore_definition:
