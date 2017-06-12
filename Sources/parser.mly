@@ -11,7 +11,7 @@
 
   let functions_value_list = ref []
 
-  (*let parse_error s = Utils.eprint " Syntax error at line %i\n\n" !Lexer.line*)
+  let parse_error s = Utils.eprint " Syntax error at line %i\n\n" !Lexer.line
 
   let symb_set = new SymbSet.t
   let attribute_spaces = new Typeset.attribute_space_set symb_set
@@ -21,7 +21,7 @@
   let constants_in_domain = ref []
 
   let create_domain name requirements operators =
-    (*Lexer.line := 1 ;*)
+    Lexer.line := 1 ;
     Utils.eprint "%s..... " name ;
     domain := new Domain.domain name requirements (Array.of_list operators) ;
     !domain
@@ -41,13 +41,13 @@
     new Domain.problem name !domain objects init goal symb_set attribute_spaces !functions_value_list
   
   
-  let create_constraints name domain_name constraints_t =
+  let create_constraints name domain_name constraints_list =
     Utils.eprint "%s..... " name ;
     if domain_name <> !domain#name then begin
       Utils.eprint "\n\Constraints %s not for domain %s !\n\n" name !domain#name ;
       exit 0 
     end ;
-    new Domain.constraints name !domain constraints_t
+    new Domain.constraints name !domain constraints_list
 
 
   let create_atom pred terms timeset =

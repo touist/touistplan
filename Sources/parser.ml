@@ -79,7 +79,7 @@ let _ = parse_error;;
 
   let functions_value_list = ref []
 
-  (*let parse_error s = Utils.eprint " Syntax error at line %i\n\n" !Lexer.line*)
+  let parse_error s = Utils.eprint " Syntax error at line %i\n\n" !Lexer.line
 
   let symb_set = new SymbSet.t
   let attribute_spaces = new Typeset.attribute_space_set symb_set
@@ -89,7 +89,7 @@ let _ = parse_error;;
   let constants_in_domain = ref []
 
   let create_domain name requirements operators =
-    (*Lexer.line := 1 ;*)
+    Lexer.line := 1 ;
     Utils.eprint "%s..... " name ;
     domain := new Domain.domain name requirements (Array.of_list operators) ;
     !domain
@@ -109,13 +109,13 @@ let _ = parse_error;;
     new Domain.problem name !domain objects init goal symb_set attribute_spaces !functions_value_list
   
   
-  let create_constraints name domain_name constraints_t =
+  let create_constraints name domain_name constraints_list =
     Utils.eprint "%s..... " name ;
     if domain_name <> !domain#name then begin
       Utils.eprint "\n\Constraints %s not for domain %s !\n\n" name !domain#name ;
       exit 0 
     end ;
-    new Domain.constraints name !domain constraints_t
+    new Domain.constraints name !domain constraints_list
 
 
   let create_atom pred terms timeset =
@@ -979,49 +979,49 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'necessarlyBefore_definition) in
     Obj.repr(
 # 199 "Sources/parser.mly"
-                              ((ConstraintsType.NecessarlyBefore , _1))
+                              ((ConstraintsType.constraints_t , _1))
 # 984 "Sources/parser.ml"
                : 'constraints_definition))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'possiblyBefore_definition) in
     Obj.repr(
 # 200 "Sources/parser.mly"
-                             ((ConstraintsType.PossiblyBefore, _1))
+                             ((ConstraintsType.constraints_t, _1))
 # 991 "Sources/parser.ml"
                : 'constraints_definition))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'fill_definition) in
     Obj.repr(
 # 201 "Sources/parser.mly"
-                    ((ConstraintsType.Fill, _1))
+                    ((ConstraintsType.constraints_t, _1))
 # 998 "Sources/parser.ml"
                : 'constraints_definition))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'choice_definition) in
     Obj.repr(
 # 202 "Sources/parser.mly"
-                     ((ConstraintsType.Choice, _1))
+                     ((ConstraintsType.constraints_t, _1))
 # 1005 "Sources/parser.ml"
                : 'constraints_definition))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'immediatlyLeadsTo_definition) in
     Obj.repr(
 # 203 "Sources/parser.mly"
-                                 ((ConstraintsType.ImmediatlyLeadsTo, _1))
+                                 ((ConstraintsType.constraints_t, _1))
 # 1012 "Sources/parser.ml"
                : 'constraints_definition))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'eventualyLeadsTo_definition) in
     Obj.repr(
 # 204 "Sources/parser.mly"
-                              ((ConstraintsType.EventuallyLeadsTo, _1))
+                              ((ConstraintsType.constraints_t, _1))
 # 1019 "Sources/parser.ml"
                : 'constraints_definition))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'parallel_definition) in
     Obj.repr(
 # 205 "Sources/parser.mly"
-                       ((ConstraintsType.Parallel, _1))
+                       ((ConstraintsType.constraints_t, _1))
 # 1026 "Sources/parser.ml"
                : 'constraints_definition))
 ; (fun __caml_parser_env ->
