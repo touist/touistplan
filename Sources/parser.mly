@@ -196,36 +196,40 @@ constraints_list:
 | constraints_definition constraints_list { $1::$2 }
 
 constraints_definition: 
-| necessarlyBefore_definition {(ConstraintsType.NecessarlyBefore , $1)}
-| possiblyBefore_definition  {(ConstraintsType.PossiblyBefore, $1)}
-| fill_definition   {(ConstraintsType.Fill, $1)}
-| choice_definition  {(ConstraintsType.Choice, $1)} 
-| immediatlyLeadsTo_definition   {(ConstraintsType.ImmediatlyLeadsTo, $1)}
-| eventualyLeadsTo_definition {(ConstraintsType.EventuallyLeadsTo, $1)}
-| parallel_definition  {(ConstraintsType.Parallel, $1)}    
+| necessarlyBefore_definition {ConstraintsType.NecessarlyBefore }
+| possiblyBefore_definition  {ConstraintsType.PossiblyBefore}
+| fill_definition   {ConstraintsType.Fill}
+| choice_definition  {ConstraintsType.Choice} 
+| immediatlyLeadsTo_definition   {ConstraintsType.ImmediatlyLeadsTo}
+| eventualyLeadsTo_definition {ConstraintsType.EventuallyLeadsTo}
+| parallel_definition  {ConstraintsType.Parallel}    
 
 
 necessarlyBefore_definition:
-| LP NECESSARLYBEFORE atom atom RP  {$3::$4} 
+| LP NECESSARLYBEFORE atom_list RP  { $3 } 
 
 
 possiblyBefore_definition:
-| LP POSSIBLYBEFORE atom atom RP {$3::$4}
+| LP POSSIBLYBEFORE atom_list RP {  $3 }
 
 fill_definition:
-| LP FILL atom atom atom RP {$3::$4::$5}
+| LP FILL  atom_list RP {  $3 }
 
 choice_definition: 
-| LP CHOICE atom atom RP {$3::$4}
+| LP CHOICE  atom_list RP { $3}
 
 immediatlyLeadsTo_definition: 
-| LP IMMEDIATLYLEADSTO atom atom RP {$3::$4}
+| LP IMMEDIATLYLEADSTO  atom_list RP {$3}
 
 eventualyLeadsTo_definition:
-| LP EVENTUALLYLEADSTO atom atom RP {$3::$4}
+| LP EVENTUALLYLEADSTO atom_list RP {$3}
 
 parallel_definition:
-| LP PARALLEL atom atom RP {$3::$4}
+| LP PARALLEL atom_list RP {$3}
+
+atom_list:
+| RP { [] }
+| atom atom_list { $1 :: $2 }
 
 
 metric:
