@@ -95,7 +95,7 @@
 %token <int> INTEGER
 %token <float> RATIONAL
 %token CONSTRAINTS CDOMAIN NECESSARLYBEFORE POSSIBLYBEFORE EVENTUALLYLEADSTO IMMEDIATLYLEADSTO FILL CHOICE PARALLEL 
-%start domain problem
+%start domain problem constraints
 %type <Domain.domain> domain
 %type <Domain.problem> problem
 %type <Domain.constraints> constraints

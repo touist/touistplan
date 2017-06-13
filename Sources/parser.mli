@@ -68,3 +68,5 @@ val domain :
   (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Domain.domain
 val problem :
   (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Domain.problem
+val constraints :
+  (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Domain.constraints
