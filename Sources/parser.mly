@@ -192,17 +192,17 @@ constraints:
       LP CDOMAIN IDENT RP constraints_list {create_constraints $5 $9 $11}
 
 constraints_list:
-| RP { [] }
+| RP {[]} 
 | constraints_definition constraints_list { $1::$2 }
 
 constraints_definition: 
-| necessarlyBefore_definition {ConstraintsType.NecessarlyBefore }
-| possiblyBefore_definition  {ConstraintsType.PossiblyBefore}
-| fill_definition   {ConstraintsType.Fill}
-| choice_definition  {ConstraintsType.Choice} 
-| immediatlyLeadsTo_definition   {ConstraintsType.ImmediatlyLeadsTo}
-| eventualyLeadsTo_definition {ConstraintsType.EventuallyLeadsTo}
-| parallel_definition  {ConstraintsType.Parallel}    
+| necessarlyBefore_definition { (ConstraintsType.NecessarlyBefore , $1) }
+| possiblyBefore_definition  {(ConstraintsType.PossiblyBefore, $1)}
+| fill_definition   {(ConstraintsType.Fill, $1)}
+| choice_definition  {(ConstraintsType.Choice, $1)} 
+| immediatlyLeadsTo_definition   {(ConstraintsType.ImmediatlyLeadsTo, $1)}
+| eventualyLeadsTo_definition {(ConstraintsType.EventuallyLeadsTo, $1)}
+| parallel_definition  {(ConstraintsType.Parallel, $1)}    
 
 
 necessarlyBefore_definition:

@@ -186,7 +186,7 @@ object
       compute_encountered_ctypes () ;
       attribute_spaces#create_domains ;
 end
-class constraints (name: string ) (domain: domain) (constraints_t: ConstraintsType.constraints_t list) =
+class constraints (name: string ) (domain: domain) (constraints_t: (ConstraintsType.constraints_t * Atom.t list) list ) =
  object 
  val mutable cst =  constraints_t
   method name = name
@@ -195,5 +195,5 @@ class constraints (name: string ) (domain: domain) (constraints_t: ConstraintsTy
  
  let domain_void = new domain "" [] [||]
  let problem_void = new problem "" domain_void [] [] Formula.Top (new SymbSet.t) (new Typeset.attribute_space_set (new SymbSet.t)) []
-let constraints_void = new constraints "" domain_void []  
+let constraints_void = new constraints "" domain_void []   
 

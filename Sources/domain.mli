@@ -52,7 +52,7 @@ object
 end
 
 class constraints :
-  string -> domain -> ConstraintsType.constraints_t list ->
+  string -> domain -> (ConstraintsType.constraints_t * Atom.t list) list ->
 object
   method name : string
   method domain : domain
