@@ -26,6 +26,8 @@ before_install:
   - eval `opam config env`
 install:
   - make
+script:
+  - echo "No tests yet"
 
 # The commiter will be informed that one of his commits
 # broke the build. I didn't want us to receive an email
