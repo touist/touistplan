@@ -63,14 +63,15 @@ rule token = parse
     | ':' m e t r i c               { METRIC }
 
     | c o n s t r a i n t s         { CONSTRAINTS }
-    | ':' d o m a i n               { CDOMAIN }
+    | ':' c d o m a i n               { CDOMAIN }
     | ':' n e c e s s a r l y b e f o r e     { NECESSARLYBEFORE }
     | ':' f i l l                   { FILL }
     | ':' c h o i c e               { CHOICE }
     | ':' i m m e d i a t l y l e a d s t o   { IMMEDIATLYLEADSTO }
     | ':' e v e n t u a l l y l e a d s t o     { EVENTUALLYLEADSTO }
     | ':' p a r a l l e l           { PARALLEL }
-    
+    | ':' p o s s i b l y b e f o r e     { POSSIBLYBEFORE }
+
     | m i n i m i z e               { MINIMIZE }
     | t o t a l '-' t i m e         { TOTALTIME }
     | t o t a l '-' c o s t         { TOTALCOST }    
