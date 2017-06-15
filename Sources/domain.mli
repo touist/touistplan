@@ -56,6 +56,7 @@ class constraints :
 object
   method name : string
   method domain : domain
+  method to_string : string
 end
 
 val domain_void : domain

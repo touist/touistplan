@@ -87,13 +87,14 @@ object (self)
     problem <-
     let stream = open_in Sys.argv.(2) in
     let lexbuf = Lexing.from_channel stream in
-      Parser.problem Lexer.token lexbuf 
+      Parser.problem Lexer.token lexbuf
 
   method private parse_constraints = 
-    constraints <-
+    (constraints <-
     let stream = open_in Sys.argv.(3) in
     let lexbuf = Lexing.from_channel stream in
-      Parser.constraints Lexer.token lexbuf 
+      Parser.constraints Lexer.token lexbuf);
+      Printf.printf "%s\n" constraints#to_string
   (*
     Fluent creation
   *)
@@ -338,13 +339,14 @@ object (self)
   initializer
   let (lexing_time, _) = Utils.my_time "\nParsing domain" (fun () -> self#parse_domain) in
   let (parsing_time, _) = Utils.my_time "Parsing problem" (fun () -> self#parse_problem) in
+  let (parsing_constraints_time, _) = Utils.my_time "Parsing constraints" (fun () -> self#parse_constraints) in
   let (domains_time, _) = Utils.my_time "Computing domains" (fun () -> self#domains_creation) in
     (*Utils.eprint "\n\n%s\n\n" problem#to_string ;*)
 (**)    (*Utils.eprint "\n\n%s\n\n" domain#to_complete_istring ;*)
 
 (*Utils.eprint "\nFUNCTIONS VALUES:\n"; List.iter (fun (atom,value) -> Utils.eprint " %s = %f\n" atom#to_string value) problem#functions_value_list; Utils.eprint "\n";*)
 
-    if Array.length Sys.argv >= 4 && Sys.argv.(3) = "no" then exit 0 ;
+    if Array.length Sys.argv >= 5 && Sys.argv.(4) = "no" then exit 0 ;
     let (instantiation_time, (nb_candidates, nb_actions, nb_fluents_init)) =
       Utils.my_time "Instantiating actions" (fun () -> self#create_actions (*;
 let action = new (Node#action "Init" [| |] 0 0 [| |] self#goal [| |]) in actions <- action :: actions
@@ -356,11 +358,11 @@ let action = new (Node#action "Init" [| |] 0 0 [| |] self#goal [| |]) in actions
 	  Domains creation  time : %.2f\n\
 		    Instantiation time : %.2f -> %i candidates, %i actions\n\
 		    Finalization time : %.2f -> %i fluents, %i init\n\n"
-	(lexing_time +. parsing_time)
+	(lexing_time +. parsing_time +. parsing_constraints_time)
 	domains_time
 	instantiation_time nb_candidates nb_actions
 	final_repr_time nb_fluents nb_fluents_init2 ;
-      preparation_time <- lexing_time +. parsing_time +. domains_time +. instantiation_time +. final_repr_time ;
+      preparation_time <- lexing_time +. parsing_time +. parsing_constraints_time +. domains_time +. instantiation_time +. final_repr_time ;
       final_parsing_time <- lexing_time +. parsing_time
 
 end

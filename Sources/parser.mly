@@ -11,7 +11,7 @@
 
   let functions_value_list = ref []
 
-  let parse_error s = Utils.eprint " Syntax error at line %i\n\n" !Lexer.line
+  let parse_error s = print_endline s; Utils.eprint " Syntax error at line %i\n\n" !Lexer.line
 
   let symb_set = new SymbSet.t
   let attribute_spaces = new Typeset.attribute_space_set symb_set
@@ -189,7 +189,8 @@ goal_definition:
 
 constraints:
 | LP DEFINE LP CONSTRAINTS IDENT RP
-      LP CDOMAIN IDENT RP constraints_list {create_constraints $5 $9 $11}
+      LP CDOMAIN IDENT RP 
+      constraints_list {create_constraints $5 $9 $11}
 
 constraints_list:
 | RP {[]} 
