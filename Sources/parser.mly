@@ -17,7 +17,8 @@
   let attribute_spaces = new Typeset.attribute_space_set symb_set
 
   let domain = ref Domain.domain_void
-
+  
+   
   let constants_in_domain = ref []
 
   let create_domain name requirements operators =
@@ -90,11 +91,11 @@
 
 %token DEFINE DOMAIN REQUIREMENTS CONSTANTS TYPES FUNCTIONS ACTION DURATIVE_ACTION PARAM DURATION AT BEFORE AFTER START END OVER ALL SOMEWHERE ANYWHERE MIN_DUR ASSIGN INCREASE DECREASE CONSUME PRODUCE QUALITY PREC EFFECT NOT AND TYPE
 %token LP RP EQUAL ADD MULTIPLY DIVIDE LH RH INF SUP
+%token CONSTRAINTS CDOMAIN NECESSARLYBEFORE POSSIBLYBEFORE EVENTUALLYLEADSTO IMMEDIATLYLEADSTO FILL CHOICE PARALLEL 
 %token PROBLEM PDOMAIN OBJECTS INIT GOAL METRIC MINIMIZE TOTALTIME TOTALCOST
 %token <string> VAR IDENT REQUIREMENT
 %token <int> INTEGER
 %token <float> RATIONAL
-%token CONSTRAINTS CDOMAIN NECESSARLYBEFORE POSSIBLYBEFORE EVENTUALLYLEADSTO IMMEDIATLYLEADSTO FILL CHOICE PARALLEL 
 %start domain problem constraints
 %type <Domain.domain> domain
 %type <Domain.problem> problem
@@ -207,31 +208,30 @@ constraints_definition:
 
 
 necessarlyBefore_definition:
-| LP NECESSARLYBEFORE atom_list RP  { $3 } 
+| LP NECESSARLYBEFORE Cst_atom_list  { $3 } 
 
 
 possiblyBefore_definition:
-| LP POSSIBLYBEFORE atom_list RP {  $3 }
+| LP POSSIBLYBEFORE  Cst_atom_list  { $3 }
 
 fill_definition:
-| LP FILL  atom_list RP {  $3 }
+| LP FILL  Cst_atom_list  {  $3 }
 
 choice_definition: 
-| LP CHOICE  atom_list RP { $3}
+| LP CHOICE  Cst_atom_list  { $3}
 
 immediatlyLeadsTo_definition: 
-| LP IMMEDIATLYLEADSTO  atom_list RP {$3}
+| LP IMMEDIATLYLEADSTO  Cst_atom_list  {$3}
 
 eventualyLeadsTo_definition:
-| LP EVENTUALLYLEADSTO atom_list RP {$3}
+| LP EVENTUALLYLEADSTO Cst_atom_list  {$3}
 
 parallel_definition:
-| LP PARALLEL atom_list RP {$3}
+| LP PARALLEL Cst_atom_list  {$3}
 
-atom_list:
+Cst_atom_list:
 | RP { [] }
-| atom atom_list { $1 :: $2 }
-
+| LP atom Cst_atom_list { $2 :: $3 }
 
 metric:
 | RP { }
