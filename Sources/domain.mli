@@ -57,6 +57,7 @@ object
   method name : string
   method domain : domain
   method to_string : string
+  method cst : (ConstraintsType.constraints_t * Atom.t list) list
 end
 
 val domain_void : domain
