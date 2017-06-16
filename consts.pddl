@@ -1,17 +1,21 @@
 (define (constraints GripperCst)
 (:cdomain GRIPPER)
 
-(:NecessarlyBefore (move pick-up) )
+(:NecessarlyBefore (move, pick-up) )
 
-(:PossiblyBefore (action1 action2) )
+(:PossiblyBefore (action1, action2) )
 
-(:choice (action1 action2))
+(:choice (action1, action1))
 
-(:ImmediatlyLeadsTo (action1 action2))
+(:ImmediatlyLeadsTo (action5, action6))
 
-(:EventuallyLeadsTo (action1 action2))
+(:EventuallyLeadsTo (action7, action8))
 
-(:Parallel (action1 action2))
+(:Parallel (action9 ,action10))
+
+(:Fill (action11, act12, action13))
+
+(:Parallel (move1, action10, act1))
 
 
 )
