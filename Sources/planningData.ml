@@ -99,7 +99,6 @@ method private parse_constraints =
     ConstraintsType.print_atom_tuple constraints#cst;
     Utils.print "\n"
 
-(*travis error *)
   (*
     Fluent creation
   *)

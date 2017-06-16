@@ -37,37 +37,3 @@ notifications:
   email:
     on_success: never # default: change
     on_failure: always # default: always
-
-language: node_js
-node_js:
-  - '0.10'
-
-language: node_js
-node_js:
-  - '0.10'
-before_install:
-  - pip install --user codecov
-after_success:
-  - ./node_modules/grunt-cli/bin/grunt coveralls
-  - codecov --file coverage/'PhantomJS 1.9.8 (Linux 0.0.0)'/lcov.info --disable search
-cache:
-  directories:
-    - node_modules
-env:
-  global:
-    - COVERALLS_SERVICE_NAME="TravisCI"
-    - secure: "QvX/YP7OmU0ysXtTOgT7Kl1P4CO+2b5HKkQG191DilRBddBXV92uElkACvOG8uxEW3tbv99rV3jJN0t53gUwMTUHL/7+CU7UcmXqC5dI2wWqP2PN0waXzL21jtp/811dzvzQZ3wlQG5hJ4bSNMLp/UKHHMiH9jTLyawjmIJmOb4="
-notifications:
-  email: false
-after_success:
-  - ./node_modules/grunt-cli/bin/grunt coveralls
-  - codecov --file coverage/'PhantomJS 1.9.8 (Linux 0.0.0)'/lcov.info --disable search
-cache:
-  directories:
-    - node_modules
-env:
-  global:
-    - COVERALLS_SERVICE_NAME="TravisCI"
-    - secure: "QvX/YP7OmU0ysXtTOgT7Kl1P4CO+2b5HKkQG191DilRBddBXV92uElkACvOG8uxEW3tbv99rV3jJN0t53gUwMTUHL/7+CU7UcmXqC5dI2wWqP2PN0waXzL21jtp/811dzvzQZ3wlQG5hJ4bSNMLp/UKHHMiH9jTLyawjmIJmOb4="
-notifications:
-  email: false

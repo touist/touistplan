@@ -1,3 +1,7 @@
 *.cmo
 *.cmi
 .vscode/
+Sources/parser.ml
+Sources/parser.mli
+Sources/lexer.ml
+pddl2touistl
