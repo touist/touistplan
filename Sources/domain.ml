@@ -189,10 +189,11 @@ end
 
 class constraints (name: string ) (domain: domain) (constraints_t: (ConstraintsType.constraints_t * Atom.t list) list ) =
 object 
-  val mutable cst =  constraints_t
   method name = name
   method domain = domain
   method to_string = "Test"
+  method cst =  constraints_t
+
  end
  
  let domain_void = new domain "" [] [||]
