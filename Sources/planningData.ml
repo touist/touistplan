@@ -89,12 +89,16 @@ object (self)
     let lexbuf = Lexing.from_channel stream in
       Parser.problem Lexer.token lexbuf
 
-  method private parse_constraints = 
-    (constraints <-
-    let stream = open_in Sys.argv.(3) in
-    let lexbuf = Lexing.from_channel stream in
-      Parser.constraints Lexer.token lexbuf);
-      Printf.printf "%s\n" constraints#to_string
+method private parse_constraints = 
+  (constraints <-
+  let stream = open_in Sys.argv.(3) in
+  let lexbuf = Lexing.from_channel stream in
+    Parser.constraints Lexer.token lexbuf);
+    Utils.print "Constraitns content...\n";
+(* Printing Constraints values *)
+    ConstraintsType.print_atom_tuple constraints#cst;
+    Utils.print "\n"
+
   (*
     Fluent creation
   *)
