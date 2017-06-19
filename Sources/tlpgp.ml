@@ -230,15 +230,18 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
       newsubgoals := [];
     done;
 
+    Utils.print "\n Constrainsts data: \n";
+    ConstraintsType.print_atom_tuple pdata#constraints_list;
+    Utils.print "Actions:";
+    Array.iter (fun a -> Utils.print "Action %s\n" a#to_string) pdata#actions;
+    (* Constraints goes here on List.iter over pdata#constraints_list *)
+    (* We can find action list with pdata#actions as an array *)
+    (* Save duplciates actions *)
 
     Utils.print "bigand $f in $I: $f(0) end\nbigand $f in diff($F,$I): not $f(0) end\nbigand $f in $G: $f($length) end\nbigand $i in [1..$length]:\n  bigand $a in $O:\n    ($a($i) =>\n      ((bigand $f in $Cond($a): $f($i-1) end)\n        and\n        (bigand $f in $Add($a): $f($i) end)\n        and\n        (bigand $f in $Del($a): (not $f($i)) end)))\n  end\nend\nbigand $i in [1..$length]:\n  bigand $f in $F:\n    ($f($i-1) and not $f($i))\n    => (bigor $a in $O when $f in $Del($a): $a($i) end)\n  end\nend\nbigand $i in [1..$length]:\n  bigand $f in $F:\n    (not $f($i-1) and $f($i))\n    => (bigor $a in $O when $f in $Add($a): $a($i) end)\n  end\n
 end\nbigand $i in [1..$length]:\n  bigand $a1 in $O:\n    bigand $f in $Cond($a1):\n      bigand $a2 in $O when ($a1 != $a2) and ($f in $Del($a2)):\n        (not $a1($i) or not $a2($i))\n      end\n    end\n  end\nend\n";
 
     Utils.print "\ndata\n\n";
-    
-    (* Constraints goes here on List.iter over pdata#constraints_list *)
-    (* We can find action list with pdata#actions as an array *)
-    (* Save duplciates actions *)
 
     let changedash s = (String.map (fun c -> if c=='-' then '_' else c) s) in
     let string_of_fluent_array fluents = Utils.string_of_array "," Utils.to_string fluents in

@@ -1,4 +1,4 @@
-# Constraints grammar in PDDL to TOUIST tool using Ocaml
+# Constraints grammar in PDDL to TOUIST tool using Ocaml [![Build Status](https://travis-ci.org/touist/pddl2touistl.svg?branch=master)](https://travis-ci.org/touist/pddl2touistl)
 
 ## Overview 
 
@@ -42,3 +42,4 @@ After this step you can start modifying your make file, adding the modules to SO
 ## Ocaml Parser/Lexer
 
 http://caml.inria.fr/pub/docs/manual-ocaml-4.00/manual026.html#toc108
+

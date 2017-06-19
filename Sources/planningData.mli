@@ -27,5 +27,7 @@ object
   method problem_name : string
   method constraints_name : string
 
+  method constraints_list : (ConstraintsType.constraints_t * Atom.t list) list
+
   method search : unit
 end

@@ -54,11 +54,13 @@ object (self)
   val fluents_table = AtomTable.create 1000
   val constraints_table = AtomTable.create 100
 
-(* Noms *)
+  (* Noms *)
   method domain_name = domain#name
   method problem_name = problem#name
   method constraints_name = constraints#name
 
+  (* Returns constraints list from Constraints class *)
+  method constraints_list = constraints#cst
   (*
     Virtual methods
   *)
