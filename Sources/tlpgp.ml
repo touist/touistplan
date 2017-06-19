@@ -230,10 +230,13 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
       newsubgoals := [];
     done;
 
-    Utils.print "\n Constrainsts data: \n";
+    (* Testing *)
+    Utils.print "\n Constrainsts data: ";
     ConstraintsType.print_atom_tuple pdata#constraints_list;
-    Utils.print "Actions:";
+    Utils.print "\n Actions:";
     Array.iter (fun a -> Utils.print "Action %s\n" a#to_string) pdata#actions;
+    Utils.print "\n Action size: %i" pdata#nb_actions;
+    Printf.printf "\n %s" (Utils.string_of_array " " (fun s -> s#to_string) pdata#actions);
     (* Constraints goes here on List.iter over pdata#constraints_list *)
     (* We can find action list with pdata#actions as an array *)
     (* Save duplciates actions *)

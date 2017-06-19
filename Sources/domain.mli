@@ -54,6 +54,8 @@ end
 class constraints :
   string -> domain -> (ConstraintsType.constraints_t * Atom.t list) list ->
 object
+  method actions : string list
+  method set_actions : string list -> unit
   method name : string
   method domain : domain
   method to_string : string

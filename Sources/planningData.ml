@@ -61,6 +61,7 @@ object (self)
 
   (* Returns constraints list from Constraints class *)
   method constraints_list = constraints#cst
+  
   (*
     Virtual methods
   *)

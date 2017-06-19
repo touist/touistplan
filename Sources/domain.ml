@@ -189,14 +189,16 @@ end
 
 class constraints (name: string ) (domain: domain) (constraints_t: (ConstraintsType.constraints_t * Atom.t list) list ) =
 object 
+  (* Actions list sotres the action names of this class *)
+  val mutable actions : string list = []
+  method actions = actions
+  method set_actions act = actions <- act
   method name = name
   method domain = domain
-  method to_string = "Test"
+  method to_string = "Test to string"
   method cst =  constraints_t
-
  end
  
  let domain_void = new domain "" [] [||]
  let problem_void = new problem "" domain_void [] [] Formula.Top (new SymbSet.t) (new Typeset.attribute_space_set (new SymbSet.t)) []
 let constraints_void = new constraints "" domain_void []   
-
