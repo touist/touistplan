@@ -208,30 +208,30 @@ constraints_definition:
 
 
 necessarlyBefore_definition:
-| LP NECESSARLYBEFORE LP Cst_atom_list  { $4 } 
+| LP NECESSARLYBEFORE Cst_atom_list  { $3 } 
 
 
 possiblyBefore_definition:
-| LP POSSIBLYBEFORE  LP Cst_atom_list  { $4 }
+| LP POSSIBLYBEFORE Cst_atom_list  { $3 }
 
 fill_definition:
-| LP FILL  LP Cst_atom_list  {  $4 }
+| LP FILL   Cst_atom_list  {  $3 }
 
 choice_definition: 
-| LP CHOICE  LP Cst_atom_list  { $4}
+| LP CHOICE Cst_atom_list  { $3}
 
 immediatlyLeadsTo_definition: 
-| LP IMMEDIATLYLEADSTO  LP Cst_atom_list  {$4}
+| LP IMMEDIATLYLEADSTO Cst_atom_list  {$3}
 
 eventualyLeadsTo_definition:
-| LP EVENTUALLYLEADSTO LP Cst_atom_list  {$4}
+| LP EVENTUALLYLEADSTO Cst_atom_list  {$3}
 
 parallel_definition:
-| LP PARALLEL LP Cst_atom_list  {$4}
+| LP PARALLEL Cst_atom_list  {$3}
 
 Cst_atom_list:
 | RP { [] }
-| atom Cst_atom_list { $1 :: $2 }
+| LP atom Cst_atom_list { $2 :: $3 }
 
 metric:
 | RP { }

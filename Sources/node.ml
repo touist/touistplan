@@ -12,6 +12,8 @@ object (self)
   val mutable nb_prec_unsat = Array.length p_prec
   val mutable relevant = false
   val mutable rescue = false
+(* Returns actions name *)
+  method name = name
 
   method num = num
   method set_num n = num <- n
