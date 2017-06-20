@@ -59,3 +59,26 @@ print_list print_atom atom_elemts;;
 
 let print_atom_tuple tuples_list =
 print_list (print_pair constraints_type_string print_atom_list) tuples_list;;
+
+(* Hashtable to save actions by key *)
+exception Not_found;;
+
+let add_tbl tbl key data =
+  let r =
+    try Hashtbl.find tbl key
+    with Not_found ->
+      let r = ref [] in
+      Hashtbl.add tbl key r;
+       r in
+    r := data :: !r
+
+let add_tbl_action tbl (key:string) (value_lst: Atom.t list) = 
+  if (Hashtbl.mem tbl key) then
+    (* it exists *)
+    let v = Hashtbl.find tbl key in
+    let data = v @ value_lst in 
+    Hashtbl.add tbl key data
+   else
+   (* if doesn't exists *)
+   Hashtbl.add tbl key value_lst
+   ;;
