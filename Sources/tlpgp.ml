@@ -122,13 +122,14 @@ object (self)
   val mutable plan = []
   val mutable goals = []
   val mutable search_level = 0
-val mutable depth_counter = ref 0
+  val mutable depth_counter = ref 0
 (* Create an empty hash table with initial size 5000
  * The initial size should be around the expected number
  * of elements you will add for best performance, but it
  * will be automatically increased if it is too low
  *)
-val mutable actions_table = Hashtbl.create 5000;
+  val mutable actions_table = Hashtbl.create 5000;
+  val mutable constraints_table = Hashtbl.create 5000;
 
   method print_statistics = ()
   method run = self#plan_fail
@@ -244,9 +245,6 @@ ConstraintsType.print_atom_tuple pdata#constraints_list;
 (*Utils.print "\n Actions:";
 Array.iter (fun a -> Utils.print "Action %s\n" a#to_string) pdata#actions;*)
 (* Array.iter (fun a -> Utils.print "Params: %s\n" a#name) pdata#actions; *)
-Array.iter (fun a -> Utils.print "Action with arguments %s\n" (a#name ^ " " ^ Utils.string_of_array " " (fun s -> s#to_string) a#params)) pdata#actions;
-Utils.print "\n Action size: %i" pdata#nb_actions;
-Printf.printf "\n %s" (Utils.string_of_array " " (fun s -> s#to_string) pdata#actions);
 
   (* Testing *)
   Utils.print "\n Constrainsts data: ";
@@ -260,8 +258,26 @@ Printf.printf "\n %s" (Utils.string_of_array " " (fun s -> s#to_string) pdata#ac
   (* Constraints goes here on List.iter over pdata#constraints_list *)
   (* We can find action list with pdata#actions as an array *)
 
+ 
+  (* Adds a reference actions hashtable indexed by action name *)
+  Array.iter (fun a -> Hashtbl.add actions_table a#name (List.map (fun s -> s#to_string) (Array.to_list a#params))) pdata#actions;
 
-  Utils.print "bigand $f in $I: $f(0) end\nbigand $f in diff($F,$I): not $f(0) end
+  (* Prints values *)
+  Utils.print "\n Table Actions...\n";
+  let print_hash_table key list_val = Utils.print "Table entry: %s\n" ("Key: " ^ key ^ " -  Params: " ^ Utils.string_of_list " " (fun s -> s) list_val) in
+  Hashtbl.iter (fun key value -> print_hash_table key value) actions_table;
+
+  (* Adds a reference actions hashtable indexed by action name *)
+  Utils.print "\n Populating constrainsts...\n";
+  List.iter (fun a -> Hashtbl.add constraints_table (ConstraintsType.constraints_type_string (fst a)) (List.map (fun s -> s#to_string) (snd a))) pdata#constraints_list;
+
+  (*List.iter (fun a -> ConstraintsType.print_atom_list (snd a) ) pdata#constraints_list;*)
+  (* Prints values *)
+  Utils.print "\n Constraints Actions...\n";
+  Hashtbl.iter (fun key value -> print_hash_table key value) constraints_table;
+
+
+  Utils.print "\nbigand $f in $I: $f(0) end\nbigand $f in diff($F,$I): not $f(0) end
   \nbigand $f in $G: $f($length) end\nbigand $i in [1..$length]:\n  
   bigand $a in $O:\n    ($a($i) =>\n      
   ((bigand $f in $Cond($a): $f($i-1) end)\n        and\n        
@@ -293,6 +309,7 @@ end\nbigand $i in [1..$length]:\n  bigand $a1 in $O:\n    bigand $f in $Cond($a1
     Utils.print "\n$Fa = [%s]\n" (Utils.string_of_list "," Utils.to_string (Array.fold_left (fun l f -> if f#producers <> [| |] then f::l else l) [] self#fluents));
     Utils.print "\n$Fd = [%s]\n" (Utils.string_of_list "," Utils.to_string (Array.fold_left (fun l f -> if f#deleters <> [| |] then f::l else l) [] self#fluents));
     Utils.print "\n" ;
+    (*)
     Array.iter (fun a -> if (a#level <= rpg_max_level) && (a#maxlevel >= 0) then
      begin
       Utils.print "\n%s" a#to_complete_string;
@@ -310,7 +327,7 @@ end\nbigand $i in [1..$length]:\n  bigand $a1 in $O:\n    bigand $f in $Cond($a1
       ) a#idel ;
      end
     ) self#actions ;
-
+*)
 
 
 

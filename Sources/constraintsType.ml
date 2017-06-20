@@ -40,6 +40,7 @@ let print_pair f g (a, b) =
   g b;
   print_string ")";;
 
+
 (* ConstraintsType to String *)
 let constraints_type_string c =
   match c with
@@ -61,8 +62,6 @@ let print_atom_tuple tuples_list =
 print_list (print_pair constraints_type_string print_atom_list) tuples_list;;
 
 (* Hashtable to save actions by key *)
-exception Not_found;;
-
 let add_tbl tbl key data =
   let r =
     try Hashtbl.find tbl key
@@ -72,13 +71,24 @@ let add_tbl tbl key data =
        r in
     r := data :: !r
 
-let add_tbl_action tbl (key:string) (value_lst: Atom.t list) = 
-  if (Hashtbl.mem tbl key) then
+let add_tbl_action tbl  (key:string) value_lst = 
+  if  (Hashtbl.mem tbl key) then
     (* it exists *)
-    let v = Hashtbl.find tbl key in
-    let data = v @ value_lst in 
+    (*let v = Hashtbl.find tbl key in*)
+    let data = value_lst in 
     Hashtbl.add tbl key data
    else
    (* if doesn't exists *)
    Hashtbl.add tbl key value_lst
    ;;
+
+(* Returns ConstraintsType as a String *)
+let constraints_type_string c =
+  match c with
+  NecessarlyBefore -> "NecessarlyBefore"
+  | ImmediatlyLeadsTo -> "ImmediatlyLeadsTo"
+  | Choice -> "Choice"
+  | Parallel -> "Parallel"
+  | PossiblyBefore -> "PossiblyBefore"
+  | EventuallyLeadsTo -> "EventuallyLeadsTo"
+  | Fill -> "Fill";;
