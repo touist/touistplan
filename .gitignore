@@ -1,5 +1,7 @@
 *.cmo
 *.cmi
+*.cmo.icloud
+*.cmi.icloud
 .vscode/
 Sources/parser.ml
 Sources/parser.mli

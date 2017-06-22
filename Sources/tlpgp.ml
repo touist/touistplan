@@ -129,13 +129,14 @@ object (self)
  * will be automatically increased if it is too low
  *)
   val mutable actions_table = Hashtbl.create 5000;
-  val mutable constraints_table = Hashtbl.create 5000;
+  val mutable constraints_table = Hashtbl.create 10;
+  val mutable actions_constraints_table = Hashtbl.create 5000;
 
   method print_statistics = ()
   method run = self#plan_fail
 
   method virtual create_action : string -> Symb.constant array -> float -> int -> ('fluent*Timedata.t) array -> ('fluent*Timedata.t) array -> ('fluent*Timedata.t) array -> ('fluent*Timedata.t) array -> 'action
-
+                          
 (*  method search =
     let (search_time,_) = Utils.my_time "Searching plan (TLP-GP algorithm)" (fun () -> self#notimed_search) in
       Utils.eprint "Total search time : %.2f\n" search_time *)
@@ -237,14 +238,11 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
       newsubgoals := [];
     done;
 
-    (* Testing *)
-    
-(* Testing *)
-Utils.print "\n Constrainsts data: ";
-ConstraintsType.print_atom_tuple pdata#constraints_list;
-(*Utils.print "\n Actions:";
-Array.iter (fun a -> Utils.print "Action %s\n" a#to_string) pdata#actions;*)
-(* Array.iter (fun a -> Utils.print "Params: %s\n" a#name) pdata#actions; *)
+        (***********************************************)
+        (***********************************************)
+          (*Author Djamila BAROUDI (constraints Part)*)
+        (***********************************************)
+        (***********************************************)
 
   (* Testing *)
   Utils.print "\n Constrainsts data: ";
@@ -258,23 +256,84 @@ Array.iter (fun a -> Utils.print "Action %s\n" a#to_string) pdata#actions;*)
   (* Constraints goes here on List.iter over pdata#constraints_list *)
   (* We can find action list with pdata#actions as an array *)
 
- 
   (* Adds a reference actions hashtable indexed by action name *)
   Array.iter (fun a -> Hashtbl.add actions_table a#name (List.map (fun s -> s#to_string) (Array.to_list a#params))) pdata#actions;
+      Utils.print "\n =========================\n";
 
   (* Prints values *)
   Utils.print "\n Table Actions...\n";
-  let print_hash_table key list_val = Utils.print "Table entry: %s\n" ("Key: " ^ key ^ " -  Params: " ^ Utils.string_of_list " " (fun s -> s) list_val) in
-  Hashtbl.iter (fun key value -> print_hash_table key value) actions_table;
+  
+    let print_hash_table key list_val = Utils.print "Table entry: %s\n" ("Key: " ^ key ^ " -  Params: " ^ Utils.string_of_list " " (fun s -> s) list_val) in
+      Hashtbl.iter (fun key value -> print_hash_table key value) actions_table; 
+        Utils.print "\n =========================\n";
 
   (* Adds a reference actions hashtable indexed by action name *)
   Utils.print "\n Populating constrainsts...\n";
-  List.iter (fun a -> Hashtbl.add constraints_table (ConstraintsType.constraints_type_string (fst a)) (List.map (fun s -> s#to_string) (snd a))) pdata#constraints_list;
+    List.iter (fun a -> Hashtbl.add constraints_table (ConstraintsType.constraints_type_to_string (fst a)) (List.map (fun s -> s) (snd a))) pdata#constraints_list;
+   
+   (*Find all instances of a given action*)
+   List.iter (fun a -> ConstraintsType.print_list print_string a) (Hashtbl.find_all actions_table "DROP");
+      
+      (*Print all actions defined in the contraints file*)
+      Utils.print "\n Actions constraints...\n";
+          Utils.print "\n =========================\n";
+      List.iter (fun a -> ConstraintsType.print_atom_list (snd a) ) pdata#constraints_list;
+          Utils.print "\n =========================\n";
 
-  (*List.iter (fun a -> ConstraintsType.print_atom_list (snd a) ) pdata#constraints_list;*)
-  (* Prints values *)
-  Utils.print "\n Constraints Actions...\n";
-  Hashtbl.iter (fun key value -> print_hash_table key value) constraints_table;
+      (*Print all atoms' names defined in the contraints file*)
+        Utils.print "\n Atoms' names : \n ------------\n";
+          List.iter (fun a -> ConstraintsType.print_atom_list_name (snd a) ) pdata#constraints_list;
+ 
+        Utils.print "\n Atoms' names from constraints list: \n ------------ \n";
+
+    (* Create a function which allows to save  names of atoms in a list*)
+    List.iter (fun a -> ConstraintsType.print_atom_list_name2 (snd a) ) pdata#constraints_list;
+    (* Prints values *)
+    Utils.print "\n =========================\n";
+
+
+  Utils.print "\n Constraints ...\n";
+  let print_constraints_table key list_val = Utils.print "Constraints table entry: %s\n" ("Key: " ^ key ^ " -  Params: " ^ Utils.string_of_list " " (fun s -> s#to_string) list_val) in
+  Hashtbl.iter (fun key value -> print_constraints_table key value) constraints_table;
+        Utils.print "\n =========================\n";
+      
+      (*Testing if the parameters of an action are variables or not *)
+  Utils.print "\n Looping over atom's constraints terms...\n";
+  let print_atom_is_var (atom_lst: Atom.t list) = 
+    List.iter (fun atom -> Array.iter (fun term -> 
+                  if term#is_var 
+                  then Utils.print "%s\n" (term#to_string ^ " is var ")
+                  else Utils.print "%s\n" (term#to_string ^ " is not var")
+              ) atom#terms ) atom_lst in         
+  List.iter (fun atom_tuple -> print_atom_is_var (snd atom_tuple) ) pdata#constraints_list;
+
+   (* Returns all element that satisfy is_var predicates, if return empty list we have to retreive all actions from hashtbl *)
+  let terms_constant_list (terms_array: Symb.term array) = 
+    List.filter (fun term -> not term#is_var ) (Array.to_list terms_array) in
+  let print_atom_constant_actions (atom_lst: Atom.t list) = 
+  List.iter (fun atom ->  
+        let constants_list = terms_constant_list atom#terms in
+        if List.length constants_list == 0 then 
+          begin
+            Utils.print "\nWe have to get all data from %s\n" atom#pred#to_string;
+            Hashtbl.add actions_constraints_table (String.uppercase_ascii atom#pred#to_string) (Hashtbl.find_all actions_table atom#pred#to_string);
+          end
+        else
+          begin
+            Utils.print "\nWe have some data...\n";
+            List.iter (fun term -> Utils.print "%s -> " term#to_string) constants_list;
+            Utils.print "\nAction %s - List containing: %s\n" atom#pred#to_string (Utils.string_of_list " " (fun s -> s#to_string) constants_list);
+            (* Retreive all instantiated parrams of a given action *)
+            let action_list_of_list = Hashtbl.find_all actions_table (String.uppercase_ascii atom#pred#to_string) in
+            (* Loop over list of lists to save the list that containts only those in constants_list *)
+            let constant_filtered_list = List.filter (fun action_list -> 
+                              List.for_all (fun constatn_elmt -> List.mem constatn_elmt#to_string action_list) constants_list
+                                    ) action_list_of_list in
+            List.iter (fun action_lst -> Utils.print "%s\n" (Utils.string_of_list " " (fun s -> s) action_lst)) constant_filtered_list;
+            Hashtbl.add actions_constraints_table (String.uppercase_ascii atom#pred#to_string) constant_filtered_list;
+          end
+      ) atom_lst in         
+  List.iter (fun atom_tuple -> print_atom_constant_actions (snd atom_tuple) ) pdata#constraints_list;
 
 
   Utils.print "\nbigand $f in $I: $f(0) end\nbigand $f in diff($F,$I): not $f(0) end

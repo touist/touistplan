@@ -40,7 +40,6 @@ let print_pair f g (a, b) =
   g b;
   print_string ")";;
 
-
 (* ConstraintsType to String *)
 let constraints_type_string c =
   match c with
@@ -52,16 +51,49 @@ let constraints_type_string c =
   | EventuallyLeadsTo -> print_string "EventuallyLeadsTo"
   | Fill -> print_string "Fill";;
 
+let print_atom_name (atom1: Atom.t) :unit =
+  print_string atom1#pred#to_string;;
+
+let print_atom_list_name (at: Atom.t list): unit=
+  print_list print_atom_name at;;
+
+let cons_list_atom_name (atom: Atom.t) : string list =
+  let l:string list = [] in
+  List.cons atom#pred#to_string l ;;
+
+let rec append_list_atom_name (at: Atom.t list) =
+    match at with 
+    | [] -> []
+    | hd :: l -> List.append (cons_list_atom_name hd) (append_list_atom_name l) ;;
+
+
+let rec print_list_2 (lst:string list) = 
+  match lst with
+  | [] ->  print_string "."
+  | h::t -> print_string h ; print_string ", ";  print_list_2 t 
+  ;;
+
+
+let print_atom_list_name2 (at: Atom.t list)=
+  print_list_2 (append_list_atom_name at);;
+  
+ let params_atom_list (a : Symb.term array) =
+  Array.to_list a ;;    
+
+ 
+
+
 let print_atom (atom_elemt: Atom.t) : unit = 
-print_string atom_elemt#to_string
+  print_string atom_elemt#to_string
 
 let print_atom_list (atom_elemts: Atom.t list) : unit = 
-print_list print_atom atom_elemts;;
+  print_list print_atom atom_elemts;;
+
 
 let print_atom_tuple tuples_list =
-print_list (print_pair constraints_type_string print_atom_list) tuples_list;;
-
+  print_list (print_pair constraints_type_string print_atom_list) tuples_list;;
 (* Hashtable to save actions by key *)
+
 let add_tbl tbl key data =
   let r =
     try Hashtbl.find tbl key
@@ -71,19 +103,11 @@ let add_tbl tbl key data =
        r in
     r := data :: !r
 
-let add_tbl_action tbl  (key:string) value_lst = 
-  if  (Hashtbl.mem tbl key) then
-    (* it exists *)
-    (*let v = Hashtbl.find tbl key in*)
-    let data = value_lst in 
-    Hashtbl.add tbl key data
-   else
-   (* if doesn't exists *)
-   Hashtbl.add tbl key value_lst
-   ;;
+let add_tbl_action tbl key value_lst = 
+   Hashtbl.add tbl key value_lst ;;
 
 (* Returns ConstraintsType as a String *)
-let constraints_type_string c =
+let constraints_type_to_string c =
   match c with
   NecessarlyBefore -> "NecessarlyBefore"
   | ImmediatlyLeadsTo -> "ImmediatlyLeadsTo"
@@ -92,3 +116,6 @@ let constraints_type_string c =
   | PossiblyBefore -> "PossiblyBefore"
   | EventuallyLeadsTo -> "EventuallyLeadsTo"
   | Fill -> "Fill";;
+
+let tbl_to_list tbl =
+  Hashtbl.fold (fun key r accu -> (fun key l accu -> (key, l) :: accu) key !r accu) tbl []
