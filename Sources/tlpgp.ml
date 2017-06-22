@@ -307,7 +307,7 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
               ) atom#terms ) atom_lst in         
   List.iter (fun atom_tuple -> print_atom_is_var (snd atom_tuple) ) pdata#constraints_list;
 
-   (* Returns all element that satisfy is_var predicates, if return empty list we have to retreive all actions from hashtbl *)
+  (* Returns all element that satisfy is_var predicates, if return empty list we have to retreive all actions from hashtbl *)
   let terms_constant_list (terms_array: Symb.term array) = 
     List.filter (fun term -> not term#is_var ) (Array.to_list terms_array) in
   let print_atom_constant_actions (atom_lst: Atom.t list) = 
@@ -325,9 +325,15 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
             Utils.print "\nAction %s - List containing: %s\n" atom#pred#to_string (Utils.string_of_list " " (fun s -> s#to_string) constants_list);
             (* Retreive all instantiated parrams of a given action *)
             let action_list_of_list = Hashtbl.find_all actions_table (String.uppercase_ascii atom#pred#to_string) in
+            let rec find_index_of y l =
+                match l with
+                | [] -> -1
+                | h :: t -> if y = h then 0 else 1 + find_index_of y t in
+            let term_index_pos term = find_index_of term (Array.to_list atom#terms) in 
+            let action_index_pos action l = find_index_of action l in
             (* Loop over list of lists to save the list that containts only those in constants_list *)
             let constant_filtered_list = List.filter (fun action_list -> 
-                              List.for_all (fun constatn_elmt -> List.mem constatn_elmt#to_string action_list) constants_list
+                              List.for_all (fun constatn_elmt -> List.mem constatn_elmt#to_string action_list && (term_index_pos constatn_elmt) == (action_index_pos constatn_elmt#to_string action_list) ) constants_list
                                     ) action_list_of_list in
             List.iter (fun action_lst -> Utils.print "%s\n" (Utils.string_of_list " " (fun s -> s) action_lst)) constant_filtered_list;
             Hashtbl.add actions_constraints_table (String.uppercase_ascii atom#pred#to_string) constant_filtered_list;
