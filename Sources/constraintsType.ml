@@ -59,7 +59,7 @@ let print_atom_list_name (at: Atom.t list): unit=
 
 let cons_list_atom_name (atom: Atom.t) : string list =
   let l:string list = [] in
-  List.cons atom#pred#to_string l ;;
+ atom#pred#to_string::[] ;;
 
 let rec append_list_atom_name (at: Atom.t list) =
     match at with 
@@ -76,7 +76,7 @@ let rec print_list_2 (lst:string list) =
 
 let print_atom_list_name2 (at: Atom.t list)=
   print_list_2 (append_list_atom_name at);;
-  
+
  let params_atom_list (a : Symb.term array) =
   Array.to_list a ;;    
 
