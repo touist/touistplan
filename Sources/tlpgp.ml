@@ -131,6 +131,7 @@ object (self)
   val mutable actions_table = Hashtbl.create 5000;
   val mutable constraints_table = Hashtbl.create 10;
   val mutable actions_constraints_table = Hashtbl.create 5000;
+  val mutable action_terms_table = Hashtbl.create 5000;
 
   method print_statistics = ()
   method run = self#plan_fail
@@ -238,110 +239,431 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
       newsubgoals := [];
     done;
 
-        (***********************************************)
-        (***********************************************)
-          (*Author Djamila BAROUDI (constraints Part)*)
-        (***********************************************)
-        (***********************************************)
+                                          (* ====================================================== *)
+                                          (*        @author Djamila BAROUDI (Constraints Part)      *)
+                                          (* ====================================================== *)
+  
+  (*Utils.print "\n Constrainsts data: ";
+  ConstraintsType.print_atom_tuple pdata#constraints_list;*)
+  
+  (*Utils.print "\n Actions:";
+  Array.iter (fun a -> Utils.print "Action %s\n" a#to_string) pdata#actions;*)
 
-  (* Testing *)
-  Utils.print "\n Constrainsts data: ";
-  ConstraintsType.print_atom_tuple pdata#constraints_list;
-  Utils.print "\n Actions:";
-  Array.iter (fun a -> Utils.print "Action %s\n" a#to_string) pdata#actions;
-  (* Array.iter (fun a -> Utils.print "Params: %s\n" a#name) pdata#actions; *)
-  Array.iter (fun a -> Utils.print "Action with arguments %s\n" (a#name ^ " " ^ Utils.string_of_array " " (fun s -> s#to_string) a#params)) pdata#actions;
-  Utils.print "\n Action size: %i" pdata#nb_actions;
+  (*Utils.print "\n Action with arguments :";
+  Array.iter (fun a -> Utils.print "%s\n" (a#name ^ " " ^ Utils.string_of_array " " (fun s -> s#to_string) a#params)) pdata#actions;
+  *)
+
+  (*Utils.print "\n Action size: %i" pdata#nb_actions;
   Printf.printf "\n %s" (Utils.string_of_array " " (fun s -> s#to_string) pdata#actions);
-  (* Constraints goes here on List.iter over pdata#constraints_list *)
-  (* We can find action list with pdata#actions as an array *)
-
+*)
   (* Adds a reference actions hashtable indexed by action name *)
-  Array.iter (fun a -> Hashtbl.add actions_table a#name (List.map (fun s -> s#to_string) (Array.to_list a#params))) pdata#actions;
-      Utils.print "\n =========================\n";
+  (*Utils.print "\n Populating actions hash table...\n";*)
+  Array.iter (fun a -> 
+                  Hashtbl.add actions_table a#name (List.map (fun s -> s#to_string) (Array.to_list a#params))
+             ) pdata#actions;
 
   (* Prints values *)
-  Utils.print "\n Table Actions...\n";
-  
-    let print_hash_table key list_val = Utils.print "Table entry: %s\n" ("Key: " ^ key ^ " -  Params: " ^ Utils.string_of_list " " (fun s -> s) list_val) in
-      Hashtbl.iter (fun key value -> print_hash_table key value) actions_table; 
-        Utils.print "\n =========================\n";
+ (*) Utils.print "\n Table Actions...\n";*)
+  (* function s take an element s without to_string method *)
+  (*let print_hash_table key list_val = Utils.print "Table entry: %s\n" ("Key: " ^ key ^ " -  Params: " ^ Utils.string_of_list " " (fun s -> s) list_val) in
+  Hashtbl.iter (fun key value -> print_hash_table key value) actions_table; *)
 
   (* Adds a reference actions hashtable indexed by action name *)
-  Utils.print "\n Populating constrainsts...\n";
-    List.iter (fun a -> Hashtbl.add constraints_table (ConstraintsType.constraints_type_to_string (fst a)) (List.map (fun s -> s) (snd a))) pdata#constraints_list;
-   
-   (*Find all instances of a given action*)
-   List.iter (fun a -> ConstraintsType.print_list print_string a) (Hashtbl.find_all actions_table "DROP");
-      
-      (*Print all actions defined in the contraints file*)
-      Utils.print "\n Actions constraints...\n";
-          Utils.print "\n =========================\n";
-      List.iter (fun a -> ConstraintsType.print_atom_list (snd a) ) pdata#constraints_list;
-          Utils.print "\n =========================\n";
+  (*Utils.print "\n Populating constrainsts hash table...\n";*)
+  (* The key is a constraint type as string recovered from the first element of the tuple (ConstraintsType.t * Atom.t list) *)
+  List.iter (fun a -> 
+                Hashtbl.add constraints_table (ConstraintsType.constraints_type_to_string (fst a)) (snd a);
+                (* Maps every action name with it's terms *)
+                List.iter (fun atom ->
+                  Hashtbl.add action_terms_table (String.uppercase_ascii atom#pred#to_string) atom#terms
+                ) (snd a)
+            ) pdata#constraints_list;
 
-      (*Print all atoms' names defined in the contraints file*)
-        Utils.print "\n Atoms' names : \n ------------\n";
-          List.iter (fun a -> ConstraintsType.print_atom_list_name (snd a) ) pdata#constraints_list;
- 
-        Utils.print "\n Atoms' names from constraints list: \n ------------ \n";
+  (* Prints all DROP actions*)
+  (*Utils.print "\n Printing DROP actions...\n";*)
+  (*List.iter (fun a -> ConstraintsType.print_list print_string a) (Hashtbl.find_all actions_table "DROP");
+*)
+  (*Utils.print "\n Atoms' names :";
+  List.iter (fun a -> ConstraintsType.print_atom_list_name (snd a) ) pdata#constraints_list;
+*)
+  (*Utils.print "\n Atoms' names from constraints list :";*)
+  (* Create a function which allows to save  names of atoms in a list*)
+  (*List.iter (fun a -> ConstraintsType.print_atom_list_name2 (snd a) ) pdata#constraints_list;*)
 
-    (* Create a function which allows to save  names of atoms in a list*)
-    List.iter (fun a -> ConstraintsType.print_atom_list_name2 (snd a) ) pdata#constraints_list;
-    (* Prints values *)
-    Utils.print "\n =========================\n";
-
-
-  Utils.print "\n Constraints ...\n";
-  let print_constraints_table key list_val = Utils.print "Constraints table entry: %s\n" ("Key: " ^ key ^ " -  Params: " ^ Utils.string_of_list " " (fun s -> s#to_string) list_val) in
-  Hashtbl.iter (fun key value -> print_constraints_table key value) constraints_table;
-        Utils.print "\n =========================\n";
-      
-      (*Testing if the parameters of an action are variables or not *)
-  Utils.print "\n Looping over atom's constraints terms...\n";
-  let print_atom_is_var (atom_lst: Atom.t list) = 
+  (* Prints constraints terms' values *)
+ (*) Utils.print "\n Looping over atom's constraints terms...\n";*)
+  (*let print_atom_is_var (atom_lst: Atom.t list) = 
     List.iter (fun atom -> Array.iter (fun term -> 
                   if term#is_var 
-                  then Utils.print "%s\n" (term#to_string ^ " is var ")
-                  else Utils.print "%s\n" (term#to_string ^ " is not var")
+                  (*then Utils.print "%s\n" (term#to_string ^ " is var ")*)
+                  (*else Utils.print "%s\n" (term#to_string ^ " is not var")*)
               ) atom#terms ) atom_lst in         
-  List.iter (fun atom_tuple -> print_atom_is_var (snd atom_tuple) ) pdata#constraints_list;
+  List.iter (fun atom_tuple -> print_atom_is_var (snd atom_tuple) ) pdata#constraints_list;*)
 
-  (* Returns all element that satisfy is_var predicates, if return empty list we have to retreive all actions from hashtbl *)
-  let terms_constant_list (terms_array: Symb.term array) = 
-    List.filter (fun term -> not term#is_var ) (Array.to_list terms_array) in
-  let print_atom_constant_actions (atom_lst: Atom.t list) = 
-  List.iter (fun atom ->  
-        let constants_list = terms_constant_list atom#terms in
-        if List.length constants_list == 0 then 
+
+  (* ====================================================== *)
+  (* Returns all element that satisfy is_var predicates, 
+     if return empty list we have to retreive 
+     all actions from hashtbl                               *)
+  (* ====================================================== *)
+
+  let rec find_index_of y l =
+      match l with
+      | [] -> -1
+      | h :: t -> if y = h then 0 else 1 + find_index_of y t in
+
+  let term_index_pos (atom: Atom.t) (term: Symb.term) = 
+    find_index_of term (Array.to_list atom#terms) in 
+
+  let action_index_pos action action_lst = 
+    find_index_of action action_lst in
+
+  let action_list_of_list (atom: Atom.t) = 
+      Hashtbl.find_all actions_table (String.uppercase_ascii atom#pred#to_string) in
+
+  (* retreive a list of all terms' list of given action *)
+  let term_list_of_list (atom_name: string) = 
+    List.map (fun arr_term -> Array.to_list arr_term) (Hashtbl.find_all action_terms_table (String.uppercase_ascii atom_name)) in
+
+  (* returns a list with var terms *)
+  let terms_variable_list (terms: Symb.term array) = 
+    List.filter ( fun term -> term#is_var ) ( Array.to_list terms ) in
+
+  let terms_constant_list (terms: Symb.term array) = 
+    List.filter ( fun term -> not term#is_var ) ( Array.to_list terms ) in
+
+  let compute_atom_actions (const_type: string) (atom_lst: Atom.t list) = 
+    (* clear constraints table for each constraints type *)
+    Hashtbl.clear actions_constraints_table;
+
+    List.iter (fun atom -> 
+        let atom_name = atom#pred#to_string in
+        let terms = atom#terms in
+        
+        let variable_list = 
+          terms_variable_list terms in
+        if (List.length variable_list) <> 0 then
           begin
-            Utils.print "\nWe have to get all data from %s\n" atom#pred#to_string;
-            Hashtbl.add actions_constraints_table (String.uppercase_ascii atom#pred#to_string) (Hashtbl.find_all actions_table atom#pred#to_string);
-          end
-        else
+            let variable_filtered_list = 
+              List.filter (fun term_list -> 
+                              List.for_all (fun variable_elmt -> 
+                                              List.mem variable_elmt term_list
+                                           ) variable_list
+                          ) (term_list_of_list atom_name) in
+            List.iter (fun elm -> print_string "" ) variable_filtered_list;
+          end;
+          
+        let constants_list = 
+          terms_constant_list terms in
+        if (List.length constants_list) <> 0 then 
           begin
-            Utils.print "\nWe have some data...\n";
-            List.iter (fun term -> Utils.print "%s -> " term#to_string) constants_list;
-            Utils.print "\nAction %s - List containing: %s\n" atom#pred#to_string (Utils.string_of_list " " (fun s -> s#to_string) constants_list);
             (* Retreive all instantiated parrams of a given action *)
-            let action_list_of_list = Hashtbl.find_all actions_table (String.uppercase_ascii atom#pred#to_string) in
-            let rec find_index_of y l =
-                match l with
-                | [] -> -1
-                | h :: t -> if y = h then 0 else 1 + find_index_of y t in
-            let term_index_pos term = find_index_of term (Array.to_list atom#terms) in 
-            let action_index_pos action l = find_index_of action l in
+            (*List.iter (fun term -> Utils.print "%s -> " term#to_string) constants_list;*)
+            (*Utils.print "\nAction %s - List containing: %s\n" atom#pred#to_string (Utils.string_of_list " " (fun s -> s#to_string) constants_list);*)
+            
             (* Loop over list of lists to save the list that containts only those in constants_list *)
-            let constant_filtered_list = List.filter (fun action_list -> 
-                              List.for_all (fun constatn_elmt -> List.mem constatn_elmt#to_string action_list && (term_index_pos constatn_elmt) == (action_index_pos constatn_elmt#to_string action_list) ) constants_list
-                                    ) action_list_of_list in
-            List.iter (fun action_lst -> Utils.print "%s\n" (Utils.string_of_list " " (fun s -> s) action_lst)) constant_filtered_list;
+            let constant_filtered_list = 
+              List.filter (fun action_list -> 
+                              List.for_all (fun constatn_elmt -> 
+                                              List.mem constatn_elmt#to_string action_list && (term_index_pos atom constatn_elmt) == (action_index_pos constatn_elmt#to_string action_list) 
+                                           ) constants_list
+                          ) (action_list_of_list atom) in
+            (*List.iter (fun action_lst -> Utils.print "%s\n" (Utils.string_of_list " " (fun s -> s) action_lst)) constant_filtered_list;*)
             Hashtbl.add actions_constraints_table (String.uppercase_ascii atom#pred#to_string) constant_filtered_list;
           end
-      ) atom_lst in         
-  List.iter (fun atom_tuple -> print_atom_constant_actions (snd atom_tuple) ) pdata#constraints_list;
+      ) atom_lst 
+      
+      in   
+  (* Compute atom list for each constraints type *)      
+  List.iter (fun atom_tuple -> compute_atom_actions (ConstraintsType.constraints_type_to_string (fst atom_tuple)) (snd atom_tuple) ) pdata#constraints_list;
 
 
+  let changedash s = 
+      (String.map (fun c -> if c=='-' then '_' else c) s) in
+
+  let rec find_index_of y l =
+      match l with
+      | [] -> -1
+      | h :: t -> if y = h then 0 else 1 + find_index_of y t in
+
+  let term_index_pos (atom: Atom.t) (term: Symb.term) = 
+    find_index_of term (Array.to_list atom#terms) in 
+
+  let action_index_pos action action_lst = 
+    find_index_of action action_lst in
+
+  let action_list_of_list (atom_name : string) = 
+      Hashtbl.find_all actions_table (String.uppercase_ascii atom_name) in
+
+  (* retreive a list of all terms' list of given action *)
+  let term_list_of_list (atom_name: string) = 
+    List.map (fun arr_term -> Array.to_list arr_term) (Hashtbl.find_all action_terms_table (String.uppercase_ascii atom_name)) in
+
+  (* returns a list with var terms *)
+  let terms_variable_list (terms: Symb.term array) = 
+    List.filter ( fun term -> term#is_var ) ( Array.to_list terms ) in
+
+  let terms_constant_list (terms: Symb.term array) = 
+    List.filter ( fun term -> not term#is_var ) ( Array.to_list terms ) in
+
+  let compute_atom_actions (const_type: ConstraintsType.constraints_t) (atom_lst: Atom.t list) = 
+    (* Utils.print "==================================================================\n"; *)
+    (* clear constraints table for each constraints type *)
+
+    let fst_atom = List.nth atom_lst 0 in
+    let fst_atom_name = fst_atom#pred#to_string in
+    let fst_atom_terms = fst_atom#terms in
+
+    let snd_atom = List.nth atom_lst 1 in
+    let snd_atom_name = snd_atom#pred#to_string in
+    let snd_atom_terms = snd_atom#terms in
+
+    let fst_variable_list = 
+      terms_variable_list fst_atom_terms in
+
+    let snd_variable_list = 
+      terms_variable_list snd_atom_terms in
+
+    let fst_constants_list = 
+      terms_constant_list fst_atom_terms in
+    
+    let snd_constants_list = 
+      terms_constant_list snd_atom_terms in
+
+    (* List filtered by constant name and position *)
+    let fst_actions_list =
+      List.filter (fun action_list -> 
+                  List.for_all (fun term -> 
+                      List.mem term#to_string action_list && (term_index_pos fst_atom term) == (action_index_pos term#to_string action_list) 
+                    ) fst_constants_list
+                  ) (action_list_of_list fst_atom_name) in
+
+    let snd_actions_list =
+      List.filter (fun action_list -> 
+                  List.for_all (fun term -> 
+                      List.mem term#to_string action_list && (term_index_pos snd_atom term) == (action_index_pos term#to_string action_list) 
+                    ) snd_constants_list
+                  ) (action_list_of_list snd_atom_name) in
+    
+    (* Combining actions *)
+    (*let print_size_lists = 
+        Utils.print "Size action lists: %d - %d\n" (List.length fst_actions_list) (List.length snd_actions_list) in
+    let print_fst_lists = 
+      List.iter (fun elmt -> Utils.print "%s\n" (Utils.string_of_list " " (fun s -> s) elmt)) fst_actions_list in
+    let print_a_sep = 
+      Utils.print "<>\n" in *)
+
+    (*let print_snd_lists = 
+      List.iter (fun elmt -> Utils.print "%s\n" (Utils.string_of_list " " (fun s -> s) elmt)) snd_actions_list in*)
+    
+    let snd_action_filter_list (lactions: string list list) (lvar: Symb.term list) =
+      let filter_list_ref = ref [] in
+      let can_be_filtered = ref true in
+      let do_filter_snd (fst_action: string list) (snd_action: string list) = 
+        can_be_filtered := List.for_all (fun var_term -> 
+                              let index = (term_index_pos fst_atom var_term) in
+                              let fst_var_term_value = (List.nth fst_action index) in
+                              let snd_elmt_value = (List.nth snd_action index) in
+                              if String.equal snd_elmt_value fst_var_term_value then
+                                begin
+                                  (*Utils.print "%s equal %s " snd_elmt_value fst_var_term_value;*)
+                                  true
+                                end
+                              else
+                                begin 
+                                  (*Utils.print "%s not equal %s " snd_elmt_value fst_var_term_value;*)
+                                  false
+                                end
+                            ) lvar;
+
+      if !can_be_filtered then
+        begin
+          (*Utils.print "\nFound list\n";*)
+          filter_list_ref := snd_action :: !filter_list_ref;
+        end
+      (*else
+        begin
+          Utils.print "\nNot Found list\n";
+        end *)in
+      
+      List.iter (fun fst_action ->
+        List.iter (fun snd_action -> 
+            do_filter_snd fst_action snd_action
+        ) snd_actions_list
+      ) fst_actions_list;
+
+      (List.rev !filter_list_ref) in
+      (*List.iter2 (fun fst_action snd_action -> 
+              can_be_filtered :=   
+                List.for_all (fun var_term -> 
+                  Utils.print "in fct";
+                  let index = (term_index_pos fst_atom var_term) in
+                  let fst_var_term_value = (List.nth fst_action index) in
+                  let snd_elmt_value = (List.nth snd_action index) in
+                  if (String.equal snd_elmt_value fst_var_term_value) then
+                    begin
+                      Utils.print "%s equal %s " snd_elmt_value fst_var_term_value;
+                      true
+                    end
+                  else
+                    begin 
+                      Utils.print "%s not equal %s " snd_elmt_value fst_var_term_value;
+                      false
+                    end
+                )lvar;
+
+          if !can_be_filtered then
+            begin
+              Utils.print "\nFound list\n";
+              filter_list_ref := snd_action :: !filter_list_ref;
+            end
+          else
+            begin
+              Utils.print "\nNot Found list\n";
+            end
+
+        ) fst_actions_list snd_actions_list in *)
+    
+    match const_type with
+     | ConstraintsType.NecessarlyBefore -> if (List.length fst_variable_list) <> 0 then
+                                              begin
+                                                (* Utils.print "\n%s - %s\n" fst_atom_name snd_atom_name; *)
+                                                let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
+                                                (* List.iter (fun elmt -> Utils.print "%s\n" (Utils.string_of_list " " (fun s -> s) elmt)) snd_actions_filtered_list; *)
+                                                (* Utils.print "\nFiltered list size %d\n" ( List.length snd_actions_filtered_list); 
+                                                Utils.print "\nStart combining...\n";*)
+
+                                                let snf_fltr_action_lst fst_lst = 
+                                                    List.filter ( fun elt -> 
+                                                      List.for_all (fun fst_var_term -> 
+                                                      let index = 
+                                                        (term_index_pos fst_atom fst_var_term) in
+                                                      let fst_var_term_string =
+                                                        fst_var_term#to_string in
+                                                      let fst_var_term_value = 
+                                                        String.uppercase_ascii  (try List.nth fst_lst index with Not_found -> "") in
+                                                      
+                                                      let snd_elmt_value = 
+                                                        String.uppercase_ascii (try List.nth elt index with Not_found -> "") in
+                                                      let snd_var_term = 
+                                                        List.nth (Array.to_list snd_atom_terms) index in
+                                                      let snd_var_term_string =
+                                                        snd_var_term#to_string in
+                                                      
+                                                      if not snd_var_term#is_var && fst_var_term#is_var && not (String.equal snd_var_term_string fst_var_term_string) then
+                                                          true
+                                                      else
+                                                      if String.length fst_var_term_value <> 0 
+                                                        && String.length snd_elmt_value <> 0 
+                                                        && String.equal snd_elmt_value fst_var_term_value then
+                                                          true
+                                                      else 
+                                                        if snd_var_term#is_var && not (String.equal fst_var_term_string snd_var_term_string) then
+                                                          true
+                                                      else
+                                                          false
+                                                    ) fst_variable_list 
+                                                  ) snd_actions_filtered_list in
+                                                
+                                                List.iter ( fun fst_lst ->
+                                                  (*let snd_list_to_loop = 
+                                                    if List.length snd_constants_list <> 0 then 
+                                                      snd_actions_filtered_list
+                                                    else 
+                                                      snf_fltr_action_lst fst_lst in*)
+                                                  List.iter ( fun snd_lst ->
+
+                                                 (*) Utils.print "(%s, %s), " ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst ) ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) *)
+                                                  Utils.print "\n bigand $i in [1..$length]:\n  %s($i) =>\n   bigor $j in [1..$i]:\n    %s($j) and  bigand $j in [$i+1  .. $length]: \n    not %s($j) \n   end \n   end\n end\n"  
+                                                  ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst ) 
+                                                  ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
+                                                  ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
+                                                  ) (snf_fltr_action_lst fst_lst) (*snd_list_to_loop*)
+                                                ) fst_actions_list;
+                                                (*Utils.print "]";
+                                                Utils.print "\n bigand $i in [1..$length]:\n  $a1($i) in $C =>\n   bigor $j in [1..$i]:\n    $a2($j) in $C and  bigand $j in [$i+1  .. $length]: \n    not $a2($j) in $C \n   end \n   end\n end\n" ;
+*)
+                                              end
+
+      | _ -> Utils.print "\nError unsupported constraint type\n"
+     
+      in   
+  (* Compute atom list for each constraints type *)      
+  List.iter (fun atom_tuple -> compute_atom_actions (fst atom_tuple) (snd atom_tuple) ) pdata#constraints_list;
+
+
+                                            (* ====================================================== *)
+                                            (*      Necessarly before product scalar of actions       *)
+                                            (* ====================================================== *)
+
+  (* Prints the translation 
+  ;;-------------------------------
+  ;; Necessarly before
+  ;;-------------------------------
+
+  bigand $i in [1..$k]: 
+    B($i) => 
+      bigor $j in [1..$i]: 
+        A($j) and  bigand $j in [$i+1  .. $k]: 
+                not A($j) 
+              end
+          end
+  end
+  *)
+
+
+
+                                              (* ====================================================== *)
+                                              (*      PossiblyBefore product scalar of actions          *)
+                                              (* ====================================================== *)
+
+
+(*bigand $i in [1..$k]: 
+	B($i) => bigand $j in [$i+1  .. $k]: 
+	not A($j) 
+			end
+end*)
+(*
+  let possibly_before_action_names_list = ref [] in
+    List.iter (fun atom -> possibly_before_action_names_list := (String.uppercase_ascii atom#pred#to_string) :: !possibly_before_action_names_list ) (Hashtbl.find constraints_table "PossiblyBefore");
+
+  if (List.length !possibly_before_action_names_list) > 0 then  
+  begin
+    let changedash s = (String.map (fun c -> if c=='-' then '_' else c) s) in
+      let possibly_before_fst = 
+        List.nth (List.rev !possibly_before_action_names_list) 0 in
+      let possibly_before_snd = 
+        List.nth (List.rev !possibly_before_action_names_list) 1 in
+      
+      let possibly_before_fst_lst = 
+        (let rlst = ref [] in 
+            (List.iter 
+                (fun lst -> rlst := lst @ !rlst) 
+                (Hashtbl.find_all actions_constraints_table possibly_before_fst)
+            ); 
+            rlst) in
+
+      let possibly_before_snd_lst = 
+        (let rlst = ref [] in 
+            (List.iter 
+                (fun lst -> rlst := lst @ !rlst) 
+                (Hashtbl.find_all actions_constraints_table possibly_before_snd)
+            ); 
+            rlst) in
+
+        List.iter ( fun lst_one ->
+            List.iter ( fun lst_two ->
+                      Utils.print "
+                            \n bigand $i in [1..$length]:\n  %s($i) => \n  bigand $j in [$i+1..$length]: \n   not %s($j) \n  end\n end\n" 
+                              ( (changedash possibly_before_fst) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) lst_one)  
+                              ( (changedash possibly_before_snd) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) lst_two); 
+                    ) !possibly_before_snd_lst
+                ) !possibly_before_fst_lst;
+  end;
+ (***************************************************)
+          (******** choice *******)
+  (***************************************************)
+*)
   Utils.print "\nbigand $f in $I: $f(0) end\nbigand $f in diff($F,$I): not $f(0) end
   \nbigand $f in $G: $f($length) end\nbigand $i in [1..$length]:\n  
   bigand $a in $O:\n    ($a($i) =>\n      
@@ -374,7 +696,7 @@ end\nbigand $i in [1..$length]:\n  bigand $a1 in $O:\n    bigand $f in $Cond($a1
     Utils.print "\n$Fa = [%s]\n" (Utils.string_of_list "," Utils.to_string (Array.fold_left (fun l f -> if f#producers <> [| |] then f::l else l) [] self#fluents));
     Utils.print "\n$Fd = [%s]\n" (Utils.string_of_list "," Utils.to_string (Array.fold_left (fun l f -> if f#deleters <> [| |] then f::l else l) [] self#fluents));
     Utils.print "\n" ;
-    (*)
+    
     Array.iter (fun a -> if (a#level <= rpg_max_level) && (a#maxlevel >= 0) then
      begin
       Utils.print "\n%s" a#to_complete_string;
@@ -392,7 +714,7 @@ end\nbigand $i in [1..$length]:\n  bigand $a1 in $O:\n    bigand $f in $Cond($a1
       ) a#idel ;
      end
     ) self#actions ;
-*)
+
 
 
 

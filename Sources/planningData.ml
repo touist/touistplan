@@ -97,10 +97,10 @@ method private parse_constraints =
   let stream = open_in Sys.argv.(3) in
   let lexbuf = Lexing.from_channel stream in
     Parser.constraints Lexer.token lexbuf);
-    Utils.print "Constraitns content...\n";
+    (*Utils.print "Constraitns content...\n";
 (* Printing Constraints values *)
     ConstraintsType.print_atom_tuple constraints#cst;
-    Utils.print "\n"
+    Utils.print "\n"*)
 
   (*
     Fluent creation

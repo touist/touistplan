@@ -74,6 +74,22 @@ let rec print_list_2 (lst:string list) =
   ;;
 
 
+  let rec find_index_of y l =
+      match l with
+      | [] -> -1
+      | h :: t -> if y = h then 0 else 1 + find_index_of y t
+      ;;
+
+  let term_index_pos (atom: Atom.t) (term: Symb.term) = 
+      find_index_of term (Array.to_list atom#terms);;
+
+  
+  let action_index_pos action action_lst = 
+      find_index_of action action_lst;;
+
+
+
+
 let print_atom_list_name2 (at: Atom.t list)=
   print_list_2 (append_list_atom_name at);;
 
