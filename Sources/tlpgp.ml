@@ -508,6 +508,31 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
                                                       ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
                                                     ) fst_actions_list;
                                                   end
+(*
+bigand $i in [1..$k]: 
+	A($i) => bigand $j in [1  .. $i-1]: 
+	not B($j)  and bigand $j in [$i+1..$k]:
+	  					not B($j)  
+				   end
+			  end
+end
+*)
+                                                  
+    | ConstraintsType.Parallel -> if (List.length fst_variable_list) >= 0 then
+                                                  begin
+                                                    let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
+                                                  
+                                                    List.iter ( fun fst_lst ->
+                                                      List.iter ( fun snd_lst ->
+
+                                                      Utils.print "\n bigand $i in [1..$length]:\n  %s($i) =>\n   bigand $j in [1..$i-1]:\n    not %s($j) \n and \n bigand $j in [$i+1..$length]: not %s($j) end \n end\n end \n"  
+                                                      ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst )
+                                                      ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
+                                                      ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
+                                                      ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
+                                                    ) fst_actions_list;
+                                                  end
+                                                  
 
       | _ -> Utils.print "\nError unsupported constraint type\n"
      
