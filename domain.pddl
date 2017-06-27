@@ -17,7 +17,6 @@
 :effect (and (carry ?z ?x)
 (not (at-ball ?x ?y)) (not (free ?z))))
 
-
 (:action drop :parameters (?x ?y ?z)
 :precondition (and (BALL ?x) (ROOM ?y) (GRIPPER ?z)
 (carry ?z ?x) (at-robby ?y))

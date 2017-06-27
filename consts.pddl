@@ -1,21 +1,18 @@
 (define (constraints GripperCst)
 (:cdomain GRIPPER)
 
-(:NecessarlyBefore (move ?x ?y) (pick-up ball1 ?g ?y))
+(:NecessarlyBefore (pick-up  ball2 rooma left) (drop  ball2 roomb left))
 
-;;(:PossiblyBefore (action1, action2) )
+(:PossiblyBefore (drop  ball1 roomb left) (pick-up ball2 rooma left) )
 
-;;(:choice (action1, action1))
+(:Choice (pick-up ball1 rooma left) (pick-up ball1 rooma right))
 
-;;(:ImmediatlyLeadsTo (action5, action6))
+(:Parallel (pick-up ball1 ?y left) (pick-up ball2 ?y right))
 
-;;(:EventuallyLeadsTo (action7, action8))
+(:ImmediatlyLeadsTo (pick-up ball1 ?y left) (move ?a ?b))
 
-;;(:Parallel (action9 ,action10))
+(:EventuallyLeadsTo (pick-up  ?x rooma ?z) (drop  ?x roomb ?z))
 
-;;(:Fill (action11, act12, action13))
-
-;;(:Parallel (move1, action10, act1))
 
 
 )

@@ -545,12 +545,7 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
                                                     ) fst_actions_list;
                                                   end
 
-(*
-bigand $i in [1..$k]: 
-	A($i) => bigor $j in [$i+1  .. $k]: 
-				B($j)  
-	         end
-end      *)       
+   
 
                                               (* ====================================================== *)
                                               (*      EventuallyLeadsTo translation to Touistl       *)
