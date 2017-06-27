@@ -456,6 +456,18 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
                                           (* ====================================================== *)
                                           (*      Necessarly before translation to Touistl       *)
                                           (* ====================================================== *)
+     
+(*bigand $i in [1..$k]: 
+	B($i) => 
+		(bigor $j in [1..$i-1]: 
+	
+			A($j) end 
+			and  bigand $j in [$i  .. $k]: 
+							not A($j) 
+					   
+        end)
+end  *)   
+     
      | ConstraintsType.NecessarlyBefore -> if (List.length fst_variable_list) >= 0 then
                                               begin
                                                 let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
@@ -463,10 +475,11 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
                                                 List.iter ( fun fst_lst ->
                                                   List.iter ( fun snd_lst ->
 
-                                                  Utils.print "\n bigand $i in [1..$length]:\n  %s($i) =>\n   bigor $j in [1..$i]:\n    %s($j) and  bigand $j in [$i+1  .. $length]: \n    not %s($j) \n   end \n   end\n end\n"  
+                                                  Utils.print "\n bigand $i in [1..$length]:\n  %s($i) =>\n  (bigor $j in [1..$i-1]:\n    %s($j) end\n and  bigand $j in [$i..$length]: \n    not %s($j) \n   end ) \n \n end\n"  
+                                                  ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
                                                   ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst ) 
-                                                  ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
-                                                  ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
+                                                  ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst ) 
+
                                                  
                                                   ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
                                                 ) fst_actions_list;

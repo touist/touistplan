@@ -1,5 +1,7 @@
 *.cmo
 *.cmi
+*.touistl
+*.pddl
 *.cmo.icloud
 *.cmi.icloud
 .vscode/
@@ -7,3 +9,4 @@ Sources/parser.ml
 Sources/parser.mli
 Sources/lexer.ml
 pddl2touistl
+tlpgp-Copie
