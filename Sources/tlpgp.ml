@@ -454,7 +454,7 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
     ) snd_actions_filtered_list in
     match const_type with
                                           (* ====================================================== *)
-                                          (*      Necessarly before product scalar of actions       *)
+                                          (*      Necessarly before translation to Touistl       *)
                                           (* ====================================================== *)
      | ConstraintsType.NecessarlyBefore -> if (List.length fst_variable_list) >= 0 then
                                               begin
@@ -473,7 +473,7 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
                                               end
 
                                               (* ====================================================== *)
-                                              (*      Possibly before product scalar of actions       *)
+                                              (*      Possibly before translation to Touistl       *)
                                               (* ====================================================== *)
     | ConstraintsType.PossiblyBefore -> if (List.length fst_variable_list) >= 0 then
                                                   begin
@@ -490,7 +490,7 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
                                                     ) fst_actions_list;
                                                   end
                                               (* ====================================================== *)
-                                              (*      Choice product scalar of actions       *)
+                                              (*      Choice translation to Touistl       *)
                                               (* ====================================================== *)
 
     | ConstraintsType.Choice -> if (List.length fst_variable_list) >= 0 then
@@ -508,15 +508,9 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
                                                       ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
                                                     ) fst_actions_list;
                                                   end
-(*
-bigand $i in [1..$k]: 
-	A($i) => bigand $j in [1  .. $i-1]: 
-	not B($j)  and bigand $j in [$i+1..$k]:
-	  					not B($j)  
-				   end
-			  end
-end
-*)
+                                              (* ====================================================== *)
+                                              (*      Parallel translation to Touistl       *)
+                                              (* ====================================================== *)
                                                   
     | ConstraintsType.Parallel -> if (List.length fst_variable_list) >= 0 then
                                                   begin
@@ -532,8 +526,49 @@ end
                                                       ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
                                                     ) fst_actions_list;
                                                   end
-                                                  
+                                              
+                                              (* ====================================================== *)
+                                              (*      ImmediatlyLeadsTo translation to Touistl       *)
+                                              (* ====================================================== *)                                             
 
+    | ConstraintsType.ImmediatlyLeadsTo -> if (List.length fst_variable_list) >= 0 then
+                                                  begin
+                                                    let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
+                                                  
+                                                    List.iter ( fun fst_lst ->
+                                                      List.iter ( fun snd_lst ->
+
+                                                      Utils.print "\n bigand $i in [1..$length]:\n  %s($i) => %s($i+1)\n end \n"  
+                                                      ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst )
+                                                      ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
+                                                      ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
+                                                    ) fst_actions_list;
+                                                  end
+
+(*
+bigand $i in [1..$k]: 
+	A($i) => bigor $j in [$i+1  .. $k]: 
+				B($j)  
+	         end
+end      *)       
+
+                                              (* ====================================================== *)
+                                              (*      EventuallyLeadsTo translation to Touistl       *)
+                                              (* ====================================================== *)                                             
+
+    | ConstraintsType.EventuallyLeadsTo -> if (List.length fst_variable_list) >= 0 then
+                                                  begin
+                                                    let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
+                                                  
+                                                    List.iter ( fun fst_lst ->
+                                                      List.iter ( fun snd_lst ->
+
+                                                      Utils.print "\n bigand $i in [1..$length]:\n  %s($i) => \n bigor $j in  [$i+1..$length]: %s($j)\n end \n end\n"  
+                                                      ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst )
+                                                      ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
+                                                      ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
+                                                    ) fst_actions_list;
+                                                  end                
       | _ -> Utils.print "\nError unsupported constraint type\n"
      
       in   
