@@ -453,10 +453,9 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
       ) fst_variable_list 
     ) snd_actions_filtered_list in
     match const_type with
-                                          (* ====================================================== *)
-                                          (*      Necessarly before translation to Touistl       *)
-                                          (* ====================================================== *)
-     
+(* ====================================================== *)
+(*        Necessarly before translation to Touistl        *)
+(* ====================================================== *)
 (*bigand $i in [1..$k]: 
 	B($i) => 
 		(bigor $j in [1..$i-1]: 
@@ -469,114 +468,145 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
 end  *)   
      
      | ConstraintsType.NecessarlyBefore -> if (List.length fst_variable_list) >= 0 then
-                                              begin
-                                                let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
-                                              
-                                                List.iter ( fun fst_lst ->
-                                                  List.iter ( fun snd_lst ->
+                                            begin
+                                              let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
+                                            
+                                              List.iter ( fun fst_lst ->
+                                                List.iter ( fun snd_lst ->
 
-                                                  Utils.print "\n bigand $i in [1..$length]:\n  %s($i) =>\n  (bigor $j in [1..$i-1]:\n    %s($j) end\n and  bigand $j in [$i..$length]: \n    not %s($j) \n   end ) \n \n end\n"  
-                                                  ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
-                                                  ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst ) 
-                                                  ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst ) 
+                                                Utils.print "\n bigand $i in [1..$length]:\n  %s($i) =>\n  (bigor $j in [1..$i-1]:\n    %s($j) end\n and  bigand $j in [$i..$length]: \n    not %s($j) \n   end ) \n \n end\n"  
+                                                ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
+                                                ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst ) 
+                                                ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst ) 
 
-                                                 
-                                                  ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
-                                                ) fst_actions_list;
-                                              end
+                                                
+                                                ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
+                                              ) fst_actions_list;
+                                            end
 
-                                              (* ====================================================== *)
-                                              (*      Possibly before translation to Touistl       *)
-                                              (* ====================================================== *)
+    (* ====================================================== *)
+    (*          Possibly before translation to Touistl        *)
+    (* ====================================================== *)
     | ConstraintsType.PossiblyBefore -> if (List.length fst_variable_list) >= 0 then
-                                                  begin
-                                                    let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
-                                                  
-                                                    List.iter ( fun fst_lst ->
-                                                      List.iter ( fun snd_lst ->
+                                          begin
+                                            let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
+                                          
+                                            List.iter ( fun fst_lst ->
+                                              List.iter ( fun snd_lst ->
 
-                                                      Utils.print "\n bigand $i in [1..$length]:\n  %s($i) =>\n   bigand $j in [$i+1..$length]:\n    not %s($j) \n end \n end\n"  
-                                                      ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst ) 
-                                                      ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
-                                                    
-                                                      ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
-                                                    ) fst_actions_list;
-                                                  end
-                                              (* ====================================================== *)
-                                              (*      Choice translation to Touistl       *)
-                                              (* ====================================================== *)
-
+                                              Utils.print "\n bigand $i in [1..$length]:\n  %s($i) =>\n   bigand $j in [$i+1..$length]:\n    not %s($j) \n end \n end\n"  
+                                              ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst ) 
+                                              ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
+                                            
+                                              ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
+                                            ) fst_actions_list;
+                                          end
+    (* ====================================================== *)
+    (*                Choice translation to Touistl           *)
+    (* ====================================================== *)
     | ConstraintsType.Choice -> if (List.length fst_variable_list) >= 0 then
-                                                  begin
-                                                    let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
-                                                  
-                                                    List.iter ( fun fst_lst ->
-                                                      List.iter ( fun snd_lst ->
+                                  begin
+                                    let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
+                                  
+                                    List.iter ( fun fst_lst ->
+                                      List.iter ( fun snd_lst ->
 
-                                                      Utils.print "\n bigand $i in [1..$length]:\n  %s($i) =>\n   bigand $j in [1..$length]:\n    not %s($j) \n and %s($i) =>\n bigand $j in [1..$length]:\n not %s($j) end \n end\n end \n"  
-                                                      ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst ) 
-                                                      ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
-                                                      ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
-                                                      ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst )                                                     
-                                                      ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
-                                                    ) fst_actions_list;
-                                                  end
-                                              (* ====================================================== *)
-                                              (*      Parallel translation to Touistl       *)
-                                              (* ====================================================== *)
-                                                  
+                                      Utils.print "\n bigand $i in [1..$length]:\n  %s($i) =>\n   bigand $j in [1..$length]:\n    not %s($j) \n and %s($i) =>\n bigand $j in [1..$length]:\n not %s($j) end \n end\n end \n"  
+                                      ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst ) 
+                                      ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
+                                      ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
+                                      ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst )                                                     
+                                      ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
+                                    ) fst_actions_list;
+                                  end
+    (* ====================================================== *)
+    (*               Parallel translation to Touistl          *)
+    (* ====================================================== *)
     | ConstraintsType.Parallel -> if (List.length fst_variable_list) >= 0 then
-                                                  begin
-                                                    let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
-                                                  
-                                                    List.iter ( fun fst_lst ->
-                                                      List.iter ( fun snd_lst ->
+                                    begin
+                                      let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
+                                    
+                                      List.iter ( fun fst_lst ->
+                                        List.iter ( fun snd_lst ->
 
-                                                      Utils.print "\n bigand $i in [1..$length]:\n  %s($i) =>\n   bigand $j in [1..$i-1]:\n    not %s($j) \n and \n bigand $j in [$i+1..$length]: not %s($j) end \n end\n end \n"  
-                                                      ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst )
-                                                      ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
-                                                      ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
-                                                      ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
-                                                    ) fst_actions_list;
-                                                  end
+                                        Utils.print "\n bigand $i in [1..$length]:\n  %s($i) =>\n   bigand $j in [1..$i-1]:\n    not %s($j) \n and \n bigand $j in [$i+1..$length]: not %s($j) end \n end\n end \n"  
+                                        ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst )
+                                        ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
+                                        ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
+                                        ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
+                                      ) fst_actions_list;
+                                    end
                                               
-                                              (* ====================================================== *)
-                                              (*      ImmediatlyLeadsTo translation to Touistl       *)
-                                              (* ====================================================== *)                                             
+    (* ====================================================== *)
+    (*      ImmediatlyLeadsTo translation to Touistl       *)
+    (* ====================================================== *)                                             
 
     | ConstraintsType.ImmediatlyLeadsTo -> if (List.length fst_variable_list) >= 0 then
-                                                  begin
-                                                    let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
-                                                  
-                                                    List.iter ( fun fst_lst ->
-                                                      List.iter ( fun snd_lst ->
+                                            begin
+                                              let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
+                                            
+                                              List.iter ( fun fst_lst ->
+                                                List.iter ( fun snd_lst ->
 
-                                                      Utils.print "\n bigand $i in [1..$length]:\n  %s($i) => %s($i+1)\n end \n"  
-                                                      ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst )
-                                                      ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
-                                                      ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
-                                                    ) fst_actions_list;
-                                                  end
+                                                Utils.print "\n bigand $i in [1..$length]:\n  %s($i) => %s($i+1)\n end \n"  
+                                                ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst )
+                                                ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
+                                                ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
+                                              ) fst_actions_list;
+                                            end
 
    
 
-                                              (* ====================================================== *)
-                                              (*      EventuallyLeadsTo translation to Touistl       *)
-                                              (* ====================================================== *)                                             
+    (* ====================================================== *)
+    (*      EventuallyLeadsTo translation to Touistl       *)
+    (* ====================================================== *)                                             
 
     | ConstraintsType.EventuallyLeadsTo -> if (List.length fst_variable_list) >= 0 then
-                                                  begin
-                                                    let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
-                                                  
-                                                    List.iter ( fun fst_lst ->
-                                                      List.iter ( fun snd_lst ->
+                                            begin
+                                              let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
+                                            
+                                              List.iter ( fun fst_lst ->
+                                                List.iter ( fun snd_lst ->
 
-                                                      Utils.print "\n bigand $i in [1..$length]:\n  %s($i) => \n bigor $j in  [$i+1..$length]: %s($j)\n end \n end\n"  
-                                                      ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst )
-                                                      ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
-                                                      ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
-                                                    ) fst_actions_list;
-                                                  end                
+                                                Utils.print "\n bigand $i in [1..$length]:\n  %s($i) => \n bigor $j in  [$i+1..$length]: %s($j)\n end \n end\n"  
+                                                ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst )
+                                                ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
+                                                ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
+                                              ) fst_actions_list;
+                                            end  
+
+    (* ====================================================== *)
+    (*               Fill translation to Touistl              *)
+    (* ====================================================== *)                                             
+    (*bigand $i in [1..$lenght]: 
+      (A($i) => 
+        (bigor $j in [1..$lenght] when $i<$j and $j<=$lenght: 
+          (B($j) 
+            and
+            bigand $l in [1..$lenght] when $i<$l and $l<$j: 
+            (bigand $C in $O when not $p in $F: 
+                  not $C($l) end) 
+            end)
+        end))      
+          
+    end*)
+
+    | ConstraintsType.Fill -> if (List.length fst_variable_list) >= 0 then
+                                begin
+                                  let thrd_atom = List.nth atom_lst 2 in
+                                  let thrd_atom_name = thrd_atom#pred#to_string in
+                                  let snd_actions_filtered_list = snd_action_filter_list snd_actions_list fst_variable_list in
+                                
+                                  List.iter ( fun fst_lst ->
+                                    List.iter ( fun snd_lst ->
+
+                                    Utils.print "\n bigand $i in [1..$length]:\n\t(%s($i) => \n \t(bigor $j in [1..$length] when $i<$j and $j<=$length: (%s($j)\n \t\t\tand \n \tbigand $l in [1..$length] when $i<$l and $l<$j:\n \t\t(bigand $C in $O when not %s in $F: not $C($l)\n \t\tend)\n \tend)\n \tend))\n end\n\n"  
+                                    ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst )
+                                    ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
+                                    thrd_atom_name 
+                                    ) (snf_fltr_action_lst fst_lst snd_actions_filtered_list)
+                                  ) fst_actions_list;
+                                end                
       | _ -> Utils.print "\nError unsupported constraint type\n"
      
       in   
