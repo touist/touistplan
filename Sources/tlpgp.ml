@@ -600,7 +600,7 @@ end  *)
                                   List.iter ( fun fst_lst ->
                                     List.iter ( fun snd_lst ->
 
-                                    Utils.print "\n bigand $i in [1..$length]:\n\t(%s($i) => \n \t(bigor $j in [1..$length] when $i<$j and $j<=$length: (%s($j)\n \t\t\tand \n \tbigand $l in [1..$length] when $i<$l and $l<$j:\n \t\t(bigand $C in $O when not %s in $F: not $C($l)\n \t\tend)\n \tend)\n \tend))\n end\n\n"  
+                                    Utils.print "\n bigand $i in [1..$length]:\n\t(%s($i) => \n \t(bigor $j in [1..$length] when $i<$j and $j<=$length: (%s($j)\n \t\t\tand \n \tbigand $l in [1..$length] when $i<$l and $l<$j:\n \t\t(bigand $C in $O when not %s in $Cond($C): not $C($l)\n \t\tend)\n \tend)\n \tend))\n end\n\n"  
                                     ( (changedash (String.uppercase_ascii fst_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) fst_lst )
                                     ( (changedash (String.uppercase_ascii snd_atom_name)) ^ "_" ^ Utils.string_of_list "_" (fun s -> s) snd_lst ) 
                                     thrd_atom_name 
