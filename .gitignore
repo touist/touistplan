@@ -10,3 +10,8 @@ Sources/parser.mli
 Sources/lexer.ml
 pddl2touistl
 tlpgp-Copie
+._*/
+
+
+solvedata/
+Sources/lexer.ml
