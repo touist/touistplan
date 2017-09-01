@@ -1,28 +1,33 @@
 let _ = 
   Utils.begin_time := Utils.get_time () ;
   let print_help () =
-    Utils.eprint "\nUsage: %s DOMAIN PROBLEM CONSTRAINTS [ALGORITHM]\n
-DOMAIN: strips temporal planning domain expressed in (typed) PDDL
-PROBLEM: strips temporal planning problem expressed in (typed) PDDL
-CONSTRAINTS: strips temporal planning constraints expressed in (typed) PDDL
-ALGORITHM: one of the following:
-\t- tlp-gp : Temporally Lifted Progression GraphPlan (TLP-GP-1)
-\t- smtplan : Sat Modulo Theory temporal PLANner (TLP-GP-2)
+    Utils.eprint "\nUsage: %s DOMAIN PROBLEM [ENCODING | CONSTRAINTS]\n
+DOMAIN: strips planning domain expressed in (typed) PDDL
+PROBLEM: strips planning problem expressed in (typed) PDDL
+ENCODING: one of the following:
+\t- qbf-efa : QBFPLAN with Explanatory Frame-Axioms (default)
+\t- qbf-noop : QBFPLAN with No-op Actions
+\t- sat-efa : SATPLAN with Explanatory Frame-Axioms
+CONSTRAINTS: strips planning constraints expressed in (typed) Extended-PDDL
 
 \n" Sys.argv.(0) ;
     exit 0
   in
   let nb_args = Array.length Sys.argv in
-(*  let algo = *)
     if nb_args < 5 then print_help ()
     else
-(*      if nb_args = 3 then "tlp-gp" else Sys.argv.(3) in
-    match algo with
-      | "tlp-gp" -> *)
 
+
+let encoding = if nb_args = 3 then 0 else match Sys.argv.(3) with
+  | "qbf-efa" -> 0
+  | "qbf-noop" -> 1
+  | "qbf-efa-nfla" -> 2
+  | "sat" -> 100
+  | "sat-efa" -> 100
+  | _ -> -1
+in
+
+if encoding == -1 then
 (new Tlpgp.t (if nb_args = 4 then 0 else (int_of_string Sys.argv.(4))))#search
-
-(*      | "smtplan" -> (new Smtplan.t)#search
-      | "tsp2" -> (new Tsp2.t)#print 
-      | "tsp" -> (new Tsp.t)#print 
-      | x -> Utils.eprint "\n%s : search procedure unknown.\n" x ; print_help () *)
+else
+(new Touistplan.t (if nb_args = 3 then 0 else encoding))#search

@@ -19,6 +19,7 @@ S = Sources/
 
 SOURCES = \
 	$(S)utils.ml \
+	$(S)touist_solver.ml \
 	$(S)smtsolver.ml \
 	$(S)smtsolver_extractplan.ml \
 	$(S)symb.ml \
@@ -39,6 +40,7 @@ SOURCES = \
 	$(S)sequentialPlan.ml \
 	$(S)planningData.ml \
 	$(S)tlpgp.ml \
+	$(S)touistplan.ml \
 	$(S)smtplan.ml \
 	$(S)tsp.ml \
 	$(S)tsp2.ml \
@@ -51,7 +53,7 @@ OCAMLFLAGS = -unsafe
 
 LIBS = unix
 
-RESULT = pddl2touistl
+RESULT = touistplan
 
 ifndef SOURCES
   SOURCES := foo.ml
