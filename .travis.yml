@@ -22,8 +22,8 @@ cache:
     - $HOME/.opam
 
 before_install:
-  - opam switch 4.03.0
   - opam init --auto-setup
+  - opam switch 4.05.0
   - eval `opam config env`
 install:
   - make
