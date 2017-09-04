@@ -14,7 +14,7 @@ CONSTRAINTS: strips planning constraints expressed in (typed) Extended-PDDL
     exit 0
   in
   let nb_args = Array.length Sys.argv in
-    if nb_args < 5 then print_help ()
+    if nb_args < 3 then print_help ()
     else
 
 

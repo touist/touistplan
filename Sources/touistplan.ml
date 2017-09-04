@@ -109,7 +109,7 @@ let endl_string () = Utils.print "\n"
 
 class t (encoding : int) =
 object (self)
-  inherit [fluent, action, plan] PlanningData.t  as pdata
+  inherit [fluent, action, plan] PlanningDataDP.t  as pdata
   inherit [fluent, action, plan] tsp_common
 
   (* val mutable solver = (new Smtsolver.t) *)
