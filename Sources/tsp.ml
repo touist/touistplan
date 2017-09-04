@@ -57,9 +57,9 @@ object
 end
 
 
-class t =
+class t problem domain =
 object (self)
-  inherit [fluent, action, plan] PlanningData.t  as pdata
+  inherit [fluent, action, plan] PlanningData.t problem domain "" as pdata
   inherit [fluent, action, plan] tsp_common
 
   method print_statistics = ()
