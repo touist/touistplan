@@ -107,13 +107,12 @@ let endl_string () = Utils.print "\n"
 
 
 
-class t (gpminlevel : int) =
+class t problem domain constraints (options : string) (gpminlevel : int) =
 object (self)
-  inherit [fluent, action, plan] PlanningData.t  as pdata
+  inherit [fluent, action, plan] PlanningData.t problem domain constraints as pdata
   inherit [fluent, action, plan] tsp_common
 
   (* val mutable solver = (new Smtsolver.t) *)
-  val options = if Array.length Sys.argv < 4 then "" else Sys.argv.(4)
   val debug_mode = false
   val mutable solved = false
   val mutable nb = 0
