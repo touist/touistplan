@@ -42,7 +42,7 @@ PROBLEM: strips planning problem expressed in (typed) PDDL
     | "", _ -> domain := arg (*  *)
     | _, "" -> problem := arg
     | _, _  -> (Printf.eprintf "Usage: %s [opts] DOMAIN PROBLEM (see --help).\n"
-                Sys.argv.(0); exit 1)
+                  Sys.argv.(0); exit 1)
   in
   Arg.parse argspecs (process_arg_alone) usage; (* Parse command-line args *)
   Utils.begin_time := Utils.get_time ();
@@ -54,7 +54,7 @@ PROBLEM: strips planning problem expressed in (typed) PDDL
   if !constraints <> "" && !encoding <> "sat-efa" then
     (Printf.eprintf "Usage: -c must be used with -e sat-efa (see --help).\n"; exit 1);
 
-match !encoding with
+  match !encoding with
   | "qbf-efa" -> (new Touistplan.t !problem !domain !options 0)#search
   | "qbf-noop" -> (new Touistplan.t !problem !domain !options 1)#search
   | "qbf-efa-nfla" -> (new Touistplan.t !problem !domain !options 2)#search
