@@ -10,9 +10,10 @@ and options = ref ""
 let () =
   let usage = "\
 Usage: "^Sys.argv.(0)^" [-e ENC] DOMAIN PROBLEM [-c CONSTR]
-Modes:
-   (1) for the TouISTPLAN planner
-   (2) for the Constraints-Extended-PDDL planner
+
+This is the TouISTPLAN planner.
+
+Note that the constraints file '-c CONSTR' is only usable with '-e sat-efa'.
 
 DOMAIN: strips planning domain expressed in (typed) PDDL
 PROBLEM: strips planning problem expressed in (typed) PDDL
