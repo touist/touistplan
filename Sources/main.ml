@@ -18,16 +18,21 @@ CONSTRAINTS: strips planning constraints expressed in (typed) Extended-PDDL
     else
 
 
-let encoding = if nb_args = 3 then 0 else match Sys.argv.(3) with
+let encoding = if nb_args = 3 then 100 else match Sys.argv.(3) with
   | "qbf-efa" -> 0
   | "qbf-noop" -> 1
   | "qbf-efa-nfla" -> 2
+  | "qbf-open" -> 3
   | "sat" -> 100
   | "sat-efa" -> 100
+  | "sat-open" -> 103
+  | "smt-open" -> 203
   | _ -> -1
 in
 
 if encoding == -1 then
 (new Tlpgp.t (if nb_args = 4 then 0 else (int_of_string Sys.argv.(4))))#search
 else
-(new Touistplan.t (if nb_args = 3 then 0 else encoding))#search
+(* (new Touistplan.t (if nb_args = 3 then 0 else encoding))#search *)
+(new Touistplan.t encoding)#search
+

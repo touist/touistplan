@@ -159,6 +159,19 @@ val mutable depth_counter = ref 0
     (*let get_f f a_iset =
       Array.fold_left (fun c x -> if ((fst x)#atom#equal f#atom) then (fst x) else c) f a_iset
     in*)
+
+
+let stringrules = match encoding with
+  | 0 -> "[QBF] Explanatory Frame-axioms"
+  | 1 -> "[QBF] No-ops"
+  | 2 -> "[QBF] Explanatory Frame-axioms NFLA"
+  | 3 -> "[QBF] Open Conditions"
+  | 100 -> "[SAT] Explanatory Frame-axioms"
+  | 103 -> "[SAT] Open Conditions"
+  | 203 -> "[SMT QF_RDL] Open Conditions (temporal)"
+in
+Utils.eprint "Select SOLVER/EncodingRules: %s\n" stringrules;
+
     
 (** NO GRAPH for QBFPLAN **)    
 (***    
@@ -272,7 +285,7 @@ begin
   quantifierswrite "exists $A(0) for $A in $O:\nexists $f(0) for $f in $F:\n";
  Unix.close quantifiersfile;
 end
-else if encoding == 1 then (* NOOP *)
+else if encoding == 1 then (* QBF-NOOP *)
 begin
  let quantifiersfile = Unix.openfile "solvedata/in.quantifiers.txt" [Unix.O_TRUNC;Unix.O_CREAT;Unix.O_WRONLY] 0o640 in
  let quantifierswrite s =
@@ -299,7 +312,21 @@ begin
   done;
   quantifierswrite "exists $A(0) for $A in $O:\n";
  Unix.close quantifiersfile;
-end;
+end
+else if encoding == 3 then (* QBF-OPEN *)
+begin
+ let quantifiersfile = Unix.openfile "solvedata/in.quantifiers.txt" [Unix.O_TRUNC;Unix.O_CREAT;Unix.O_WRONLY] 0o640 in
+ let quantifierswrite s =
+   ignore (Unix.write quantifiersfile s 0 (String.length s)) in
+  for i = n downto nexistsb do
+    quantifierswrite (Printf.sprintf "exists $A(%d) for $A in $O:\nexists open($f,%d) for $f in $F:\nexists b(%d):\n" i i i);
+  done;
+  for i = nexistsb - 1 downto 1 do
+    quantifierswrite (Printf.sprintf "exists $A(%d) for $A in $O:\nexists open($f,%d) for $f in $F:\nforall b(%d):\n" i i i);
+  done;
+  quantifierswrite "exists $A(0) for $A in $O:\nexists open($f,0) for $f in $F:\n";
+ Unix.close quantifiersfile;
+ end;
 in
 
 (* Génération des formules non quantifiées *)
@@ -341,6 +368,20 @@ begin
     qfformulawrite ";; (QBF-NOOP3) Mutex\n\n\\\and bigand $i in [0..$depth]:\n  bigand $A in $O:\n    bigand $f in union($Cond($A),$Add($A)):\n      bigand $B in $O when ($A != $B) and ($f in $Del($B)):\n        (not $A($i) or not $B($i))\n      end\n    end\n  end\nend\n";
     qfformulawrite "\n\\\and bigand $i in [0..$depth]:\n  bigand $f in $F:\n    bigand $A in $O when ($f in $Del($A)):\n      (not Noop($f,$i) or not $A($i))\n    end\n  end\nend\n";    
  Unix.close qfformulafile;
+end else if encoding == 3 then (* option QBF-OPEN *)
+begin
+ let qfformulafile = Unix.openfile "solvedata/in.qfformula.txt" [Unix.O_TRUNC;Unix.O_CREAT;Unix.O_WRONLY] 0o640 in
+ let qfformulawrite s =
+   ignore (Unix.write qfformulafile s 0 (String.length s)) in
+    qfformulawrite "\n;; Ouverture des conditions des actions\n\nbigand $i in [0..$depth]:\n  bigand $A in $O:\n    $A($i) => bigand $f in $Cond($A): open($f,$i) end\n  end\nend\n";
+    qfformulawrite "\n;; Ouverture des buts\n\n\\\and (bigand $i in [1..$depth]:\n  b($i) end => bigand $f in $G:\n    open($f,0)\n    or bigor $A in $O when $f in $Add($A):\n      $A(0)\n    end\n  end)\n";
+    qfformulawrite "\n;; Fermeture des conditions qui ne sont pas dans I\n\n\\\and (bigand $i in [1..$depth]:\n  not b($i) end => bigand $f in $F diff $I: not open($f,0) end)\n";
+    qfformulawrite "\n;; Fermeture des conditions ouvertes\n\n\\\and bigand $i in [1..$depth]:\n  bigand $f in $F:\n    (open($f,$i)\n    and not b($i) \n    and bigand $j in [1..$i-1]:\n      b($j)\n    end)\n    => (open($f,0)\n    or bigor $A in $O when $f in $Add($A):\n      $A(0)\n    end)\n  end\nend\n";
+    qfformulawrite "\n\n\\\and bigand $i in [1..$depth]:\n  bigand $f in $F:\n    (open($f,0)\n    and b($i) \n    and bigand $j in [1..$i-1]:\n      not b($j)\n    end)\n    => (open($f,$i)\n    or bigor $A in $O when $f in $Add($A):\n      $A($i)\n    end)\n  end\nend\n";
+    qfformulawrite "\n;; Protection des conditions ouvertes\n\n\\\and bigand $i in [1..$depth]:\n  bigand $f in $F:\n    (open($f,$i)\n    and not b($i) \n    and bigand $j in [1..$i-1]:\n      b($j)\n    end)\n    => bigand $A in $O when $f in $Del($A):\n      not $A(0)\n    end\n  end\nend\n";
+    qfformulawrite "\n\n\\\and bigand $i in [1..$depth]:\n  bigand $f in $F:\n    (open($f,0)\n    and b($i) \n    and bigand $j in [1..$i-1]:\n      not b($j)\n    end)\n    => bigand $A in $O when $f in $Del($A):\n      not $A($i)\n    end\n  end\nend\n";
+    qfformulawrite "\n;; Mutex\n\n\\\and\nbigand $i in [0..$depth]:\n  bigand $A in $O:\n    bigand $f in ($Add($A) union $Cond($A)):\n      bigand $B in $O when $A!=$B and $f in $Del($B):\n        not $A($i) or not $B($i)\n      end\n    end\n  end\nend\n";
+ Unix.close qfformulafile;
 end else if encoding == 100 then (* option SAT-EFA *)
 begin
  let qfformulafile = Unix.openfile "solvedata/in.qfformula.txt" [Unix.O_TRUNC;Unix.O_CREAT;Unix.O_WRONLY] 0o640 in
@@ -351,6 +392,34 @@ begin
     qfformulawrite "\n;; (SAT-EFA3.1) Frames-axiomes de retrait\n\nbigand $i in [1..$length]:\n  bigand $f in $F:\n    ($f($i-1) and not $f($i))\n    => (bigor $a in $O when $f in $Del($a): $a($i) end)\n  end\nend\n";
     qfformulawrite "\n;; (SAT-EFA3.2) Frames-axiomes d'ajout\n\nbigand $i in [1..$length]:\n  bigand $f in $F:\n    (not $f($i-1) and $f($i))\n    => (bigor $a in $O when $f in $Add($a): $a($i) end)\n  end\nend\n";
     qfformulawrite "\n;; (SAT-EFA4) Mutex (Forall-step semantics)\nbigand $i in [1..$length]:\n  bigand $a1 in $O:\n    bigand $f in $Cond($a1):\n      bigand $a2 in $O when ($a1 != $a2) and ($f in $Del($a2)):\n        (not $a1($i) or not $a2($i))\n      end\n    end\n  end\nend\n";
+ Unix.close qfformulafile;
+end else if encoding == 103 then (* option SAT-OPEN *)
+begin
+ let qfformulafile = Unix.openfile "solvedata/in.qfformula.txt" [Unix.O_TRUNC;Unix.O_CREAT;Unix.O_WRONLY] 0o640 in
+ let qfformulawrite s =
+   ignore (Unix.write qfformulafile s 0 (String.length s)) in 
+    qfformulawrite "\n;; Ouverture des conditions des actions\n\nbigand $i in [1..$length]:\n  bigand $A in $O:\n    $A($i) => bigand $f in $Cond($A): open($f,$i) end\n  end\nend\n";
+    qfformulawrite "\n;; Ouverture des buts\n\nbigand $f in $G:\n  open($f,$length)\n  or bigor $A in $O when $f in $Add($A):\n    $A($length)\n  end\nend\n";
+    qfformulawrite "\n;; Fermeture des conditions qui ne sont pas dans I\n\nbigand $f in $F diff $I: not open($f,1) end\n";
+    qfformulawrite "\n;; Fermeture des conditions ouvertes\n\nbigand $i in [2..$length]:\n  bigand $f in $F:\n    open($f,$i)\n    => (open($f,$i-1)\n    or bigor $A in $O when $f in $Add($A):\n      $A($i-1)\n    end)\n  end\nend\n";
+    qfformulawrite "\n;; Protection des conditions ouvertes\n\nbigand $i in [2..$length]:\n  bigand $f in $F:\n    open($f,$i) => bigand $A in $O when $f in $Del($A):\n      not $A($i-1)\n    end\n  end\nend\n";
+    qfformulawrite "\n;; Mutex\n\nbigand $i in [1..$length]:\n  bigand $A in $O:\n    bigand $f in ($Add($A) union $Cond($A)):\n      bigand $B in $O when $A!=$B and $f in $Del($B):\n        not $A($i) or not $B($i)\n      end\n    end\n  end\nend\n";
+ Unix.close qfformulafile;
+end else if encoding == 203 then (* option SMT-OPEN *)
+begin
+ let qfformulafile = Unix.openfile "solvedata/in.qfformula.txt" [Unix.O_TRUNC;Unix.O_CREAT;Unix.O_WRONLY] 0o640 in
+ let qfformulawrite s =
+   ignore (Unix.write qfformulafile s 0 (String.length s)) in
+    qfformulawrite "\n;; Ouverture des conditions des actions\n\nbigand $i in [1..$length]:\n  bigand $A in $O:\n    $A($i) => bigand $f in $Cond($A):\n      open($f,$i)\n      \\\and (t($A,$i) - 0.0 >= t_s_open($f,$i) - $t_cond_begin($f,$A))\n      \\\and (t($A,$i) - 0.0 <= t_e_open($f,$i) - $t_cond_begin($f,$A))\n    end\n  end\nend\n";
+    qfformulawrite "\n;; Ouverture des buts\n\nbigand $f in $G:\n  open($f,$length)\n  or bigor $A in $O when $f in $Add($A):\n    $A($length)\n    \\\and (t($A,$length) - 0.0 == t_s_open($f,$length) - $t_add_begin($A,$f))\n    \\\and (t_Goal - 0.0 == t_e_open($f,$length) - 0.0)\n  end\nend\n";
+    qfformulawrite "\n;; Fermeture des conditions qui ne sont pas dans I\n\nbigand $f in $F diff $I:\n  not open($f,1)\nend\n";
+    qfformulawrite "\n;; Fermeture des conditions par I\n\nbigand $f in $I:\n  open($f,1) => (t_Init - 0.0 == t_s_open($f,1) - 0.0)\nend\n";
+    qfformulawrite "\n;; Fermeture des conditions ouvertes\n\nbigand $i in [2..$length]:\n  bigand $f in $F:\n    open($f,$i)\n    => ((open($f,$i-1)\n        \\\and (t_s_open($f,$i-1) - 0.0 == t_s_open($f,$i) - 0.0)\n        \\\and (t_e_open($f,$i-1) - 0.0 == t_e_open($f,$i) - 0.0))\n    \\\or bigor $A in $O when $f in $Add($A):\n      $A($i-1) and (t($A,$i-1) - 0.0 == t_s_open($f,$i) - $t_add_begin($A,$f))\n    end)\n  end\nend\n";
+    qfformulawrite "\n;; Mutex temporellement étendues 1 (Protection des conditions ouvertes)\n\nbigand $i in [1..$length]:\n  bigand $j in [1..$length]:\n    bigand $f in $F:\n      bigand $A in $O when $f in $Del($A):\n        (open($f,$i) and $A($j)) =>\n          ((t($A,$j) - 0.0 <  t_s_open($f,$i) - $t_del_end($A,$f))\n          \\\or (t_e_open($f,$i) - $t_del_begin($A,$f) < t($A,$j) - 0.0))\n      end\n    end\n  end\nend\n";
+    qfformulawrite "\n;; Mutex temporellement étendues 2 (Effets contradictoires)\n\nbigand $i in [1..$length]:\n  bigand $j in [1..$length]:\n    bigand $A in $O:\n      bigand $f in $Add($A):\n        bigand $B in $O when (($i!=$j) or ($A!=$B)) and $f in $Del($B):\n          ($A($i) and $B($j)) =>\n            ((t($A,$i) - $t_del_begin($B,$f) < t($B,$j) - $t_add_end($A,$f))\n            \\\or (t($B,$j) - $t_add_begin($A,$f) < t($A,$i) - $t_del_end($B,$f)))\n        end\n      end\n    end\n  end\nend\n";
+    qfformulawrite "\n;; Mutex temporellement étendues 3 (Condition/Effet)\n\nbigand $i in [1..$length]:\n  bigand $j in [1..$length]:\n    bigand $A in $O:\n      bigand $f in $Cond($A):\n        bigand $B in $O when (($i!=$j) or ($A!=$B)) and $f in $Del($B):\n          ($A($i) and $B($j)) =>\n            ((t($A,$i) - $t_del_begin($B,$f) < t($B,$j) - $t_cond_end($f,$A))\n            \\\or (t($B,$j) - $t_cond_begin($f,$A) < t($A,$i) - $t_del_end($B,$f)))\n        end\n      end\n    end\n  end\nend\n";
+    qfformulawrite "\n;; Bornes\n(t_Init == 0.0)\nbigand $i in [1..$length]:\n  bigand $A in $O:\n    $A($i) =>\n    (bigand $f in $Cond($A):\n      (t_Init - $t_cond_begin($f,$A) <= t($A,$i) - 0.0)\n      \\\and (t_Goal - $t_cond_end($f,$A) >= t($A,$i) - 0.0)\n    end\n    \\\and bigand $f in $Add($A):\n      (t_Init - $t_add_begin($A,$f) <= t($A,$i) - 0.0)\n      \\\and (t_Goal - $t_add_end($A,$f) >= t($A,$i) - 0.0)\n    end\n    \\\and bigand $f in $Del($A):\n      (t_Init - $t_del_begin($A,$f) <= t($A,$i) - 0.0)\n      \\\and (t_Goal - $t_del_end($A,$f) >= t($A,$i) - 0.0)\n    end)\n    \\\and (not $A($i) => (t($A,$i) < t_Init - 1000.0))\n  end\nend\n";
+    qfformulawrite "\n(t(A____Spy___,1) - t_Init == 1.0)\n";
  Unix.close qfformulafile;
 end;
 
@@ -377,7 +446,8 @@ end;
     Array.iter (fun a -> (* if (a#level <= rpg_max_level) && (a#maxlevel >= 0) then *)
      begin
       setswrite (Printf.sprintf "\n%s" a#to_complete_string);
-(*      Array.iter (fun (f,timedata) ->
+if encoding >= 200 then begin (* SMT Temporal Planning *)
+      Array.iter (fun (f,timedata) ->
           setswrite (Printf.sprintf "$t_cond_begin(%s,%s) = %f\n" (changedash f#to_string) (changedash a#to_string) (fst timedata#timeset));
           setswrite (Printf.sprintf "$t_cond_end(%s,%s) = %f\n" (changedash f#to_string) (changedash a#to_string) (snd timedata#timeset))
       ) a#iprec ;
@@ -389,7 +459,8 @@ end;
           setswrite (Printf.sprintf "$t_del_begin(%s,%s) = %f\n" (changedash a#to_string) (changedash f#to_string) (fst timedata#timeset));
           setswrite (Printf.sprintf "$t_del_end(%s,%s) = %f\n" (changedash a#to_string) (changedash f#to_string) (snd timedata#timeset))
       ) a#idel ;
-*)
+end (* end SMT Temporal Planning *)
+
      end
     ) self#actions ;
  Unix.close setsfile;
@@ -406,7 +477,8 @@ let touistsolveqbf maxdepth branchdepth addatom =
 (* Utils.eprint "TouIST solve / depth = %d / branch = %d / atomsfiles = %s / addatom = %s\n" maxdepth branchdepth atomsfiles addatom; *)
 Utils.eprint "--- TouIST solve (QBF) / branch atom = %s ---\n" addatom;
 flush stdout; flush stderr;
-  ignore (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | ./external/touist --qbf --solve - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
+(* INERNAL SOLVER *) (* ignore (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf --solve - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom)); *)
+(* EXTERNAL SOLVER: *)  ignore (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf --solver 'depqbf --qdo --no-dynamic-nenofex' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
 (* FICHIER DEBUG: *)  ignore (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') > debug.touistl" maxdepth atomsfiles addatom));
   ignore (Sys.command (Printf.sprintf "((cat solvedata/out.emodel.txt | grep '1 ' | sed -e 's/1 /and /') ; (cat solvedata/out.emodel.txt | grep '0 ' | sed -e 's/0 /and not /')) > solvedata/in.atoms%d.txt" (branchdepth - 1)));
 if branchdepth <= maxdepth then ignore (Sys.command (Printf.sprintf "cat solvedata/in.atoms%d.txt | grep 'and A_' | grep '(%d)'" (branchdepth - 1) (branchdepth - 1)));
@@ -433,7 +505,8 @@ while (!treedepth < treedepthbound) && (not !qbftrue) do
   let resultfile = (Unix.openfile "solvedata/out.touisterr.txt" [Unix.O_RDONLY] 0o640) in
   let c = Unix.in_channel_of_descr resultfile in
   let result = try input_line c with End_of_file -> "sat" in
-  if (String.compare result "unsat") != 0 then qbftrue:=true;
+(* INTERNAL SOLVER *)  (* if (String.compare result "unsat") != 0 then qbftrue:=true; *)
+(* DEPQBF EXTERNAL SOLVER *) if (String.compare result "Command 'depqbf --qdo --no-dynamic-nenofex' returned code 20 and no lines beginning with 'v'") != 0 then qbftrue:=true;
 done;
 
   let rec extract depth = match depth with
@@ -460,13 +533,13 @@ end;
 
 
 (** START SATPLAN-SOLVE **)
-if encoding >= 100 then
+if encoding < 200 then
 begin
 
 let touistsolvesat length =
   Utils.eprint "--- TouIST solve (SAT) / length = %d ---\n" length;
   flush stdout; flush stderr;
-  ignore (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | ./external/touist --sat --solve - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length));
+  ignore (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | touist --sat --solve - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length));
   (* FICHIER DEBUG: *) ignore (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) > debug.touistl" length));
 in
 
@@ -500,6 +573,49 @@ end else Utils.eprint "No solution at maximum length bound.\nThe planning proble
 exit 0;
 end;
 (** END SATPLAN-SOLVE **)
+
+(** START SMTPLAN-SOLVE **)
+if encoding < 300 then
+begin
+
+let touistsolvesat length =
+  Utils.eprint "--- TouIST solve (SMT) / length = %d ---\n" length;
+  flush stdout; flush stderr;
+  ignore (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | touist --smt QF_RDL --solve - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length));
+  (* FICHIER DEBUG: *) ignore (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) > debug.touistl" length));
+in
+
+let planlengthbound = 256 (* (Array.length pdata#fluents) * (Array.length pdata#fluents) *)
+in
+Utils.eprint "Maximum plan length: 2^|Fluents|=%d.\n" planlengthbound;
+flush stdout; flush stderr;
+
+let planlength = ref 0 in
+let sattrue = ref false in
+while (!planlength < planlengthbound) && (not !sattrue) do
+  planlength := !planlength + 1;
+  Utils.eprint "Searching solution with length %d...\n" !planlength;
+  flush stdout; flush stderr;
+  touistsolvesat !planlength;
+  let resultfile = (Unix.openfile "solvedata/out.touisterr.txt" [Unix.O_RDONLY] 0o640) in
+  let c = Unix.in_channel_of_descr resultfile in
+  let result = try input_line c with End_of_file -> "sat" in
+  if (String.compare result "unsat") != 0 then sattrue:=true;
+done;
+
+if !sattrue then
+begin
+  Utils.eprint "Solution found at length %d.\n" !planlength; flush stdout; flush stderr;
+  for i = 1 to !planlength do
+    ignore (Sys.command (Printf.sprintf "cat solvedata/out.emodel.txt | grep '1 A_' | grep '(%d)'" i));
+    ignore (Sys.command (Printf.sprintf "cat solvedata/out.emodel.txt | sed -e '/^-/ d' | grep 't(A_' | grep ',%d)'" i));
+    flush stdout; flush stderr;
+  done;
+end else Utils.eprint "No solution at maximum length bound.\nThe planning problem does not have any solution.\n";
+
+exit 0;
+end;
+(** END SMTPLAN-SOLVE **)
 
 
 (* END QBF-TOUISTPLAN without GP *)
