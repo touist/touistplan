@@ -11,6 +11,7 @@ Sources/lexer.ml
 pddl2touistl
 tlpgp-Copie
 ._*/
+external/
 
 
 solvedata/
