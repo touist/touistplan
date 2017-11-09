@@ -8,7 +8,7 @@
 #   touist compiled in it
 #
 # vim:set et sw=2 ts=2:
-
+language: c
 addons:
   apt:
     sources:

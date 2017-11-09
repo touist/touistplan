@@ -6,7 +6,7 @@ type 'fluent candidate = {
   mutable pos : int ;
 }
 
-class virtual ['fluent, 'action, 'plan] t =
+class virtual ['fluent, 'action, 'plan] t (problemfile:string) (domainfile:string) (constraintsfile:string) =
 object (self)
   constraint 'fluent = 'action #Node.fluent
   constraint 'action = 'fluent #Node.action
@@ -81,20 +81,20 @@ object (self)
 
   method private parse_domain = 
     (domain <- 
-    let stream = open_in Sys.argv.(1) in
+    let stream = open_in domainfile in
     let lexbuf = Lexing.from_channel stream in
       Parser.domain Lexer.token lexbuf);
       (*Utils.eprint "%s\n" domain#to_complete_istring*)
 
   method private parse_problem = 
     problem <-
-    let stream = open_in Sys.argv.(2) in
+    let stream = open_in problemfile in
     let lexbuf = Lexing.from_channel stream in
       Parser.problem Lexer.token lexbuf
 
 method private parse_constraints = 
   (constraints <-
-  let stream = open_in Sys.argv.(3) in
+  let stream = open_in constraintsfile in
   let lexbuf = Lexing.from_channel stream in
     Parser.constraints Lexer.token lexbuf);
     (*Utils.print "Constraitns content...\n";
@@ -346,7 +346,8 @@ method private parse_constraints =
   initializer
   let (lexing_time, _) = Utils.my_time "\nParsing domain" (fun () -> self#parse_domain) in
   let (parsing_time, _) = Utils.my_time "Parsing problem" (fun () -> self#parse_problem) in
-  let (parsing_constraints_time, _) = Utils.my_time "Parsing constraints" (fun () -> self#parse_constraints) in
+  let (parsing_constraints_time, _) = if constraintsfile = "" then (0.,()) else
+     Utils.my_time "Parsing constraints" (fun () -> self#parse_constraints) in
   let (domains_time, _) = Utils.my_time "Computing domains" (fun () -> self#domains_creation) in
     (*Utils.eprint "\n\n%s\n\n" problem#to_string ;*)
 (**)    (*Utils.eprint "\n\n%s\n\n" domain#to_complete_istring ;*)

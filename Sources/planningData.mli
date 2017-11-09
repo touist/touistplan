@@ -1,5 +1,5 @@
 class virtual ['fluent, 'action, 'plan] t :
-object
+string -> string -> string -> object
   constraint 'fluent = 'action #Node.fluent
   constraint 'action = 'fluent #Node.action
   constraint 'plan = ('fluent, 'action) #Plan.t

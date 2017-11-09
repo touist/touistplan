@@ -64,9 +64,9 @@ let endl_string () = Utils.print "\n"
 
 
 
-class t =
+class t problem domain =
 object (self)
-  inherit [fluent, action, plan] PlanningData.t  as pdata
+  inherit [fluent, action, plan] PlanningData.t problem domain "" as pdata
   inherit [fluent, action, plan] tsp_common
 
   val mutable nb = 0

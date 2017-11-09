@@ -107,13 +107,12 @@ let endl_string () = Utils.print "\n"
 
 
 
-class t (encoding : int) =
+class t (problem:string) (domain:string) (options:string) (encoding : int) =
 object (self)
-  inherit [fluent, action, plan] PlanningDataDP.t  as pdata
+  inherit [fluent, action, plan] PlanningData.t problem domain "" as pdata
   inherit [fluent, action, plan] tsp_common
 
   (* val mutable solver = (new Smtsolver.t) *)
-  val options = if Array.length Sys.argv < 4 then "" else Sys.argv.(4)
   val debug_mode = false
   val mutable solved = false
   val mutable nb = 0
@@ -484,9 +483,10 @@ flush stdout; flush stderr;
 if branchdepth <= maxdepth then ignore (Sys.command (Printf.sprintf "cat solvedata/in.atoms%d.txt | grep 'and A_' | grep '(%d)'" (branchdepth - 1) (branchdepth - 1)));
 if (encoding == 1) && (branchdepth <= maxdepth) then ignore (Sys.command (Printf.sprintf "cat solvedata/in.atoms%d.txt | grep 'and A_' | grep '(%d)'" (branchdepth - 1) (branchdepth)));
 for i = maxdepth downto branchdepth - 1 do
- Sys.command (Printf.sprintf "cat solvedata/out.emodel.txt | grep '? ' | grep '(%d)'" i);
- Sys.command (Printf.sprintf "cat solvedata/out.emodel.txt | grep '? ' | grep ',%d)'" i);
-flush stdout; flush stderr;
+  Sys.command (Printf.sprintf "cat solvedata/out.emodel.txt | grep '? ' | grep '\\((\\|,\\)%d)'" i) |> ignore;
+  if 0 = Sys.command (Printf.sprintf "cat solvedata/out.emodel.txt | grep '? ' | grep '\\((\\|,\\)%d)' | grep '\\(A_\\|F_\\)' >/dev/null" i)
+  then exit 1;
+  flush stdout; flush stderr;
 done;
 in
 

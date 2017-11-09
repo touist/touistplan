@@ -38,7 +38,6 @@ SOURCES = \
 	$(S)plan.ml \
 	$(S)parallelPlan.ml \
 	$(S)sequentialPlan.ml \
-	$(S)planningDataDP.ml \
 	$(S)planningData.ml \
 	$(S)tlpgp.ml \
 	$(S)touistplan.ml \
@@ -54,7 +53,7 @@ OCAMLFLAGS = -unsafe
 
 LIBS = unix
 
-RESULT = pddl2touistl
+RESULT = touistplan
 
 ifndef SOURCES
   SOURCES := foo.ml
