@@ -570,7 +570,8 @@ let touistsolvesat length =
   let touistcode = ref 0 in
   Utils.eprint "--- TouIST solve (SAT) / length = %d ---\n" length;
   flush stdout; flush stderr;
-  ignore (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | touist --sat --solve - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length));
+  if solvernum == 0 then touistcode := (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | touist --sat --solve - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length));
+  if solvernum == 101 then touistcode := (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | touist --sat --solver 'glucose -model' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length));
   (* FICHIER DEBUG: *) ignore (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) > debug.touistl" length));
   !touistcode
 in
@@ -587,12 +588,16 @@ while (!planlength < planlengthbound) && (not !sattrue) do
   Utils.eprint "Searching solution with length %d...\n" !planlength;
   flush stdout; flush stderr;
   let touistcode = touistsolvesat !planlength in
-(*  if touistcode == 0 then sattrue:=true
-  else if touistcode != 8 then begin Utils.eprint "Solver error %d.\n" touistcode; exit touistcode; end; *)
-  let resultfile = (Unix.openfile "solvedata/out.touisterr.txt" [Unix.O_RDONLY] 0o640) in
+if solvernum == 0 then (* MINISAT *)
+  if touistcode == 0 then sattrue:=true
+  else if touistcode != 8 then begin Utils.eprint "Solver error %d.\n" touistcode; exit touistcode; end;
+if solvernum == 101 then (* GLUCOSE *)
+  if touistcode == 10 then sattrue:=true
+  else if touistcode != 20 then begin Utils.eprint "Solver error %d.\n" touistcode; exit touistcode; end;
+(*  let resultfile = (Unix.openfile "solvedata/out.touisterr.txt" [Unix.O_RDONLY] 0o640) in
   let c = Unix.in_channel_of_descr resultfile in
   let result = try input_line c with End_of_file -> "sat" in
-  if (String.compare result "unsat") != 0 then sattrue:=true;
+  if (String.compare result "unsat") != 0 then sattrue:=true; *)
 done;
 
 if !sattrue then
