@@ -1,5 +1,5 @@
 let encoding_list = ["qbf-efa";"qbf-noop";"qbf-efa-nfla";"qbf-open";"sat";"sat-efa";"sat-open";"sat-efa-select";"smt-open"]
-and solvers_list = ["depqbf"; "rareqs"; "caqe"; "qute"; "minisat"; "glucose"; "glucose-syrup"; "picosat"]
+and solvers_list = ["depqbf"; "rareqs"; "caqe"; "qute"; "minisat"; "glucose"; "glucose-syrup"; "picosat"; "lingeling"]
 and mode = ref "touistplan"
 and encoding = ref "qbf-efa"
 and domain = ref ""
@@ -8,10 +8,11 @@ and constraints = ref ""
 and gpminlevel = ref 0
 and options = ref ""
 and solver = ref "depqbf"
+and incrmode = ref 1
 
 let () =
   let usage = "\
-Usage: "^Sys.argv.(0)^" [-e ENC] DOMAIN PROBLEM [-c CONSTR]
+Usage: "^Sys.argv.(0)^" [-e ENC] [-s SOLVER] DOMAIN PROBLEM [-c CONSTR]
 
 This is the TouISTPLAN planner.
 
@@ -29,6 +30,9 @@ PROBLEM: strips planning problem expressed in (typed) PDDL
     ("-s", Arg.Symbol (solvers_list, fun s -> solver:=s), "");
     ("-c", Arg.Set_string constraints,
      "CONSTR: strips planning constraints expressed in (typed) Extended-PDDL");
+
+    ("-incr", Arg.Set_int incrmode,
+     "2: double plan length at each increment with SAT/SMT encodings");
 
     ("--gpminlevel", Arg.Set_int gpminlevel,
      ("N: set the gpminlevel (mode (2) only) [default: "^ string_of_int !gpminlevel ^"]"));
@@ -66,18 +70,19 @@ PROBLEM: strips planning problem expressed in (typed) PDDL
     | "glucose" -> 101
     | "glucose-syrup" -> 102
     | "picosat" -> 103
+    | "lingeling" -> 104
     | v -> failwith "solver unknown (tell the dev)"
   in
   match !encoding with
-  | "qbf-efa" -> (new Touistplan.t !problem !domain !options 0 solver_code)#search
-  | "qbf-noop" -> (new Touistplan.t !problem !domain !options 1 solver_code)#search
-  | "qbf-efa-nfla" -> (new Touistplan.t !problem !domain !options 2 solver_code)#search
-  | "qbf-open" -> (new Touistplan.t !problem !domain !options 3 solver_code)#search
-  | "sat" -> (new Touistplan.t !problem !domain !options 100 solver_code)#search
-  | "sat-efa" -> (new Touistplan.t !problem !domain !options 100 solver_code)#search
-  | "sat-open" -> (new Touistplan.t !problem !domain !options 103 solver_code)#search
-  | "sat-efa-select" -> (new Touistplan.t !problem !domain !options 150 solver_code)#search
-  | "smt-open" -> (new Touistplan.t !problem !domain !options 203 solver_code)#search
+  | "qbf-efa" -> (new Touistplan.t !problem !domain !options 0 solver_code !incrmode)#search
+  | "qbf-noop" -> (new Touistplan.t !problem !domain !options 1 solver_code !incrmode)#search
+  | "qbf-efa-nfla" -> (new Touistplan.t !problem !domain !options 2 solver_code !incrmode)#search
+  | "qbf-open" -> (new Touistplan.t !problem !domain !options 3 solver_code !incrmode)#search
+  | "sat" -> (new Touistplan.t !problem !domain !options 100 solver_code !incrmode)#search
+  | "sat-efa" -> (new Touistplan.t !problem !domain !options 100 solver_code !incrmode)#search
+  | "sat-open" -> (new Touistplan.t !problem !domain !options 103 solver_code !incrmode)#search
+  | "sat-efa-select" -> (new Touistplan.t !problem !domain !options 150 solver_code !incrmode)#search
+  | "smt-open" -> (new Touistplan.t !problem !domain !options 203 solver_code !incrmode)#search
   | _ -> failwith "encoding impossible (tell the dev)"
 
 (*

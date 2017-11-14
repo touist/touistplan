@@ -107,7 +107,7 @@ let endl_string () = Utils.print "\n"
 
 
 
-class t (problem:string) (domain:string) (options:string) (encoding : int) (solvernum : int) =
+class t (problem:string) (domain:string) (options:string) (encoding : int) (solvernum : int) (incrmode : int) =
 object (self)
   inherit [fluent, action, plan] PlanningData.t problem domain "" as pdata
   inherit [fluent, action, plan] tsp_common
@@ -186,6 +186,7 @@ let solvername = match solvernum with
   | 101 -> "Glucose"
   | 102 -> "Glucose (multicore)"
   | 103 -> "PicoSat"
+  | 104 -> "Lingeling"
 in
 Utils.eprint "Select %s SOLVER: %s\n\n" (if encoding<100 then "QBF" else if encoding<200 then "SAT" else "SMT") solvername;
     
@@ -511,7 +512,7 @@ flush stdout; flush stderr;
 if solvernum == 0 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf --solver 'depqbf --qdo --no-dynamic-nenofex' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
 if solvernum == 1 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf --solver rareqs - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
 if solvernum == 2 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf --solver './solvers/caqe-mac --partial-assignments' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
-if solvernum == 3 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf --solver 'qute --partial-certificate' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
+if solvernum == 3 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf --solver 'qute --partial-certificate --prefix-mode' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
 (* FICHIER DEBUG: *)  ignore (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') > debug.touistl" maxdepth atomsfiles addatom));
   ignore (Sys.command (Printf.sprintf "((cat solvedata/out.emodel.txt | grep '1 ' | sed -e 's/1 /and /') ; (cat solvedata/out.emodel.txt | grep '0 ' | sed -e 's/0 /and not /')) > solvedata/in.atoms%d.txt" (branchdepth - 1)));
 if branchdepth <= maxdepth then ignore (Sys.command (Printf.sprintf "cat solvedata/in.atoms%d.txt | grep 'and A_' | grep '(%d)'" (branchdepth - 1) (branchdepth - 1)));
@@ -583,6 +584,7 @@ let touistsolvesat length =
   if solvernum == 101 then touistcode := (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | touist --sat --solver 'glucose -model' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length));
   if solvernum == 102 then touistcode := (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | touist --sat --solver 'glucose-syrup -model' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length));
   if solvernum == 103 then touistcode := (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | touist --sat --solver 'picosat --partial' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length));
+  if solvernum == 104 then touistcode := (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | touist --sat --solver 'lingeling' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length));
   (* FICHIER DEBUG: *) ignore (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) > debug.touistl" length));
   !touistcode
 in
@@ -595,7 +597,9 @@ flush stdout; flush stderr;
 let planlength = ref 0 in
 let sattrue = ref false in
 while (!planlength < planlengthbound) && (not !sattrue) do
-  planlength := !planlength + 1;
+  if incrmode <= 1 then planlength := !planlength + 1
+  else if !planlength == 0 then planlength := 1
+       else planlength := !planlength * incrmode;
   Utils.eprint "Searching solution with length %d...\n" !planlength;
   flush stdout; flush stderr;
   let touistcode = touistsolvesat !planlength in
