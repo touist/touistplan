@@ -1,4 +1,4 @@
-let encoding_list = ["qbf-efa";"qbf-noop";"qbf-efa-nfla";"sat";"sat-efa"]
+let encoding_list = ["qbf-efa";"qbf-noop";"qbf-efa-nfla";"qbf-open";"sat";"sat-efa";"sat-open";"sat-efa-select";"smt-open"]
 and solvers_list = ["depqbf"; "rareqs"; "caqe"; "qute"; "minisat"; "glucose"; "glucose-syrup"; "picosat"]
 and mode = ref "touistplan"
 and encoding = ref "qbf-efa"
