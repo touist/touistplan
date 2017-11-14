@@ -76,6 +76,8 @@ let solvernum = if nb_args < 5 then 0 else match Sys.argv.(4) with
   | "qute" -> 3
   | "minisat" -> 0
   | "glucose" -> 101
+  | "glucose-syrup" -> 102
+  | "picosat" -> 103
   | _ -> 0
 in
 
