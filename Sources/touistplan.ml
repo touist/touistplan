@@ -107,7 +107,7 @@ let endl_string () = Utils.print "\n"
 
 
 
-class t (problem:string) (domain:string) (options:string) (encoding : int) (encoding : int) (solvernum : int) =
+class t (problem:string) (domain:string) (options:string) (encoding : int) (solvernum : int) =
 object (self)
   inherit [fluent, action, plan] PlanningData.t problem domain "" as pdata
   inherit [fluent, action, plan] tsp_common
