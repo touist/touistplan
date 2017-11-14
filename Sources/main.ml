@@ -7,7 +7,7 @@ and problem = ref ""
 and constraints = ref ""
 and gpminlevel = ref 0
 and options = ref ""
-and solver = ref ""
+and solver = ref "depqbf"
 
 let () =
   let usage = "\
