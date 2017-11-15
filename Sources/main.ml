@@ -84,19 +84,3 @@ PROBLEM: strips planning problem expressed in (typed) PDDL
   | "sat-efa-select" -> (new Touistplan.t !problem !domain !options 150 solver_code !incrmode)#search
   | "smt-open" -> (new Touistplan.t !problem !domain !options 203 solver_code !incrmode)#search
   | _ -> failwith "encoding impossible (tell the dev)"
-
-(*
-
-let solvernum = if nb_args < 5 then 0 else match Sys.argv.(4) with
-  | "depqbf" -> 0
-  | "rareqs" -> 1
-  | "caqe" -> 2
-  | "qute" -> 3
-  | "minisat" -> 0
-  | "glucose" -> 101
-  | "glucose-syrup" -> 102
-  | "picosat" -> 103
-  | _ -> 0
-in
-
-*)
