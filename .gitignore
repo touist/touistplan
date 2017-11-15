@@ -1,18 +1,19 @@
 *.cmo
 *.cmi
 *.touistl
+*.touist
 *.pddl
-*.cmo.icloud
-*.cmi.icloud
+*.icloud
 .vscode/
 Sources/parser.ml
 Sources/parser.mli
 Sources/lexer.ml
 pddl2touistl
-tlpgp-Copie
+touistplan
+
 ._*/
 external/
-
+solvers/
 
 solvedata/
 Sources/lexer.ml
@@ -247,3 +248,29 @@ TSWLatexianTemp*
 
 # End of https://www.gitignore.io/api/latex
 QBFPlanSlides.pdf
+
+# Created by https://www.gitignore.io/api/ocaml
+
+### OCaml ###
+*.annot
+*.cmo
+*.cma
+*.cmi
+*.a
+*.o
+*.cmx
+*.cmxs
+*.cmxa
+
+# ocamlbuild working directory
+_build/
+
+# ocamlbuild targets
+*.byte
+*.native
+
+# oasis generated files
+setup.data
+setup.log
+
+# End of https://www.gitignore.io/api/ocaml
