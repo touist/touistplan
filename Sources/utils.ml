@@ -151,9 +151,15 @@ let my_time message f =
 
 let my_time2 f = 
 (*  let start = Unix.gettimeofday () in*)
-  let start = get_time () in
+  let start = (*get_time*) Sys.time () in
   let result = f () in
-    (get_time () -. start, result)
+    (Sys.time () -. start, result)
+
+let my_time2bis f = 
+  let start = Unix.gettimeofday () in
+  let result = f () in
+    (Unix.gettimeofday () -. start, result)
+
 
 let to_string x = x#to_string
 let to_complete_string x = x#to_complete_string

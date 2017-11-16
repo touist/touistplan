@@ -533,6 +533,8 @@ flush stdout; flush stderr;
 
 let treedepth = ref 0 in
 let qbftrue = ref false in
+
+let plansat () =
 while (!treedepth < treedepthbound) && (not !qbftrue) do
   treedepth := !treedepth + 1;
   Utils.eprint "Searching solution at depth %d...\n" !treedepth;
@@ -547,7 +549,10 @@ while (!treedepth < treedepthbound) && (not !qbftrue) do
   if solvernum == 0 then (* DEPQBF EXTERNAL SOLVER *) if (String.compare result "Command 'depqbf --qdo --no-dynamic-nenofex' returned code 20 and no lines beginning with 'v'") != 0 then qbftrue:=true;
   if solvernum == 1 then if (String.compare result "Command 'rareqs' returned code 127 and no lines beginning with 'v'") != 0 then qbftrue:=true;
 **)
-done;
+done in
+
+let (plansat_time,_) = Utils.my_time2bis (fun () -> plansat ()) in
+Utils.eprint "Plan existence time (PLANSAT): %.2f\n" plansat_time;
 
   let rec extract depth = match depth with
     | 0 -> ();
@@ -559,13 +564,18 @@ done;
            end;
   in
 
+let extract_time = ref 0.0 in
 if !qbftrue then
 begin
   Utils.eprint "Solution found at depth %d.\n" !treedepth; flush stdout; flush stderr;
   ignore (Sys.command (Printf.sprintf "cat solvedata/in.atoms%d.txt | grep 'and A_' | grep '(%d)'" !treedepth !treedepth));
   flush stdout; flush stderr;
-  extract !treedepth;
+  let (extr_time,_) = Utils.my_time2bis (fun () -> extract !treedepth) in extract_time := extr_time
 end else Utils.eprint "No solution at maximum depth bound.\nThe planning problem does not have any solution.\n";
+
+Utils.eprint "Plan existence time (PLANSAT): %.2f\n" plansat_time;
+if !qbftrue then Utils.eprint "Plan extract time: %.2f\n" !extract_time;
+flush stdout; flush stderr;
 
 exit 0;
 end;
