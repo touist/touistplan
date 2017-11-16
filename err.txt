@@ -1,1 +1,0 @@
-Command 'depqbf --qdo --no-dynamic-nenofex' returned code 20 and no lines beginning with 'v'
