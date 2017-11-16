@@ -17,13 +17,14 @@ object (self)
   inherit [action] Node.fluent atom
 
   val string = 
-    let s = atom#pred#to_string ^ 
-    (if atom#nb_terms = 0 then "" else "_" ^  (Utils.string_of_array "_" Utils.to_string atom#terms))
+    let bs = Bytes.of_string (atom#pred#to_string ^ 
+    (if atom#nb_terms = 0 then "" else "_" ^  (Utils.string_of_array "_" Utils.to_string atom#terms)))
  (*   ^ "[" ^ (string_of_int (fst atom#timeset)) ^ ";" ^ (string_of_int (snd atom#timeset)) ^ "]" *) in
-    for i = 0 to (String.length s) - 1 do
-     if (String.get s i) = '-' then (String.set s i '_');
+    for i = 0 to (Bytes.length bs) - 1 do
+     if (Bytes.get bs i) = '-' then (Bytes.set bs i '_');
     done;
-    s
+    Bytes.to_string bs
+
 
   val mutable agenda_pos = []
   val mutable agenda_neg = []
@@ -52,11 +53,11 @@ object (self)
 
 
   val string =
-    let s = name ^ if Array.length params = 0 then "" else "_" ^ (Utils.string_of_array "_" Utils.to_string params) in
-    for i = 0 to (String.length s) - 1 do
-     if (String.get s i) = '-' then (String.set s i '_');
+    let bs = Bytes.of_string (name ^ if Array.length params = 0 then "" else "_" ^ (Utils.string_of_array "_" Utils.to_string params)) in
+    for i = 0 to (Bytes.length bs) - 1 do
+     if (Bytes.get bs i) = '-' then (Bytes.set bs i '_');
     done;
-    s
+    Bytes.to_string bs
 
   method to_string = string
 

@@ -39,9 +39,8 @@ SOURCES = \
 	$(S)parallelPlan.ml \
 	$(S)sequentialPlan.ml \
 	$(S)planningData.ml \
-	$(S)tlpgp.ml \
 	$(S)touistplan.ml \
-	$(S)smtplan.ml \
+	$(S)tlpgp.ml \
 	$(S)tsp.ml \
 	$(S)tsp2.ml \
 	$(S)main.ml

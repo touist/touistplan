@@ -159,4 +159,5 @@ let to_string x = x#to_string
 let to_complete_string x = x#to_complete_string
 
 let print_channel ch str = 
-  output ch str 0 (String.length str)
+ (* output ch str 0 (String.length str) *)
+  output_string ch str

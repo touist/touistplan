@@ -21,7 +21,7 @@ method smtout_w = snd smtout
 method open_smtwrite = ()
 
 method smtwrite s =
-  ignore (Unix.write smtfile s 0 (String.length s))
+  ignore (Unix.write smtfile (Bytes.of_string s) 0 (String.length s))
 
 method close_smtwrite = 
   Unix.close smtfile;

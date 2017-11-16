@@ -1,0 +1,156 @@
+\documentclass[fleqn]{article}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage{mathtools}
+\allowdisplaybreaks
+\begin{document}
+\begin{multline*}
+%\mathbf{length} \leftarrow 3\\
+%\mathbf{I} \leftarrow [F\_free\_left,F\_free\_right,F\_at\_ball1\_rooma,F\_at\_ball2\_rooma,F\_at\_robby\_rooma]\\
+%\mathbf{G} \leftarrow [F\_at\_ball1\_roomb,F\_at\_ball2\_roomb]\\
+%\mathbf{O} \leftarrow [A\_MOVE\_roomb\_rooma,A\_MOVE\_rooma\_roomb,A\_PICK\_ball2\_rooma\_right,A\_PICK\_ball2\_rooma\_left,A\_PICK\_ball1\_rooma\_right,A\_PICK\_ball1\_rooma\_left,A\_PICK\_ball2\_roomb\_left,A\_PICK\_ball2\_roomb\_right,A\_DROP\_ball2\_roomb\_right,A\_DROP\_ball2\_roomb\_left,A\_DROP\_ball2\_rooma\_right,A\_DROP\_ball2\_rooma\_left,A\_PICK\_ball1\_roomb\_left,A\_PICK\_ball1\_roomb\_right,A\_DROP\_ball1\_roomb\_right,A\_DROP\_ball1\_roomb\_left,A\_DROP\_ball1\_rooma\_right,A\_DROP\_ball1\_rooma\_left]\\
+%\mathbf{F} \leftarrow [F\_free\_left,F\_carry\_ball2\_left,F\_at\_ball1\_roomb,F\_at\_ball1\_rooma,F\_at\_robby\_rooma,F\_at\_ball2\_rooma,F\_carry\_ball1\_left,F\_carry\_ball2\_right,F\_at\_robby\_roomb,F\_at\_ball2\_roomb,F\_free\_right,F\_carry\_ball1\_right]\\
+%\mathbf{Fp} \leftarrow [F\_carry\_ball1\_right,F\_free\_right,F\_at\_ball2\_roomb,F\_at\_robby\_roomb,F\_carry\_ball2\_right,F\_carry\_ball1\_left,F\_at\_ball2\_rooma,F\_at\_robby\_rooma,F\_at\_ball1\_rooma,F\_at\_ball1\_roomb,F\_carry\_ball2\_left,F\_free\_left]\\
+%\mathbf{Fa} \leftarrow [F\_carry\_ball1\_right,F\_free\_right,F\_at\_ball2\_roomb,F\_at\_robby\_roomb,F\_carry\_ball2\_right,F\_carry\_ball1\_left,F\_at\_ball2\_rooma,F\_at\_robby\_rooma,F\_at\_ball1\_rooma,F\_at\_ball1\_roomb,F\_carry\_ball2\_left,F\_free\_left]\\
+%\mathbf{Fd} \leftarrow [F\_carry\_ball1\_right,F\_free\_right,F\_at\_ball2\_roomb,F\_at\_robby\_roomb,F\_carry\_ball2\_right,F\_carry\_ball1\_left,F\_at\_ball2\_rooma,F\_at\_robby\_rooma,F\_at\_ball1\_rooma,F\_at\_ball1\_roomb,F\_carry\_ball2\_left,F\_free\_left]\\
+%\mathbf{Cond}_{A\_DROP\_ball1\_rooma\_left} \leftarrow [F\_at\_robby\_rooma,F\_carry\_ball1\_left]\\
+%\mathbf{Add}_{A\_DROP\_ball1\_rooma\_left} \leftarrow [F\_free\_left,F\_at\_ball1\_rooma]\\
+%\mathbf{Del}_{A\_DROP\_ball1\_rooma\_left} \leftarrow [F\_carry\_ball1\_left]\\
+%\mathbf{Cond}_{A\_DROP\_ball1\_rooma\_right} \leftarrow [F\_at\_robby\_rooma,F\_carry\_ball1\_right]\\
+%\mathbf{Add}_{A\_DROP\_ball1\_rooma\_right} \leftarrow [F\_free\_right,F\_at\_ball1\_rooma]\\
+%\mathbf{Del}_{A\_DROP\_ball1\_rooma\_right} \leftarrow [F\_carry\_ball1\_right]\\
+%\mathbf{Cond}_{A\_DROP\_ball1\_roomb\_left} \leftarrow [F\_at\_robby\_roomb,F\_carry\_ball1\_left]\\
+%\mathbf{Add}_{A\_DROP\_ball1\_roomb\_left} \leftarrow [F\_free\_left,F\_at\_ball1\_roomb]\\
+%\mathbf{Del}_{A\_DROP\_ball1\_roomb\_left} \leftarrow [F\_carry\_ball1\_left]\\
+%\mathbf{Cond}_{A\_DROP\_ball1\_roomb\_right} \leftarrow [F\_at\_robby\_roomb,F\_carry\_ball1\_right]\\
+%\mathbf{Add}_{A\_DROP\_ball1\_roomb\_right} \leftarrow [F\_free\_right,F\_at\_ball1\_roomb]\\
+%\mathbf{Del}_{A\_DROP\_ball1\_roomb\_right} \leftarrow [F\_carry\_ball1\_right]\\
+%\mathbf{Cond}_{A\_PICK\_ball1\_roomb\_right} \leftarrow [F\_free\_right,F\_at\_robby\_roomb,F\_at\_ball1\_roomb]\\
+%\mathbf{Add}_{A\_PICK\_ball1\_roomb\_right} \leftarrow [F\_carry\_ball1\_right]\\
+%\mathbf{Del}_{A\_PICK\_ball1\_roomb\_right} \leftarrow [F\_free\_right,F\_at\_ball1\_roomb]\\
+%\mathbf{Cond}_{A\_PICK\_ball1\_roomb\_left} \leftarrow [F\_free\_left,F\_at\_robby\_roomb,F\_at\_ball1\_roomb]\\
+%\mathbf{Add}_{A\_PICK\_ball1\_roomb\_left} \leftarrow [F\_carry\_ball1\_left]\\
+%\mathbf{Del}_{A\_PICK\_ball1\_roomb\_left} \leftarrow [F\_free\_left,F\_at\_ball1\_roomb]\\
+%\mathbf{Cond}_{A\_DROP\_ball2\_rooma\_left} \leftarrow [F\_at\_robby\_rooma,F\_carry\_ball2\_left]\\
+%\mathbf{Add}_{A\_DROP\_ball2\_rooma\_left} \leftarrow [F\_free\_left,F\_at\_ball2\_rooma]\\
+%\mathbf{Del}_{A\_DROP\_ball2\_rooma\_left} \leftarrow [F\_carry\_ball2\_left]\\
+%\mathbf{Cond}_{A\_DROP\_ball2\_rooma\_right} \leftarrow [F\_at\_robby\_rooma,F\_carry\_ball2\_right]\\
+%\mathbf{Add}_{A\_DROP\_ball2\_rooma\_right} \leftarrow [F\_free\_right,F\_at\_ball2\_rooma]\\
+%\mathbf{Del}_{A\_DROP\_ball2\_rooma\_right} \leftarrow [F\_carry\_ball2\_right]\\
+%\mathbf{Cond}_{A\_DROP\_ball2\_roomb\_left} \leftarrow [F\_at\_robby\_roomb,F\_carry\_ball2\_left]\\
+%\mathbf{Add}_{A\_DROP\_ball2\_roomb\_left} \leftarrow [F\_free\_left,F\_at\_ball2\_roomb]\\
+%\mathbf{Del}_{A\_DROP\_ball2\_roomb\_left} \leftarrow [F\_carry\_ball2\_left]\\
+%\mathbf{Cond}_{A\_DROP\_ball2\_roomb\_right} \leftarrow [F\_at\_robby\_roomb,F\_carry\_ball2\_right]\\
+%\mathbf{Add}_{A\_DROP\_ball2\_roomb\_right} \leftarrow [F\_free\_right,F\_at\_ball2\_roomb]\\
+%\mathbf{Del}_{A\_DROP\_ball2\_roomb\_right} \leftarrow [F\_carry\_ball2\_right]\\
+%\mathbf{Cond}_{A\_PICK\_ball2\_roomb\_right} \leftarrow [F\_free\_right,F\_at\_robby\_roomb,F\_at\_ball2\_roomb]\\
+%\mathbf{Add}_{A\_PICK\_ball2\_roomb\_right} \leftarrow [F\_carry\_ball2\_right]\\
+%\mathbf{Del}_{A\_PICK\_ball2\_roomb\_right} \leftarrow [F\_free\_right,F\_at\_ball2\_roomb]\\
+%\mathbf{Cond}_{A\_PICK\_ball2\_roomb\_left} \leftarrow [F\_free\_left,F\_at\_robby\_roomb,F\_at\_ball2\_roomb]\\
+%\mathbf{Add}_{A\_PICK\_ball2\_roomb\_left} \leftarrow [F\_carry\_ball2\_left]\\
+%\mathbf{Del}_{A\_PICK\_ball2\_roomb\_left} \leftarrow [F\_free\_left,F\_at\_ball2\_roomb]\\
+%\mathbf{Cond}_{A\_PICK\_ball1\_rooma\_left} \leftarrow [F\_free\_left,F\_at\_robby\_rooma,F\_at\_ball1\_rooma]\\
+%\mathbf{Add}_{A\_PICK\_ball1\_rooma\_left} \leftarrow [F\_carry\_ball1\_left]\\
+%\mathbf{Del}_{A\_PICK\_ball1\_rooma\_left} \leftarrow [F\_free\_left,F\_at\_ball1\_rooma]\\
+%\mathbf{Cond}_{A\_PICK\_ball1\_rooma\_right} \leftarrow [F\_free\_right,F\_at\_robby\_rooma,F\_at\_ball1\_rooma]\\
+%\mathbf{Add}_{A\_PICK\_ball1\_rooma\_right} \leftarrow [F\_carry\_ball1\_right]\\
+%\mathbf{Del}_{A\_PICK\_ball1\_rooma\_right} \leftarrow [F\_free\_right,F\_at\_ball1\_rooma]\\
+%\mathbf{Cond}_{A\_PICK\_ball2\_rooma\_left} \leftarrow [F\_free\_left,F\_at\_robby\_rooma,F\_at\_ball2\_rooma]\\
+%\mathbf{Add}_{A\_PICK\_ball2\_rooma\_left} \leftarrow [F\_carry\_ball2\_left]\\
+%\mathbf{Del}_{A\_PICK\_ball2\_rooma\_left} \leftarrow [F\_free\_left,F\_at\_ball2\_rooma]\\
+%\mathbf{Cond}_{A\_PICK\_ball2\_rooma\_right} \leftarrow [F\_free\_right,F\_at\_robby\_rooma,F\_at\_ball2\_rooma]\\
+%\mathbf{Add}_{A\_PICK\_ball2\_rooma\_right} \leftarrow [F\_carry\_ball2\_right]\\
+%\mathbf{Del}_{A\_PICK\_ball2\_rooma\_right} \leftarrow [F\_free\_right,F\_at\_ball2\_rooma]\\
+%\mathbf{Cond}_{A\_MOVE\_rooma\_roomb} \leftarrow [F\_at\_robby\_rooma]\\
+%\mathbf{Add}_{A\_MOVE\_rooma\_roomb} \leftarrow [F\_at\_robby\_roomb]\\
+%\mathbf{Del}_{A\_MOVE\_rooma\_roomb} \leftarrow [F\_at\_robby\_rooma]\\
+%\mathbf{Cond}_{A\_MOVE\_roomb\_rooma} \leftarrow [F\_at\_robby\_roomb]\\
+%\mathbf{Add}_{A\_MOVE\_roomb\_rooma} \leftarrow [F\_at\_robby\_rooma]\\
+%\mathbf{Del}_{A\_MOVE\_roomb\_rooma} \leftarrow [F\_at\_robby\_roomb]\\
+\bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{A}\in \mathbf{O}}}\left(\mathbf{A}_{\mathbf{i}} \Rightarrow \bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{Cond}_{\mathbf{A}}}}open_{\mathbf{f},\mathbf{i}}\right)\\
+\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{G}}}\left(open_{\mathbf{f},\mathbf{length}} \vee \bigvee\limits_{\substack{\mathbf{A}\in \mathbf{O}\\\mathbf{f} \in \mathbf{Add}_{\mathbf{A}}}}\mathbf{A}_{\mathbf{length}}\right)\\
+\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{F}\setminus \mathbf{I}}}\neg open_{\mathbf{f},1}\\
+\bigwedge\limits_{\substack{\mathbf{i}\in [2..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{F}}}\left(open_{\mathbf{f},\mathbf{i}} \Rightarrow \left(open_{\mathbf{f},\mathbf{i} - 1} \vee \bigvee\limits_{\substack{\mathbf{A}\in \mathbf{O}\\\mathbf{f} \in \mathbf{Add}_{\mathbf{A}}}}\mathbf{A}_{\mathbf{i} - 1}\right)\right)\\
+\bigwedge\limits_{\substack{\mathbf{i}\in [2..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{F}}}\left(open_{\mathbf{f},\mathbf{i}} \Rightarrow \bigwedge\limits_{\substack{\mathbf{A}\in \mathbf{O}\\\mathbf{f} \in \mathbf{Del}_{\mathbf{A}}}}\neg \mathbf{A}_{\mathbf{i} - 1}\right)\\
+\bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{A}\in \mathbf{O}}}\bigwedge\limits_{\substack{\mathbf{f}\in \left(\mathbf{Add}_{\mathbf{A}}\cup\mathbf{Cond}_{\mathbf{A}}\right)}}\bigwedge\limits_{\substack{\mathbf{B}\in \mathbf{O}\\\mathbf{A} \neq \mathbf{B} \wedge \mathbf{f} \in \mathbf{Del}_{\mathbf{B}}}}\left(\neg \mathbf{A}_{\mathbf{i}} \vee \neg \mathbf{B}_{\mathbf{i}}\right)\\
+\end{multline*}
+
+\begin{multline*}
+\displaystyle\mathop{\exists \mathbf{A}_{1}}_{\mathbf{A}\in \mathbf{O}} .\displaystyle\mathop{\exists open_{\mathbf{f},1}}_{\mathbf{f}\in \mathbf{F}} .\forall b_{1}. \displaystyle\mathop{\exists \mathbf{A}_{0}}_{\mathbf{A}\in \mathbf{O}} .\displaystyle\mathop{\exists open_{\mathbf{f},0}}_{\mathbf{f}\in \mathbf{F}} .\\
+\bigwedge\limits_{\substack{\mathbf{i}\in [0..\mathbf{depth}]}}\bigwedge\limits_{\substack{\mathbf{A}\in \mathbf{O}}}\left(\mathbf{A}_{\mathbf{i}} \Rightarrow \bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{Cond}_{\mathbf{A}}}}open_{\mathbf{f},\mathbf{i}}\right)\\
+ \wedge \left(\bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{depth}]}}b_{\mathbf{i}} \Rightarrow \bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{G}}}\left(open_{\mathbf{f},0} \vee \bigvee\limits_{\substack{\mathbf{A}\in \mathbf{O}\\\mathbf{f} \in \mathbf{Add}_{\mathbf{A}}}}\mathbf{A}_{0}\right)\right)\\
+ \wedge \left(\bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{depth}]}}\neg b_{\mathbf{i}} \Rightarrow \bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{F}\setminus \mathbf{I}}}\neg open_{\mathbf{f},0}\right)\\
+ \wedge \bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{depth}]}}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{F}}}\left(\left(open_{\mathbf{f},\mathbf{i}} \wedge \neg b_{\mathbf{i}} \wedge \bigwedge\limits_{\substack{\mathbf{j}\in [1..\mathbf{i} - 1]}}b_{\mathbf{j}}\right) \Rightarrow \left(open_{\mathbf{f},0} \vee \bigvee\limits_{\substack{\mathbf{A}\in \mathbf{O}\\\mathbf{f} \in \mathbf{Add}_{\mathbf{A}}}}\mathbf{A}_{0}\right)\right)\\
+ \wedge \bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{depth}]}}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{F}}}\left(\left(open_{\mathbf{f},0} \wedge b_{\mathbf{i}} \wedge \bigwedge\limits_{\substack{\mathbf{j}\in [1..\mathbf{i} - 1]}}\neg b_{\mathbf{j}}\right) \Rightarrow \left(open_{\mathbf{f},\mathbf{i}} \vee \bigvee\limits_{\substack{\mathbf{A}\in \mathbf{O}\\\mathbf{f} \in \mathbf{Add}_{\mathbf{A}}}}\mathbf{A}_{\mathbf{i}}\right)\right)\\
+ \wedge \bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{depth}]}}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{F}}}\left(\left(open_{\mathbf{f},\mathbf{i}} \wedge \neg b_{\mathbf{i}} \wedge \bigwedge\limits_{\substack{\mathbf{j}\in [1..\mathbf{i} - 1]}}b_{\mathbf{j}}\right) \Rightarrow \bigwedge\limits_{\substack{\mathbf{A}\in \mathbf{O}\\\mathbf{f} \in \mathbf{Del}_{\mathbf{A}}}}\neg \mathbf{A}_{0}\right)\\
+ \wedge \bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{depth}]}}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{F}}}\left(\left(open_{\mathbf{f},0} \wedge b_{\mathbf{i}} \wedge \bigwedge\limits_{\substack{\mathbf{j}\in [1..\mathbf{i} - 1]}}\neg b_{\mathbf{j}}\right) \Rightarrow \bigwedge\limits_{\substack{\mathbf{A}\in \mathbf{O}\\\mathbf{f} \in \mathbf{Del}_{\mathbf{A}}}}\neg \mathbf{A}_{\mathbf{i}}\right)\\
+ \wedge \bigwedge\limits_{\substack{\mathbf{i}\in [0..\mathbf{depth}]}}\bigwedge\limits_{\substack{\mathbf{A}\in \mathbf{O}}}\bigwedge\limits_{\substack{\mathbf{f}\in \left(\mathbf{Add}_{\mathbf{A}}\cup\mathbf{Cond}_{\mathbf{A}}\right)}}\bigwedge\limits_{\substack{\mathbf{B}\in \mathbf{O}\\\mathbf{A} \neq \mathbf{B} \wedge \mathbf{f} \in \mathbf{Del}_{\mathbf{B}}}}\left(\neg \mathbf{A}_{\mathbf{i}} \vee \neg \mathbf{B}_{\mathbf{i}}\right)\\
+\end{multline*}
+
+\begin{multline*}
+%\bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{A}\in \mathbf{O}}}\left(\mathbf{A}_{\mathbf{i}} \Rightarrow \bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{Cond}_{\mathbf{A}}}}\left(open_{\mathbf{f},\mathbf{i}} \wedge \left(t_{\mathbf{A},\mathbf{i}} - 0. \leq t\_e\_open_{\mathbf{f},\mathbf{i}} - \mathbf{t\_cond\_begin}_{\mathbf{f},\mathbf{A}}\right)\right)\right)\\
+%
+\bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{A}\in \mathbf{O}}}\left(\mathbf{A}_{\mathbf{i}} \Rightarrow \bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{Cond}_{\mathbf{A}}}}\begin{pmatrix}open_{\mathbf{f},\mathbf{i}}\hfill\\ \wedge \left(\tau(\mathbf{f}\mid\rightarrow\mathbf{A}_\mathbf{i}) \geq \tau_{s}(open_{\mathbf{f},\mathbf{i}})\right)\hfill\\
+ \wedge \left(\tau(\mathbf{f}\mid\rightarrow\mathbf{A}_\mathbf{i}) \leq \tau_{e}(open_{\mathbf{f},\mathbf{i}})\right)\end{pmatrix}\right)\\
+%%%
+%\bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{F}}}\left(t\_s\_open_{\mathbf{f},\mathbf{i}} - 0. \leq t\_e\_open_{\mathbf{f},\mathbf{i}} - 0.\right)\\
+%
+%%REDONDANT%%\bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{F}}}\left(\tau_{s}(open_{\mathbf{f},\mathbf{i}}) \leq \tau_{e}(open_{\mathbf{f},\mathbf{i}})\right)\\
+%%%
+%\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{G}}}\left(open_{\mathbf{f},\mathbf{length}} \vee \bigvee\limits_{\substack{\mathbf{A}\in \mathbf{O}\\\mathbf{f} \in \mathbf{Add}_{\mathbf{A}}}}\begin{pmatrix}\mathbf{A}_{\mathbf{length}}\hfill\\
+% \wedge \left(t_{\mathbf{A},\mathbf{length}} - 0. = t\_s\_open_{\mathbf{f},\mathbf{length}} - \mathbf{t\_add\_begin}_{\mathbf{A},\mathbf{f}}\right)\hfill\\
+%  \wedge \left(t\_Goal - 0. = t\_e\_open_{\mathbf{f},\mathbf{length}} - 0.\right)\hfill\end{pmatrix}\right)\\
+%
+\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{G}}}\left(open_{\mathbf{f},\mathbf{length}} \vee \bigvee\limits_{\substack{\mathbf{A}\in \mathbf{O}\\\mathbf{f} \in \mathbf{Add}_{\mathbf{A}}}}\begin{pmatrix}\mathbf{A}_{\mathbf{length}}\hfill\\
+ \wedge \left(\tau(\mathbf{A}_\mathbf{length}\mid\rightarrow \mathbf{f}) = \tau_{s}(open_{\mathbf{f},\mathbf{length}})\right)\hfill\\
+  \wedge \left(\tau_{\textit{Goal}} = \tau_{e}(open_{\mathbf{f},\mathbf{length}})\right)\hfill\end{pmatrix}\right)\\
+%%%
+\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{F}\setminus \mathbf{I}}}\neg open_{\mathbf{f},1}\\
+%%%
+%\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{I}}}\left(open_{\mathbf{f},1} \Rightarrow \left(t\_Init - 0. = t\_s\_open_{\mathbf{f},1} - 0.\right)\right)\\
+%
+\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{I}}}\left(open_{\mathbf{f},1} \Rightarrow \left(\tau_{\textit{Init}} = \tau_{s}(open_{\mathbf{f},1})\right)\right)\\
+%%%
+%\bigwedge\limits_{\substack{\mathbf{i}\in [2..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{F}}}\left(open_{\mathbf{f},\mathbf{i}} \Rightarrow \begin{pmatrix}open_{\mathbf{f},\mathbf{i} - 1}\hfill\\
+% \vee \bigvee\limits_{\substack{\mathbf{A}\in \mathbf{O}\\\mathbf{f} \in \mathbf{Add}_{\mathbf{A}}}}\left(\mathbf{A}_{\mathbf{i} - 1} \wedge \left(t_{\mathbf{A},\mathbf{i}} - 0. = t\_s\_open_{\mathbf{f},\mathbf{i}} - \mathbf{t\_add\_begin}_{\mathbf{A},\mathbf{f}}\right)\right)\\
+% \end{pmatrix}\right)\\
+%
+\bigwedge\limits_{\substack{\mathbf{i}\in [2..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{F}}}\left(open_{\mathbf{f},\mathbf{i}} \Rightarrow \begin{pmatrix}\left(open_{\mathbf{f},\mathbf{i} - 1} \wedge %\begin{pmatrix}
+\left(\tau_{s}(open_{\mathbf{f},\mathbf{i} - 1}) = \tau_{s}(open_{\mathbf{f},\mathbf{i}})\right)%\hfill\\
+ \wedge \left(\tau_{e}(open_{\mathbf{f},\mathbf{i} - 1}) = \tau_{e}(open_{\mathbf{f},\mathbf{i}})\right)%\end{pmatrix}
+ \right)\hfill\\
+ \vee \bigvee\limits_{\substack{\mathbf{A}\in \mathbf{O}\\\mathbf{f} \in \mathbf{Add}_{\mathbf{A}}}}\left(\mathbf{A}_{\mathbf{i} - 1} \wedge \left(\tau(\mathbf{A}_{\mathbf{i} - 1}\mid\rightarrow \mathbf{f}) = \tau_{s}(open_{\mathbf{f},\mathbf{i}})\right)\right)\hfill\\
+ \end{pmatrix}\right)\\
+%%%
+%\bigwedge\limits_{\substack{\mathbf{i}\in [2..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{F}}}\left(\left(open_{\mathbf{f},\mathbf{i} - 1} \wedge open_{\mathbf{f},\mathbf{i}}\right) \Rightarrow \begin{pmatrix}\left(t\_s\_open_{\mathbf{f},\mathbf{i} - 1} - 0. = t\_s\_open_{\mathbf{f},\mathbf{i}} - 0.\right)\hfill\\
+% \wedge \left(t\_e\_open_{\mathbf{f},\mathbf{i} - 1} - 0. = t\_e\_open_{\mathbf{f},\mathbf{i}} - 0.\right)\end{pmatrix}\right)\\
+%
+%%INTEGRE REGLE PREC%%\bigwedge\limits_{\substack{\mathbf{i}\in [2..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{F}}}\left(\left(open_{\mathbf{f},\mathbf{i} - 1} \wedge open_{\mathbf{f},\mathbf{i}}\right) \Rightarrow \begin{pmatrix}\left(\tau_{s}(open_{\mathbf{f},\mathbf{i} - 1}) = \tau_{s}(open_{\mathbf{f},\mathbf{i}})\right)\hfill\\
+ %%%%\wedge \left(\tau_{e}(open_{\mathbf{f},\mathbf{i} - 1}) = \tau_{e}(open_{\mathbf{f},\mathbf{i}})\right)\end{pmatrix}\right)\\
+%%%
+%\bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{F}}}\bigwedge\limits_{\substack{\mathbf{A}\in \mathbf{O}\\\mathbf{f} \in \mathbf{Del}_{\mathbf{A}}}}\left(\left(open_{\mathbf{f},\mathbf{i}} \wedge \mathbf{A}_{\mathbf{i}}\right) \Rightarrow \begin{pmatrix}\left(t\__{\mathbf{A},\mathbf{i}} - 0. < t\_s\_open_{\mathbf{f},\mathbf{i}} - \mathbf{t\_del\_end}_{\mathbf{A},\mathbf{f}}\right)\hfill\\
+% \vee \left(t\_e\_open_{\mathbf{f},\mathbf{i}} - \mathbf{t\_del\_begin}_{\mathbf{A},\mathbf{f}} < t\__{\mathbf{A},\mathbf{i}} - 0.\right)\end{pmatrix}\right)\\
+%
+\bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{j}\in [1..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{F}}}\bigwedge\limits_{\substack{\mathbf{A}\in \mathbf{O}\\\mathbf{f} \in \mathbf{Del}_{\mathbf{A}}}}\left(\left(open_{\mathbf{f},\mathbf{i}} \wedge \mathbf{A}_{\mathbf{j}}\right) \Rightarrow \begin{pmatrix}\left(\tau(\mathbf{A}_\mathbf{j}\rightarrow\mid \neg \mathbf{f}) < \tau_{s}(open_{\mathbf{f},\mathbf{i}})\right)\hfill\\
+ \vee \left(\tau_{e}(open_{\mathbf{f},\mathbf{i}}) < \tau(\mathbf{A}_\mathbf{j}\mid\rightarrow \neg \mathbf{f})\right)\end{pmatrix}\right)\\
+%%%
+%\bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{A}\in \mathbf{O}}}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{Add}_{\mathbf{A}}}}\bigwedge\limits_{\substack{\mathbf{B}\in \mathbf{O}\\\mathbf{A} \neq \mathbf{B} \wedge \mathbf{f} \in \mathbf{Del}_{\mathbf{B}}}}\left(\left(\mathbf{A}_{\mathbf{i}} \wedge \mathbf{B}_{\mathbf{i}}\right) \Rightarrow \begin{pmatrix}\left(t\__{\mathbf{A},\mathbf{i}} - \mathbf{t\_del\_begin}_{\mathbf{B},\mathbf{f}} < t\__{\mathbf{B},\mathbf{i}} - \mathbf{t\_add\_end}_{\mathbf{A},\mathbf{f}}\right)\hfill\\
+% \vee \left(t\__{\mathbf{B},\mathbf{i}} - \mathbf{t\_add\_begin}_{\mathbf{A},\mathbf{f}} < t\__{\mathbf{A},\mathbf{i}} - \mathbf{t\_del\_end}_{\mathbf{B},\mathbf{f}}\right)\end{pmatrix}\right)\\
+%
+\bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{j}\in [1..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{A}\in \mathbf{O}}}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{Add}_{\mathbf{A}}}}\bigwedge\limits_{\substack{\mathbf{B}\in \mathbf{O}\\((\mathbf{i} \neq \mathbf{j}) \vee (\mathbf{A} \neq \mathbf{B})) \wedge \mathbf{f} \in \mathbf{Del}_{\mathbf{B}}}}\left(\left(\mathbf{A}_{\mathbf{i}} \wedge \mathbf{B}_{\mathbf{j}}\right) \Rightarrow \begin{pmatrix}\left(\tau(\mathbf{A}_\mathbf{i}\rightarrow\mid \mathbf{f}) < \tau(\mathbf{B}_\mathbf{j}\mid\rightarrow \neg \mathbf{f})\right)\hfill\\
+ \vee \left(\tau(\mathbf{B}_\mathbf{j}\rightarrow\mid \neg \mathbf{f}) < \tau(\mathbf{A}_\mathbf{i}\mid\rightarrow \mathbf{f})\right)\end{pmatrix}\right)\\
+%%%%%%%%%%
+\bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{j}\in [1..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{A}\in \mathbf{O}}}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{Cond}_{\mathbf{A}}}}\bigwedge\limits_{\substack{\mathbf{B}\in \mathbf{O}\\((\mathbf{i} \neq \mathbf{j}) \vee (\mathbf{A} \neq \mathbf{B})) \wedge \mathbf{f} \in \mathbf{Del}_{\mathbf{B}}}}\left(\left(\mathbf{A}_{\mathbf{i}} \wedge \mathbf{B}_{\mathbf{j}}\right) \Rightarrow \begin{pmatrix}\left(\tau(\mathbf{f}\rightarrow\mid\mathbf{A}_\mathbf{i}) < \tau(\mathbf{B}_\mathbf{j}\mid\rightarrow \neg \mathbf{f})\right)\hfill\\
+ \vee \left(\tau(\mathbf{B}_\mathbf{j}\rightarrow\mid \neg \mathbf{f}) < \tau(\mathbf{f}\mid\rightarrow\mathbf{A}_\mathbf{i})\right)\end{pmatrix}\right)\\
+%%%
+\bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{A}\in \mathbf{O}}}\left(\mathbf{A}_{\mathbf{i}} \Rightarrow \begin{pmatrix}\bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{Cond}_{\mathbf{A}}}} \begin{pmatrix}\left(\tau_{\textit{Init}} \leq \tau(\mathbf{f}\mid\rightarrow\mathbf{A}_\mathbf{i}) \right)%\hfill\\
+ \wedge \left(\tau_{\textit{Goal}} \geq \tau(\mathbf{f}\rightarrow\mid\mathbf{A}_\mathbf{i})\right) \end{pmatrix}\hfill\\
+ \wedge \bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{Add}_{\mathbf{A}}}} \begin{pmatrix}\left(\tau_{\textit{Init}} \leq \tau(\mathbf{A}_\mathbf{i}\mid\rightarrow \mathbf{f}) \right)%\hfill\\
+ \wedge \left(\tau_{\textit{Goal}} \geq \tau(\mathbf{A}_\mathbf{i}\rightarrow\mid \mathbf{f})\right) \end{pmatrix}\hfill\\
+ \wedge \bigwedge\limits_{\substack{\mathbf{f}\in \mathbf{Del}_{\mathbf{A}}}} \begin{pmatrix}\left(\tau_{\textit{Init}} \leq \tau(\mathbf{A}_\mathbf{i}\mid\rightarrow \neg \mathbf{f}) \right)%\hfill\\
+ \wedge \left(\tau_{\textit{Goal}} \geq \tau(\mathbf{A}_\mathbf{i}\rightarrow\mid \neg \mathbf{f})\right) \end{pmatrix} \end{pmatrix}\right)\\
+ %%%
+ \bigwedge\limits_{\substack{\mathbf{i}\in [1..\mathbf{length}]}}\bigwedge\limits_{\substack{\mathbf{A}\in \mathbf{O}}} \left(\neg \mathbf{A}_{\mathbf{i}} \Rightarrow \left(t_{\mathbf{A},\mathbf{i}} = -1\right)\right)\\
+\end{multline*}
+
+
+\end{document}
