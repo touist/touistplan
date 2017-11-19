@@ -107,7 +107,7 @@ let endl_string () = Utils.print "\n"
 
 
 
-class t (problem:string) (domain:string) (options:string) (encoding : int) (solvernum : int) (incrmode : int) =
+class t (problem:string) (domain:string) (options:string) (encoding : int) (solvernum : int) (incrmode : int) (incmin : int) =
 object (self)
   inherit [fluent, action, plan] PlanningData.t problem domain "" as pdata
   inherit [fluent, action, plan] tsp_common
@@ -531,7 +531,7 @@ in
 Utils.eprint "Maximum tree depth: |Fluents|=%d.\n" treedepthbound;
 flush stdout; flush stderr;
 
-let treedepth = ref 0 in
+let treedepth = ref incmin in
 let qbftrue = ref false in
 
 let plansat () =
@@ -604,7 +604,7 @@ in
 Utils.eprint "Maximum plan length: 2^|Fluents|=%d.\n" planlengthbound;
 flush stdout; flush stderr;
 
-let planlength = ref 0 in
+let planlength = ref incmin in
 let sattrue = ref false in
 while (!planlength < planlengthbound) && (not !sattrue) do
   if incrmode <= 1 then planlength := !planlength + 1
