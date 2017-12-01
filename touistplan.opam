@@ -1,0 +1,17 @@
+opam-version: "1.2"
+name: "touistplan"
+version: "~unknown"
+maintainer: "Maël Valais <mael.valais@gmail.com>"
+authors: "Maël Valais <mael.valais@gmail.com>"
+homepage: "https://github.com/touist/touistplan"
+bug-reports: "https://github.com/touist/touistplan/issues"
+license: "MIT"
+dev-repo: "https://github.com/touist/touistplan.git"
+build: [
+  make "-j%{jobs}%" "nc"
+]
+install: ["install" "touistplan" "%{bin}%"]
+remove: ["rm" "%{bin}%/touistplan"]
+depends: [
+  "ocamlfind" {build}
+]
