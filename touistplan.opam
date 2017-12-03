@@ -7,8 +7,10 @@ homepage: "https://github.com/touist/touistplan"
 bug-reports: "https://github.com/touist/touistplan/issues"
 license: "MIT"
 dev-repo: "https://github.com/touist/touistplan.git"
+
 build: [
-  make "-j%{jobs}%" "nc"
+  # NOTE: touistplan does not handle parallel make (make -j4)
+  make "nc"
 ]
 install: ["install" "touistplan" "%{bin}%"]
 remove: ["rm" "%{bin}%/touistplan"]
