@@ -28,7 +28,7 @@ PROBLEM: strips planning problem expressed in (typed) PDDL
         "\t- qbf-efa : QBFPLAN with Explanatory Frame-Axioms (default)\n"^
         "\t- qbf-noop : QBFPLAN with No-op Actions\n"^
         "\t- sat-efa : SATPLAN with Explanatory Frame-Axioms"));
-    ("-s", Arg.Symbol (solvers_list, fun s -> solver:=s), "");
+    ("-s", Arg.Symbol (solvers_list, fun s -> solver:=s), ": solver choice");
     ("-c", Arg.Set_string constraints,
      "CONSTR: strips planning constraints expressed in (typed) Extended-PDDL");
 
