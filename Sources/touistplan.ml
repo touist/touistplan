@@ -509,10 +509,10 @@ Utils.eprint "--- TouIST solve (QBF) / branch atom = %s ---\n" addatom;
 flush stdout; flush stderr;
 (* INERNAL SOLVER *) (* ignore (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf --solve - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom)); *)
 (* EXTERNAL SOLVER: *)  
-if solvernum == 0 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf --solver 'depqbf --qdo --no-dynamic-nenofex' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
-if solvernum == 1 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf --solver rareqs - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
-if solvernum == 2 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf --solver './solvers/caqe-mac --partial-assignments' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
-if solvernum == 3 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf --solver 'qute --partial-certificate --prefix-mode' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
+if solvernum == 0 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf -v --solver 'depqbf --qdo --no-dynamic-nenofex' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
+if solvernum == 1 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf -v --solver rareqs - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
+if solvernum == 2 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf -v --solver './solvers/caqe-mac --partial-assignments' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
+if solvernum == 3 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf -v --solver 'qute --partial-certificate --prefix-mode' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
 (* FICHIER DEBUG: *)  ignore (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') > debug.touistl" maxdepth atomsfiles addatom));
   ignore (Sys.command (Printf.sprintf "((cat solvedata/out.emodel.txt | grep '1 ' | sed -e 's/1 /and /') ; (cat solvedata/out.emodel.txt | grep '0 ' | sed -e 's/0 /and not /')) > solvedata/in.atoms%d.txt" (branchdepth - 1)));
 if branchdepth <= maxdepth then ignore (Sys.command (Printf.sprintf "cat solvedata/in.atoms%d.txt | grep 'and A_' | grep '(%d)'" (branchdepth - 1) (branchdepth - 1)));
@@ -553,6 +553,7 @@ done in
 
 let (plansat_time,_) = Utils.my_time2bis (fun () -> plansat ()) in
 Utils.eprint "Plan existence time (PLANSAT): %.2f\n" plansat_time;
+(* Show number of literals & clauses *) ignore @@ Sys.command ("cat solvedata/out.touisterr.txt >&2");
 
   let rec extract depth = match depth with
     | 0 -> ();
