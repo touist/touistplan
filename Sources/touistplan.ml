@@ -106,8 +106,10 @@ let endl_int () = Utils.print "0\n"
 let endl_string () = Utils.print "\n"
 
 
-
-class t (problem:string) (domain:string) (options:string) (encoding : int) (solvernum : int) (incrmode : int) (incmin : int) =
+(* [time_allowed] is in seconds. The same amount of time before timeout is
+   given to finding the existence (i.e., increase the depth until the QBF is
+   true) and to extracting the plan.  *)
+class t (problem:string) (domain:string) (options:string) (encoding : int) (solvernum : int) (incrmode : int) (incmin : int) (time_allowed : int) =
 object (self)
   inherit [fluent, action, plan] PlanningData.t problem domain "" as pdata
   inherit [fluent, action, plan] tsp_common
@@ -158,7 +160,13 @@ val mutable depth_counter = ref 0
     (*let get_f f a_iset =
       Array.fold_left (fun c x -> if ((fst x)#atom#equal f#atom) then (fst x) else c) f a_iset
     in*)
-
+let exception Timeout in
+(* [time_left] returns the number of seconds (as an integer) remaining before
+   timeout; if the remaining number of seconds is negative or 0, raise Timeout. *)
+let time_left time_start =
+  let remain = (float_of_int time_allowed) -. (Unix.gettimeofday () -. time_start) in
+  if remain <= 0. then raise Timeout else remain
+in
 flush stdout; flush stderr;
 Utils.eprint "Select TouIST\n";
 flush stdout; flush stderr;
@@ -500,19 +508,20 @@ if encoding < 100 then
 begin
 
 
-let touistsolveqbf maxdepth branchdepth addatom =
+let touistsolveqbf maxdepth branchdepth addatom timeout =
   let touistcode = ref 0 in
   genquantifiers maxdepth branchdepth;
   let atomsfiles = if branchdepth <= maxdepth then (Printf.sprintf " solvedata/in.atoms%d.txt" branchdepth) else "" in
 (* Utils.eprint "TouIST solve / depth = %d / branch = %d / atomsfiles = %s / addatom = %s\n" maxdepth branchdepth atomsfiles addatom; *)
 Utils.eprint "--- TouIST solve (QBF) / branch atom = %s ---\n" addatom;
 flush stdout; flush stderr;
-(* INERNAL SOLVER *) (* ignore (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf --solve - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom)); *)
+let timeout_cmd = if timeout>0. then "timeout "^string_of_float timeout^"" else "" in
+(* INERNAL SOLVER *) (* ignore (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | timeout %d touist --qbf --solve - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom)); *)
 (* EXTERNAL SOLVER: *)  
-if solvernum == 0 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf -v --solver 'depqbf --qdo --no-dynamic-nenofex' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
-if solvernum == 1 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf -v --solver rareqs - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
-if solvernum == 2 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf -v --solver './solvers/caqe-mac --partial-assignments' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
-if solvernum == 3 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | touist --qbf -v --solver 'qute --partial-certificate --prefix-mode' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom));
+if solvernum == 0 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | %s touist --qbf -v --solver 'depqbf --qdo --no-dynamic-nenofex' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom timeout_cmd));
+if solvernum == 1 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | %s touist --qbf -v --solver rareqs - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom timeout_cmd));
+if solvernum == 2 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | %s touist --qbf -v --solver './solvers/caqe-mac --partial-assignments' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom timeout_cmd));
+if solvernum == 3 then touistcode := (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | %s touist --qbf -v --solver 'qute --partial-certificate --prefix-mode' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom timeout_cmd));
 (* FICHIER DEBUG: *)  ignore (Sys.command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') > debug.touistl" maxdepth atomsfiles addatom));
   ignore (Sys.command (Printf.sprintf "((cat solvedata/out.emodel.txt | grep '1 ' | sed -e 's/1 /and /') ; (cat solvedata/out.emodel.txt | grep '0 ' | sed -e 's/0 /and not /')) > solvedata/in.atoms%d.txt" (branchdepth - 1)));
 if branchdepth <= maxdepth then ignore (Sys.command (Printf.sprintf "cat solvedata/in.atoms%d.txt | grep 'and A_' | grep '(%d)'" (branchdepth - 1) (branchdepth - 1)));
@@ -535,13 +544,20 @@ let treedepth = ref incmin in
 let qbftrue = ref false in
 
 let plansat () =
+let time_start = Unix.gettimeofday () (* in seconds *) in
 while (!treedepth < treedepthbound) && (not !qbftrue) do
   treedepth := !treedepth + 1;
   Utils.eprint "Searching solution at depth %d...\n" !treedepth;
   flush stdout; flush stderr;
-  let touistcode = touistsolveqbf !treedepth (!treedepth + 1) "" in
-  if touistcode == 0 then qbftrue:=true
-  else if touistcode != 8 then begin Utils.eprint "Solver error %d.\n" touistcode; exit touistcode; end;
+  (* We want to use the shell command 'timeout'; 'timeout' takes a positive
+     integer as first argument (time_left). If we put 0, it means
+     'no timeout' so I put a 1 second timeout instead to force the timeout. *)
+  match touistsolveqbf !treedepth (!treedepth + 1) "" (time_left time_start) with
+  | 0 -> qbftrue:=true
+  | 8 -> qbftrue:=false
+  | exception Timeout -> (Utils.eprint "Timeout when searching solution of lenght %d.\n" !treedepth; exit 124)
+  | 124 -> (* code returned by 'timeout' *) (Utils.eprint "Timeout when searching solution at depth %d.\n" !treedepth; exit 124)
+  | touistcode -> (Utils.eprint "Solver error %d.\n" touistcode; exit touistcode)
 (**  let resultfile = (Unix.openfile "solvedata/out.touisterr.txt" [Unix.O_RDONLY] 0o640) in
   let c = Unix.in_channel_of_descr resultfile in
   let result = try input_line c with End_of_file -> "sat" in
@@ -555,13 +571,14 @@ let (plansat_time,_) = Utils.my_time2bis (fun () -> plansat ()) in
 Utils.eprint "Plan existence time (PLANSAT): %.2f\n" plansat_time;
 (* Show number of literals & clauses *) ignore @@ Sys.command ("cat solvedata/out.touisterr.txt >&2");
 
-  let rec extract depth = match depth with
+  let rec extract depth time_start =
+    match depth with
     | 0 -> ();
     | i -> begin
-             touistsolveqbf !treedepth i (Printf.sprintf "and not b(%d)" i);
-             extract (i - 1);
-             touistsolveqbf !treedepth i (Printf.sprintf "and b(%d)" i);
-             extract (i - 1);
+             touistsolveqbf !treedepth i (Printf.sprintf "and not b(%d)" i) (time_left time_start) |> ignore;
+             extract (i - 1) time_start;
+             touistsolveqbf !treedepth i (Printf.sprintf "and b(%d)" i) (time_left time_start) |> ignore;
+             extract (i - 1) time_start;
            end;
   in
 
@@ -571,9 +588,9 @@ begin
   Utils.eprint "Solution found at depth %d.\n" !treedepth; flush stdout; flush stderr;
   ignore (Sys.command (Printf.sprintf "cat solvedata/in.atoms%d.txt | grep 'and A_' | grep '(%d)'" !treedepth !treedepth));
   flush stdout; flush stderr;
-  let (extr_time,_) = Utils.my_time2bis (fun () -> extract !treedepth) in extract_time := extr_time
+  try let (extr_time,_) = Utils.my_time2bis (fun () -> extract !treedepth (Unix.gettimeofday ())) in extract_time := extr_time
+  with Timeout -> (Utils.eprint "Timeout when extracting\n"; exit 125)
 end else Utils.eprint "No solution at maximum depth bound.\nThe planning problem does not have any solution.\n";
-
 Utils.eprint "Plan existence time (PLANSAT): %.2f\n" plansat_time;
 if !qbftrue then Utils.eprint "Plan extract time: %.2f\n" !extract_time;
 flush stdout; flush stderr;
@@ -587,15 +604,16 @@ end;
 if encoding < 200 then
 begin
 
-let touistsolvesat length =
+let touistsolvesat length timeout =
   let touistcode = ref 0 in
   Utils.eprint "--- TouIST solve (SAT) / length = %d ---\n" length;
   flush stdout; flush stderr;
-  if solvernum == 0 then touistcode := (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | touist --sat --solve - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length));
-  if solvernum == 101 then touistcode := (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | touist --sat --solver 'glucose -model' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length));
-  if solvernum == 102 then touistcode := (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | touist --sat --solver 'glucose-syrup -model' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length));
-  if solvernum == 103 then touistcode := (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | touist --sat --solver 'picosat --partial' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length));
-  if solvernum == 104 then touistcode := (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | touist --sat --solver 'lingeling' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length));
+  let timeout_cmd = if timeout>0. then "timeout "^ string_of_float timeout else "" in
+  if solvernum == 0 then touistcode := (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | %s touist --sat --solve - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length timeout_cmd));
+  if solvernum == 101 then touistcode := (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | %s touist --sat --solver 'glucose -model' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length timeout_cmd));
+  if solvernum == 102 then touistcode := (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | %s touist --sat --solver 'glucose-syrup -model' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length timeout_cmd));
+  if solvernum == 103 then touistcode := (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | %s touist --sat --solver 'picosat --partial' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length timeout_cmd));
+  if solvernum == 104 then touistcode := (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | %s touist --sat --solver 'lingeling' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length timeout_cmd));
   (* FICHIER DEBUG: *) ignore (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) > debug.touistl" length));
   !touistcode
 in
@@ -607,15 +625,19 @@ flush stdout; flush stderr;
 
 let planlength = ref incmin in
 let sattrue = ref false in
+let time_start = Unix.gettimeofday () in
 while (!planlength < planlengthbound) && (not !sattrue) do
   if incrmode <= 1 then planlength := !planlength + 1
   else if !planlength == 0 then planlength := 1
        else planlength := !planlength * incrmode;
   Utils.eprint "Searching solution with length %d...\n" !planlength;
   flush stdout; flush stderr;
-  let touistcode = touistsolvesat !planlength in
-  if touistcode == 0 then sattrue:=true
-  else if touistcode != 8 then begin Utils.eprint "Solver error %d.\n" touistcode; exit touistcode; end;
+  match touistsolvesat !planlength (time_left time_start) with
+  | 0 -> sattrue:=true
+  | 8 -> sattrue:=false
+  | exception Timeout -> (Utils.eprint "Timeout when searching solution of lenght %d.\n" !planlength; exit 124)
+  | 124 -> (Utils.eprint "Timeout when searching solution of lenght %d.\n" !planlength; exit 124)
+  | touistcode -> begin Utils.eprint "Solver error %d.\n" touistcode; exit touistcode; end;
 (*  let resultfile = (Unix.openfile "solvedata/out.touisterr.txt" [Unix.O_RDONLY] 0o640) in
   let c = Unix.in_channel_of_descr resultfile in
   let result = try input_line c with End_of_file -> "sat" in
@@ -639,11 +661,13 @@ end;
 if encoding < 300 then
 begin
 
-let touistsolvesat length =
+let touistsolvesat length timeout : int =
   Utils.eprint "--- TouIST solve (SMT) / length = %d ---\n" length;
   flush stdout; flush stderr;
-  ignore (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | touist --smt QF_RDL --solve - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length));
+  let timeout_cmd = if timeout>0. then "timeout "^ string_of_float timeout else "" in
+  let status = Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | %s touist --smt QF_RDL --solve - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length timeout_cmd) in
   (* FICHIER DEBUG: *) ignore (Sys.command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) > debug.touistl" length));
+  status
 in
 
 let planlengthbound = 256 (* (Array.length pdata#fluents) * (Array.length pdata#fluents) *)
@@ -653,15 +677,17 @@ flush stdout; flush stderr;
 
 let planlength = ref 0 in
 let sattrue = ref false in
+let time_start = Unix.gettimeofday () in
 while (!planlength < planlengthbound) && (not !sattrue) do
   planlength := !planlength + 1;
   Utils.eprint "Searching solution with length %d...\n" !planlength;
   flush stdout; flush stderr;
-  touistsolvesat !planlength;
-  let resultfile = (Unix.openfile "solvedata/out.touisterr.txt" [Unix.O_RDONLY] 0o640) in
-  let c = Unix.in_channel_of_descr resultfile in
-  let result = try input_line c with End_of_file -> "sat" in
-  if (String.compare result "unsat") != 0 then sattrue:=true;
+  match touistsolvesat !planlength (time_left time_start) with
+  | 0 -> sattrue := true
+  | 8 -> sattrue := false
+  | exception Timeout -> (Utils.eprint "Timeout when searching solution of lenght %d.\n" !planlength; exit 124)
+  | 124 -> (Utils.eprint "Timeout when searching solution of lenght %d.\n" !planlength; exit 124)
+  | touistcode -> begin Utils.eprint "Solver error %d.\n" touistcode; exit touistcode; end
 done;
 
 if !sattrue then
