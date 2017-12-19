@@ -529,7 +529,7 @@ if (encoding == 1) && (branchdepth <= maxdepth) then ignore (Sys.command (Printf
 for i = maxdepth downto branchdepth - 1 do
   Sys.command (Printf.sprintf "cat solvedata/out.emodel.txt | grep '? ' | grep '\\((\\|,\\)%d)'" i) |> ignore;
   if 0 = Sys.command (Printf.sprintf "cat solvedata/out.emodel.txt | grep '? ' | grep '\\((\\|,\\)%d)' | grep '\\(A_\\|F_\\)' >/dev/null" i)
-  then exit 1;
+  then exit 100; (* when some outer quantified variable is not quantified *)
   flush stdout; flush stderr;
 done;
 !touistcode
