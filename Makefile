@@ -40,6 +40,7 @@ SOURCES = \
 	$(S)sequentialPlan.ml \
 	$(S)planningData.ml \
 	$(S)touistplan.ml \
+	$(S)countConstraints.ml \
 	$(S)tlpgp.ml \
 	$(S)tsp.ml \
 	$(S)tsp2.ml \
