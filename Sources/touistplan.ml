@@ -541,7 +541,7 @@ if (encoding == 1) && (branchdepth <= maxdepth) then ignore (command (Printf.spr
 for i = maxdepth downto branchdepth - 1 do
   command (Printf.sprintf "cat solvedata/out.emodel.txt | grep '? ' | grep '\\((\\|,\\)%d)'" i) |> ignore;
   if 0 = command (Printf.sprintf "cat solvedata/out.emodel.txt | grep '? ' | grep '\\((\\|,\\)%d)' | grep '\\(A_\\|F_\\)' >/dev/null" i)
-  then exit 100; (* when some outer quantified variable is not quantified *)
+  then (Printf.eprintf "Solver did not quantify one of the outer-existentially-quantified variable; cannot continue!";exit 100); (* when some outer quantified variable is not quantified *)
   flush stdout; flush stderr;
 done;
 !touistcode
