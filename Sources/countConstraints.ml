@@ -50,6 +50,31 @@ class t (problem:string) (domain:string) (depth : int) =
 
     method search =
       let k = depth in
+      
+      (** CTE-NOOP **)
+      
+      let cte_open_bc = (* branch constraints *)
+        Array.fold_left (fun acc a -> if Array.for_all (fun f -> Array.mem f pdata#init_state) a#prec then acc else succ acc) 0 pdata#actions (* |{a / Pre(a) not included in I}| *)
+        + Array.fold_left (fun acc fl -> if Array.mem fl pdata#init_state then acc else acc+1) 0 pdata#fluents (* |F-I| (2) *)
+        + Array.length pdata#goal (* |G|  (R3) *)
+        + 2*k * Array.fold_left (fun acc a -> acc + Array.length a#prec) 0 pdata#actions (* 2k * sum_a^A |Pre(a)| (R4,6) *)
+        + 2*k * Array.length pdata#fluents (* 2k * |F| (R5,7) *)
+      and cte_open_nc = (* node constraints *)
+        (k+1) *
+          Array.fold_left (fun acc a1 ->
+            Array.fold_left (fun acc2 a2 ->
+              if a1#num >= a2#num then acc2
+                else if (Array.exists (fun f -> (Array.mem f a2#prec)||(Array.mem f a2#add)) a1#del)
+                        || (Array.exists (fun f -> (Array.mem f a1#prec)||(Array.mem f a1#add)) a2#del)
+                     then begin (* Utils.print "Mutex{%s,%s}\n" a1#to_string a2#to_string; *) succ acc2 end else acc2
+            ) acc pdata#actions
+          ) 0 pdata#actions (* (k+1) * |Mutex| (R8) *)
+        + (k+1) * Array.fold_left (fun acc f -> acc + Array.length f#deleters) 0 pdata#fluents (* (k+1) * sum_f^F |Deleters(f)| (R9) *)
+      in
+      Utils.print "CTE-NOOP (%d)\nBranch constraints: %d\nNode constraints: %d\n" (cte_open_bc + cte_open_nc) cte_open_bc cte_open_nc;
+      
+      (** CTE-OPEN **)
+      
       let cte_open_bc = (* branch constraints *)
         Array.length pdata#goal (* |G|  (1.2) *)
         + k * Array.fold_left (fun acc fl -> if Array.mem fl pdata#init_state then acc else acc+1) 0 pdata#fluents (* k |F-I| (2.1) *)
@@ -65,7 +90,7 @@ class t (problem:string) (domain:string) (depth : int) =
                         || (Array.exists (fun f -> (Array.mem f a1#prec)||(Array.mem f a1#add)) a2#del)
                      then begin (* Utils.print "Mutex{%s,%s}\n" a1#to_string a2#to_string; *) succ acc2 end else acc2
             ) acc pdata#actions
-          ) 0 pdata#actions
+          ) 0 pdata#actions (* (k+1) * |Mutex| (4) *)
       in
-      Utils.print "CTE-OPEN\nBranch constraints: %d\nNode constraints: %d\n" cte_open_bc cte_open_nc;
+      Utils.print "CTE-OPEN (%d)\nBranch constraints: %d\nNode constraints: %d\n" (cte_open_bc + cte_open_nc) cte_open_bc cte_open_nc;     
   end
