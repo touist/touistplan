@@ -49,7 +49,7 @@ class t (problem:string) (domain:string) (depth : int) =
     method virtual create_action : string -> Symb.constant array -> float -> int -> ('fluent*Timedata.t) array -> ('fluent*Timedata.t) array -> ('fluent*Timedata.t) array -> ('fluent*Timedata.t) array -> 'action
 
     method search =
-      let k = 1 in
+      let k = depth in
       let cte_open_bc = (* branch constraints *)
         Array.length pdata#goal (* |G|  (1.2) *)
         + k * Array.fold_left (fun acc fl -> if Array.mem fl pdata#init_state then acc else acc+1) 0 pdata#fluents (* k |F-I| (2.1) *)
