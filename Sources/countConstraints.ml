@@ -57,22 +57,15 @@ class t (problem:string) (domain:string) (depth : int) =
         + 2*k * Array.fold_left (fun acc a -> acc + Array.length a#del) 0 pdata#actions (* 2k * sum_a^A |Del(a)| (3.1) *)
       and cte_open_nc = (* node constraints *)
         (k+1) * Array.fold_left (fun acc a -> acc + Array.length a#prec) 0 pdata#actions (* (k+1) * sum_a^A |Pre(a)| *)
-        (*+ (k+1) *
-          List.fold_left (
-            fun acc1 a1 ->
-            acc1 + List.fold_left (
-              fun acc2 a2 ->
-                acc2 +
-                  let add_or_prec1 = Array.concat [a1#add; a1#prec] in
-                  let add_or_prec2 = Array.concat [a2#add; a2#prec] in
-                  if  Array.fold_left (fun del acc -> acc || Array.mem del add_or_prec1) false a2#del
-                   || Array.fold_left (fun del acc -> acc || Array.mem del add_or_prec2) false a1#del
-                then 1 else 0
-              ) acc1 pdata#actions
-            ) 0 pdata#actions
-          )
-          Array.fold_left (fun acc a -> acc + Array.length a#prec) 0 pdata#actions
-          *)
+        + (k+1) *
+          Array.fold_left (fun acc a1 ->
+            Array.fold_left (fun acc2 a2 ->
+              if a1#num >= a2#num then acc2
+                else if (Array.exists (fun f -> (Array.mem f a2#prec)||(Array.mem f a2#add)) a1#del)
+                        || (Array.exists (fun f -> (Array.mem f a1#prec)||(Array.mem f a1#add)) a2#del)
+                     then begin (* Utils.print "Mutex{%s,%s}\n" a1#to_string a2#to_string; *) succ acc2 end else acc2
+            ) acc pdata#actions
+          ) 0 pdata#actions
       in
-      Utils.print "CTE-OPEN\nBranch constraints: %d\nNode constraints: %d" 0 0;
+      Utils.print "CTE-OPEN\nBranch constraints: %d\nNode constraints: %d\n" cte_open_bc cte_open_nc;
   end

@@ -126,6 +126,10 @@ object (self)
   val mutable search_level = 0
 val mutable depth_counter = ref 0
 
+  val mutable constraintscalc = true
+  val mutable branchc = 0
+  val mutable nodec = 0
+
   method print_statistics = ()
   method run = self#plan_fail
 
@@ -390,6 +394,12 @@ begin
     qfformulawrite "\n;; (QBF-EFA4) Mutex (Forall-step semantics)\n\n\\\and\nbigand $i in [0..$depth]:\n  bigand $A in $O:\n    bigand $f in $Cond($A):\n      bigand $B in $O when $A!=$B and $f in $Del($B):\n        not $A($i) or not $B($i)\n      end\n    end\n  end\nend\n";
 (*    qfformulawrite "\n;; (QBF-EFA4bis) Mutex (Exists-step semantics)\n\n\\\and\nbigand $i in [0..$depth]:\n  bigand $A in $O:\n    bigand $B in $O when $A!=$B\n                         and inter($Cond($A),$Del($B))!=[]\n                         and inter($Cond($B),$Del($A))!=[]\n                         and inter($Add($A),$Del($B))==[]\n                         and inter($Add($B),$Del($A))==[]:\n      not $A($i) or not $B($i)\n    end\n  end\nend\n"; *)
  Unix.close qfformulafile;
+ if constraintscalc then
+ begin
+   (* Constraints QBF-EFA1.1 *)
+     branchc <- branchc + (Array.length pdata#goal);
+     nodec <- nodec + 0;
+ end;
 end else if encoding == 1 then (* option QBF-NOOP *)
 begin
  let qfformulafile = Unix.openfile "solvedata/in.qfformula.txt" [Unix.O_TRUNC;Unix.O_CREAT;Unix.O_WRONLY] 0o640 in
