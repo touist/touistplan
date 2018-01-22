@@ -13,6 +13,7 @@ and incmin = ref 1
 and timeout = ref 0
 and verbose = ref 0 (* 0 = not verbose *)
 and count = ref None
+and lint = ref false
 
 let () =
   let usage = "\
@@ -56,6 +57,8 @@ PROBLEM: strips planning problem expressed in (typed) PDDL
 
     ("--count", Arg.Int (fun i -> count := Some i),
      ("count the branch and node constraints"));
+    ("--lint", Arg.Set lint,
+     ("check that the syntax of the given domain/problem is correct"));
   ]
 
   (* The 'alone' arguments (not preceeded by a '--something') are going to be
@@ -78,10 +81,15 @@ PROBLEM: strips planning problem expressed in (typed) PDDL
   if !constraints <> "" && !encoding <> "sat-efa" then
     (Printf.eprintf "Usage: -c must be used with -e sat-efa (see --help).\n"; exit 1);
 
-  if !incmin < 1 then 
+  if !incmin < 1 then
     (Printf.eprintf "Usage: -incmin N\n N must be greater than 0 (see --help).\n"; exit 1)
   else incmin := !incmin - 1;
 
+  if !lint then begin
+    open_in !domain |> Lexing.from_channel |> Parser.domain Lexer.token |> ignore;
+    open_in !problem |> Lexing.from_channel |> Parser.problem Lexer.token |> ignore;
+    Printf.eprintf "\n";
+  end else
 
   let solver_code = match !solver with
     | "depqbf" -> 0
