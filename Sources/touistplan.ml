@@ -137,7 +137,7 @@ val mutable depth_counter = ref 0
 
 (*  method search =
     let (search_time,_) = Utils.my_time "Searching plan (TLP-GP algorithm)" (fun () -> self#notimed_search) in
-      Utils.eprint "Total search time : %.2f\n" search_time *)
+      Utils.print "Total search time : %.2f\n" search_time *)
 
   method search = (* notimed_search *)
 
@@ -184,11 +184,11 @@ let command cmd =
 in
 
 flush stdout; flush stderr;
-Utils.eprint "Select TouIST\n";
+Utils.print "Select TouIST\n";
 flush stdout; flush stderr;
 let returncode = (command "touist --version") in
 flush stdout; flush stderr;
-if returncode == 0 then Utils.eprint "\n"
+if returncode == 0 then Utils.print "\n"
 else begin Utils.eprint "[Error %d] please install TouIST with : brew install touist\n" returncode; exit returncode; end;
 
 let stringrules = match encoding with
@@ -200,7 +200,7 @@ let stringrules = match encoding with
   | 103 -> "[SAT] Open Conditions"
   | 203 -> "[SMT QF_RDL] Open Conditions (temporal)"
 in
-Utils.eprint "Select [LANGUAGE] EncodingRules: %s\n\n" stringrules;
+Utils.print "Select [LANGUAGE] EncodingRules: %s\n\n" stringrules;
 
 let solvername = match solvernum with
   | 0 -> if encoding<100 then "DepQBF" else if encoding<200 then "MiniSat" else "Yices"
@@ -212,13 +212,13 @@ let solvername = match solvernum with
   | 103 -> "PicoSat"
   | 104 -> "Lingeling"
 in
-Utils.eprint "Select %s SOLVER: %s\n\n" (if encoding<100 then "QBF" else if encoding<200 then "SAT" else "SMT") solvername;
+Utils.print "Select %s SOLVER: %s\n\n" (if encoding<100 then "QBF" else if encoding<200 then "SAT" else "SMT") solvername;
     
 (** NO GRAPH for QBFPLAN **)    
 (***    
     let current_level = ref 0 in
     let build_rpg = (* Building the Temporal Relaxed Planning Graph *)
-      Utils.eprint "Building the Temporal Relaxed Planning Graph ...\n";
+      Utils.print "Building the Temporal Relaxed Planning Graph ...\n";
       Array.iter (fun f ->
                    (if (List.exists (fun p ->
                                         (p#atom#equal f#atom))
@@ -257,7 +257,7 @@ Utils.eprint "Select %s SOLVER: %s\n\n" (if encoding<100 then "QBF" else if enco
        current_level := succ !current_level
       done;
       rpg_max_level <- !current_level;
-Utils.eprint "Goal found at level %d.\n" !current_level;
+Utils.print "Goal found at level %d.\n" !current_level;
 (*Array.iter (fun a -> Utils.print "%s(level[%d])\n" a#to_string a#level) pdata#actions;
 Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#level f#neglevel) pdata#fluents;*)
 
@@ -296,16 +296,16 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
 
 if encoding == 0 then
 begin (* option QBF-EFA Nodes-Fluents-Actions Leafs-Fluents-Actions *)
-Utils.eprint "Searching solution with QBFPLAN (Explanatory Frame-Axioms)...\n\n";
+Utils.print "Searching solution with QBFPLAN (Explanatory Frame-Axioms)...\n\n";
 end else if encoding == 1 then
 begin (* option QBF-NOOP *)
-Utils.eprint "Searching solution with QBFPLAN (Noop Actions [Cashmore et al., 2012])...\n\n";
+Utils.print "Searching solution with QBFPLAN (Noop Actions [Cashmore et al., 2012])...\n\n";
 end else if encoding == 2 then
 begin (* option QBF-EFA-NFLA Nodes-Fluents Leafs-Actions *)
-Utils.eprint "Searching solution with QBFPLAN (Explanatory Frame-Axioms, NFLA)...\n\n";
+Utils.print "Searching solution with QBFPLAN (Explanatory Frame-Axioms, NFLA)...\n\n";
 end else if encoding == 100 then
 begin (* option SAT-EFA *)
-Utils.eprint "Searching solution with SATPLAN (Explanatory Frame-Axioms)...\n\n";
+Utils.print "Searching solution with SATPLAN (Explanatory Frame-Axioms)...\n\n";
 end;
 ignore (command "rm solvedata/*.txt");
 
@@ -534,8 +534,8 @@ let touistsolveqbf maxdepth branchdepth addatom timeout =
   let touistcode = ref 0 in
   genquantifiers maxdepth branchdepth;
   let atomsfiles = if branchdepth <= maxdepth then (Printf.sprintf " solvedata/in.atoms%d.txt" branchdepth) else "" in
-(* Utils.eprint "TouIST solve / depth = %d / branch = %d / atomsfiles = %s / addatom = %s\n" maxdepth branchdepth atomsfiles addatom; *)
-Utils.eprint "--- TouIST solve (QBF) / branch atom = %s ---\n" addatom;
+(* Utils.print "TouIST solve / depth = %d / branch = %d / atomsfiles = %s / addatom = %s\n" maxdepth branchdepth atomsfiles addatom; *)
+Utils.print "--- TouIST solve (QBF) / branch atom = %s ---\n" addatom;
 flush stdout; flush stderr;
 let timeout_cmd = if timeout>0. then "timeout "^string_of_float timeout^"" else "" in
 (* INERNAL SOLVER *) (* ignore (command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | timeout %d touist --qbf --solve - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom)); *)
@@ -559,7 +559,7 @@ in
 
 let treedepthbound = Array.length pdata#fluents
 in
-Utils.eprint "Maximum tree depth: |Fluents|=%d.\n" treedepthbound;
+Utils.print "Maximum tree depth: |Fluents|=%d.\n" treedepthbound;
 flush stdout; flush stderr;
 
 let treedepth = ref incmin in
@@ -569,7 +569,7 @@ let plansat () =
 let time_start = Unix.gettimeofday () (* in seconds *) in
 while (!treedepth < treedepthbound) && (not !qbftrue) do
   treedepth := !treedepth + 1;
-  Utils.eprint "Searching solution at depth %d...\n" !treedepth;
+  Utils.print "Searching solution at depth %d...\n" !treedepth;
   flush stdout; flush stderr;
   (* We want to use the shell command 'timeout'; 'timeout' takes a positive
      integer as first argument (time_left). If we put 0, it means
@@ -590,7 +590,7 @@ while (!treedepth < treedepthbound) && (not !qbftrue) do
 done in
 
 let (plansat_time,_) = Utils.my_time2bis (fun () -> plansat ()) in
-Utils.eprint "Plan existence time (PLANSAT): %.2f\n" plansat_time;
+Utils.print "Plan existence time (PLANSAT): %.2f\n" plansat_time;
 (* Show number of literals & clauses *) ignore @@ command ("cat solvedata/out.touisterr.txt >&2");
 
   let rec extract depth time_start =
@@ -607,14 +607,14 @@ Utils.eprint "Plan existence time (PLANSAT): %.2f\n" plansat_time;
 let extract_time = ref 0.0 in
 if !qbftrue then
 begin
-  Utils.eprint "Solution found at depth %d.\n" !treedepth; flush stdout; flush stderr;
+  Utils.print "Solution found at depth %d.\n" !treedepth; flush stdout; flush stderr;
   ignore (command (Printf.sprintf "cat solvedata/in.atoms%d.txt | grep 'and A_' | grep '(%d)'" !treedepth !treedepth));
   flush stdout; flush stderr;
   try let (extr_time,_) = Utils.my_time2bis (fun () -> extract !treedepth (Unix.gettimeofday ())) in extract_time := extr_time
   with Timeout -> (Utils.eprint "Timeout when extracting\n"; exit 125)
 end else Utils.eprint "No solution at maximum depth bound.\nThe planning problem does not have any solution.\n";
-Utils.eprint "Plan existence time (PLANSAT): %.2f\n" plansat_time;
-if !qbftrue then Utils.eprint "Plan extract time: %.2f\n" !extract_time;
+Utils.print "Plan existence time (PLANSAT): %.2f\n" plansat_time;
+if !qbftrue then Utils.print "Plan extract time: %.2f\n" !extract_time;
 flush stdout; flush stderr;
 
 exit 0;
@@ -628,7 +628,7 @@ begin
 
 let touistsolvesat length timeout =
   let touistcode = ref 0 in
-  Utils.eprint "--- TouIST solve (SAT) / length = %d ---\n" length;
+  Utils.print "--- TouIST solve (SAT) / length = %d ---\n" length;
   flush stdout; flush stderr;
   let timeout_cmd = if timeout>0. then "timeout "^ string_of_float timeout else "" in
   if solvernum == 0 then touistcode := (command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | %s touist --sat --solve - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length timeout_cmd));
@@ -642,7 +642,7 @@ in
 
 let planlengthbound = 256 (* (Array.length pdata#fluents) * (Array.length pdata#fluents) *)
 in
-Utils.eprint "Maximum plan length: 2^|Fluents|=%d.\n" planlengthbound;
+Utils.print "Maximum plan length: 2^|Fluents|=%d.\n" planlengthbound;
 flush stdout; flush stderr;
 
 let planlength = ref incmin in
@@ -652,7 +652,7 @@ while (!planlength < planlengthbound) && (not !sattrue) do
   if incrmode <= 1 then planlength := !planlength + 1
   else if !planlength == 0 then planlength := 1
        else planlength := !planlength * incrmode;
-  Utils.eprint "Searching solution with length %d...\n" !planlength;
+  Utils.print "Searching solution with length %d...\n" !planlength;
   flush stdout; flush stderr;
   match touistsolvesat !planlength (time_left time_start) with
   | 0 -> sattrue:=true
@@ -668,7 +668,7 @@ done;
 
 if !sattrue then
 begin
-  Utils.eprint "Solution found at length %d.\n" !planlength; flush stdout; flush stderr;
+  Utils.print "Solution found at length %d.\n" !planlength; flush stdout; flush stderr;
   for i = 1 to !planlength do
     ignore (command (Printf.sprintf "cat solvedata/out.emodel.txt | grep '1 A_' | grep '(%d)'" i));
     flush stdout; flush stderr;
@@ -684,7 +684,7 @@ if encoding < 300 then
 begin
 
 let touistsolvesat length timeout : int =
-  Utils.eprint "--- TouIST solve (SMT) / length = %d ---\n" length;
+  Utils.print "--- TouIST solve (SMT) / length = %d ---\n" length;
   flush stdout; flush stderr;
   let timeout_cmd = if timeout>0. then "timeout "^ string_of_float timeout else "" in
   let status = command (Printf.sprintf "(echo '$length = %d' ; cat solvedata/in.sets.txt ; cat solvedata/in.qfformula.txt) | %s touist --smt QF_RDL --solve - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" length timeout_cmd) in
@@ -694,7 +694,7 @@ in
 
 let planlengthbound = 256 (* (Array.length pdata#fluents) * (Array.length pdata#fluents) *)
 in
-Utils.eprint "Maximum plan length: 2^|Fluents|=%d.\n" planlengthbound;
+Utils.print "Maximum plan length: 2^|Fluents|=%d.\n" planlengthbound;
 flush stdout; flush stderr;
 
 let planlength = ref 0 in
@@ -702,7 +702,7 @@ let sattrue = ref false in
 let time_start = Unix.gettimeofday () in
 while (!planlength < planlengthbound) && (not !sattrue) do
   planlength := !planlength + 1;
-  Utils.eprint "Searching solution with length %d...\n" !planlength;
+  Utils.print "Searching solution with length %d...\n" !planlength;
   flush stdout; flush stderr;
   match touistsolvesat !planlength (time_left time_start) with
   | 0 -> sattrue := true
@@ -714,7 +714,7 @@ done;
 
 if !sattrue then
 begin
-  Utils.eprint "Solution found at length %d.\n" !planlength; flush stdout; flush stderr;
+  Utils.print "Solution found at length %d.\n" !planlength; flush stdout; flush stderr;
   for i = 1 to !planlength do
     ignore (command (Printf.sprintf "cat solvedata/out.emodel.txt | grep '1 A_' | grep '(%d)'" i));
     ignore (command (Printf.sprintf "cat solvedata/out.emodel.txt | sed -e '/^-/ d' | grep 't(A_' | grep ',%d)'" i));

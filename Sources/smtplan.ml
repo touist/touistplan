@@ -198,7 +198,7 @@ done;
 
   method search = (* search_real : supprimer _real pour obtenir SMTPLAN original *)
     let (search_time,_) = Utils.my_time "Searching plan (SMT-PLAN algorithm)" (fun () -> self#notimed_search) in
-      Utils.eprint "Total search time : %.2f\n" search_time
+      Utils.print "Total search time : %.2f\n" search_time
 
   method notimed_search =
 
@@ -221,7 +221,7 @@ done;
 
     let get_f_time f a_iset = 
       let r = (Array.fold_left (fun t x -> if ((fst x)#atom#equal f#atom) then (snd x)#timeset else t) (-1.0,-1.0) a_iset) in
-      if r == (-1.0,-1.0) then begin Utils.eprint "STM-PLAN Fatal Error : timelabel not found\n"; exit 0 end
+      if r == (-1.0,-1.0) then begin Utils.eprint "STM-PLAN Fatal Error : timelabel not found\n"; exit 104 end
       else r
     in
     let get_f f a_iset =
@@ -822,6 +822,6 @@ done
 
 (*Utils.print "\ndone.\n"*)
 (*
-      Utils.eprint "Number of clauses : %i\n" (nbc - 1)
+      Utils.print "Number of clauses : %i\n" (nbc - 1)
 *)
 end

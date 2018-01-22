@@ -327,13 +327,13 @@ object (self)
   method listeButs = List.map (fun e -> new FluentGP.fluentGP e#n1 e#to_string) (List.filter (fun e -> e#is_goal) fluents)
 
   method recupererActions (la : ActionCSP.actionCSP list) =
-(* Utils.eprint "\nrecupererActions" ; *)
+(* Utils.print "\nrecupererActions" ; *)
    let tab = Array.create level [] in
    try List.iter (fun e ->  let i = e#getNiveau in
-     Utils.eprint "\n%s e#getNumero e#getNiveau %i" e#toString e#getNiveau ;
+     Utils.print "\n%s e#getNumero e#getNiveau %i" e#toString e#getNiveau ;
      if i > 0 then
        (let a1 = List.find (fun g -> g#is_n1 e#getNumero) actions in
-	Utils.eprint "\t%s a1#num %i" a1#to_string a1#num ;
+	Utils.print "\t%s a1#num %i" a1#to_string a1#num ;
 	if not a1#is_noop then tab.(i-1) <- tab.(i-1) @ [a1])) la ;
      Array.to_list tab
     with Not_found -> Utils.eprint "\nimpossible recup action" ; failwith ("impossible recup action")
@@ -385,16 +385,16 @@ object (self)
       (self#goals_found, !goal_time)
 
   method solveTool quality =
-    let m4 = fun () -> Utils.eprint "\nsolve begin\n\n" in
+    let m4 = fun () -> Utils.print "\nsolve begin\n\n" in
     let (succes, lstaction) = Gpcsp.toWcspFile "test.wcsp" self#listeNiveaux self#listeButs quality in
     if (begin m4 (flush stderr) ; succes end)
     then
       let pplan = new ParallelPlan.t succes
       in begin
-        (* Utils.eprint "\nICI" ; *)
+        (* Utils.print "\nICI" ; *)
 	let planint = self#recupererActions lstaction in
 	ignore (pplan#set_plan planint) ;
-        (* Utils.eprint "\nnouveau plan trouvé quality = %i\n" pplan#quality ; *)
+        (* Utils.print "\nnouveau plan trouvé quality = %i\n" pplan#quality ; *)
 	pplan end
     else self#plan_fail
 	
@@ -412,11 +412,11 @@ object (self)
    self#recupererNiveau ;
 
   method run =
-    let m1 = fun () -> Utils.eprint "\n\nBuilding the planning-graph...\nLevel 0 - Fluents : %i\n" nb_fluents in
-    let m2 = fun () -> Utils.eprint "Level %i - Fluents : %i - Actions : %i - FMutex : %i - AMutex : %i\n"
+    let m1 = fun () -> Utils.print "\n\nBuilding the planning-graph...\nLevel 0 - Fluents : %i\n" nb_fluents in
+    let m2 = fun () -> Utils.print "Level %i - Fluents : %i - Actions : %i - FMutex : %i - AMutex : %i\n"
       level nb_fluents nb_actions nb_fmutex (perm_amutex + nb_amutex) in
-    let m3 = fun () -> Utils.eprint "No solution.\n" in
-    let m4 = fun () -> Utils.eprint "\nGraph has leveled off.\n\n" in
+    let m3 = fun () -> Utils.print "No solution.\n" in
+    let m4 = fun () -> Utils.print "\nGraph has leveled off.\n\n" in
 
     let goals_found = self#extend_until_goals ~m1:m1 ~m2:m2 () in
     let rplan = ref self#plan_fail in
@@ -430,7 +430,7 @@ object (self)
 	    plan#update_quality ;
 	    (* met à jour la meilleure qualité trouvée *)
 	    if !rplan#quality > plan#quality then (begin
-	      Utils.eprint "not self#level_off solution Success Rquality %i quality %i\n" !rplan#quality plan#quality ;
+	      Utils.print "not self#level_off solution Success Rquality %i quality %i\n" !rplan#quality plan#quality ;
               rplan := plan end) ;
 	    (* succes -> fin de l'algorithme *)
 	    raise Exit end  ;
@@ -439,22 +439,22 @@ object (self)
 	done ;
 	m4 (flush stderr) ;
 	self#extend_mutex ;
-	(* Utils.eprint "\nself#extend_mutex ok" ; *)
+	(* Utils.print "\nself#extend_mutex ok" ; *)
 	self#retablirNiveau2 ;
 	while true do
-	(* Utils.eprint "\nwhile true" ; *)
+	(* Utils.print "\nwhile true" ; *)
 	  let plan = if level >= 0 then self#solveTool !rplan#quality else self#plan_fail in
 	  if plan#succes then begin
 		plan#update_quality ;
 		if !rplan#quality > plan#quality then (begin
-		  Utils.eprint "self#level_off solution Success Rquality %i quality %i\n" !rplan#quality plan#quality ;
+		  Utils.print "self#level_off solution Success Rquality %i quality %i\n" !rplan#quality plan#quality ;
 		  rplan := plan end) ;
 		raise Exit end ;
-	  (* Utils.eprint "\nself#extend_level_off" ; *)
+	  (* Utils.print "\nself#extend_level_off" ; *)
 	  self#extend_level_off ;
-	  (* Utils.eprint "\nm2" ; *)
+	  (* Utils.print "\nm2" ; *)
 	  m2 (flush stderr) ;
-	  (* Utils.eprint "\nok" ; *)
+	  (* Utils.print "\nok" ; *)
 	done
       end ;
       !rplan

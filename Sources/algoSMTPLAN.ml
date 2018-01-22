@@ -57,9 +57,9 @@ object (self)
 	    else plan) self#plan_fail (g#prod level)
 
   method solve =
-    Utils.eprint "Searching GP way at level %i... " self#level ; flush stderr ;
+    Utils.print "Searching GP way at level %i... " self#level ; flush stderr ;
     let plan = self#find_plan self#level (Array.to_list self#goal) in
-      Utils.eprint "%i - %i - %i.\n" nb_calls nb_calls2 self#nb_nogoods ;
+      Utils.print "%i - %i - %i.\n" nb_calls nb_calls2 self#nb_nogoods ;
       flush stderr ;
       plan
 

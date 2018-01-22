@@ -141,11 +141,11 @@ let print = Printf.printf
 let get_time () = (Unix.times ()).Unix.tms_utime
 
 let my_time message f = 
-  eprint "%s..... " message ; flush stderr ;
+  print "%s..... " message ; flush stderr;
 (*  let start = Unix.gettimeofday () in*)
   let start = get_time () in
   let result = f () in
-    eprint "done.\n" ; 
+    print "done.\n" ; 
     flush stderr ;
     (get_time () -. start, result)
 

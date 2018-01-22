@@ -84,7 +84,7 @@ object (self)
     let stream = open_in domainfile in
     let lexbuf = Lexing.from_channel stream in
       Parser.domain Lexer.token lexbuf);
-      (*Utils.eprint "%s\n" domain#to_complete_istring*)
+      (*Utils.print "%s\n" domain#to_complete_istring*)
 
   method private parse_problem = 
     problem <-
@@ -149,7 +149,7 @@ method private parse_constraints =
 	  let table = if atom#nb_terms <= 1 then unary_constraints else constraints_table in
 	    if not (AtomTable.mem table atom) then begin
  	      Utils.eprint "\nImpossible goal : %s.\n\n" atom#to_string ;
-	      exit 0
+	      exit 102
 	    end)
     in
       init_state <- create_init_state problem#init ;
@@ -270,7 +270,7 @@ method private parse_constraints =
 	else fluent
     in
     let create_goal = function
-      | Formula.Top -> Utils.eprint "\nProblem solved -> no action.\n\n" ; exit 0
+      | Formula.Top -> Utils.print "\nProblem solved -> no action.\n\n" ; exit 0
       | Formula.PosLit atom -> [| create_fluent atom |]
       | Formula.Conjunct c -> 
 	  Array.map (function 
@@ -306,15 +306,15 @@ method private parse_constraints =
 	      end
 	      else fluent :: fluents) init_state []) ; 
       goal <- Array.of_list (Array.fold_right (fun fluent fluents -> if not fluent#relevant then fluent :: fluents else fluents) goal []) ; *)
-      if goal = [| |] then begin Utils.eprint "\nProblem solved -> no action.\n\n" ; exit 0 end ;	
+      if goal = [| |] then begin Utils.print "\nProblem solved -> no action.\n\n" ; exit 0 end ;	
       AtomTable.iter (fun atom fluent -> if not fluent#relevant then fluents <- fluent :: fluents) fluents_table ;
       fluents_final <- Array.of_list fluents ;
-(*      Utils.eprint "fluents : %s" (Utils.string_of_list "\n" (fun f -> f#to_istring) fluents) ;
-      Utils.eprint "fluents but : %s" (Utils.string_of_array "\n" (fun f -> f#to_istring) goal) ; *)
+(*      Utils.print "fluents : %s" (Utils.string_of_list "\n" (fun f -> f#to_istring) fluents) ;
+      Utils.print "fluents but : %s" (Utils.string_of_array "\n" (fun f -> f#to_istring) goal) ; *)
       actions_always_final <- Array.of_list (List.filter (fun a-> a#prec = [| |]) actions) ;
 
-(*      List.iter (fun action -> Utils.eprint "\n%s" action#to_complete_istring) actions ; *)
-      (*Array.iter (fun action -> Utils.eprint "\n%s" action#to_complete_istring) actions_final ;*)
+(*      List.iter (fun action -> Utils.print "\n%s" action#to_complete_istring) actions ; *)
+      (*Array.iter (fun action -> Utils.print "\n%s" action#to_complete_istring) actions_final ;*)
 
       let n = ref 0 in 
 	Array.iter (fun f -> f#set_num !n ; incr n) fluents_final ;
@@ -339,7 +339,7 @@ method private parse_constraints =
 	       final_plan <- plan#to_ipc_string ; Utils.eprint "\n\n%s\nValid plan : %i actions.\n" plan#to_ipc_string nb 
 	   | _ -> Utils.eprint "\n%s\n\n****************** INCORRECT PLAN ******************\n\n" plan#to_string) ;
       self#print_statistics ;
-      Utils.eprint "Preparation time : %.2f\nSearch time : %.2f\nTotal time : %.2f\n\n" 
+      Utils.print "Preparation time : %.2f\nSearch time : %.2f\nTotal time : %.2f\n\n" 
 	preparation_time search_time (preparation_time +. search_time) ;
 
 
@@ -349,10 +349,10 @@ method private parse_constraints =
   let (parsing_constraints_time, _) = if constraintsfile = "" then (0.,()) else
      Utils.my_time "Parsing constraints" (fun () -> self#parse_constraints) in
   let (domains_time, _) = Utils.my_time "Computing domains" (fun () -> self#domains_creation) in
-    (*Utils.eprint "\n\n%s\n\n" problem#to_string ;*)
-(**)    (*Utils.eprint "\n\n%s\n\n" domain#to_complete_istring ;*)
+    (*Utils.print "\n\n%s\n\n" problem#to_string ;*)
+(**)    (*Utils.print "\n\n%s\n\n" domain#to_complete_istring ;*)
 
-(*Utils.eprint "\nFUNCTIONS VALUES:\n"; List.iter (fun (atom,value) -> Utils.eprint " %s = %f\n" atom#to_string value) problem#functions_value_list; Utils.eprint "\n";*)
+(*Utils.print "\nFUNCTIONS VALUES:\n"; List.iter (fun (atom,value) -> Utils.print " %s = %f\n" atom#to_string value) problem#functions_value_list; Utils.print "\n";*)
 
     if Array.length Sys.argv >= 5 && Sys.argv.(4) = "no" then exit 0 ;
     let (instantiation_time, (nb_candidates, nb_actions, nb_fluents_init)) =
@@ -362,7 +362,7 @@ let action = new (Node#action "Init" [| |] 0 0 [| |] self#goal [| |]) in actions
 ) in
     let (final_repr_time, nb_fluents_init2) = 
       Utils.my_time "Computing final representation" (fun () -> self#final_representation) in
-      Utils.eprint "\nParsing time : %.2f\n\
+      Utils.print "\nParsing time : %.2f\n\
 	  Domains creation  time : %.2f\n\
 		    Instantiation time : %.2f -> %i candidates, %i actions\n\
 		    Finalization time : %.2f -> %i fluents, %i init\n\n"

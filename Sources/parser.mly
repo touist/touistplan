@@ -23,7 +23,7 @@
 
   let create_domain name requirements operators =
     Lexer.line := 1 ;
-    Utils.eprint "%s..... " name ;
+    Utils.print "%s..... " name ;
     domain := new Domain.domain name requirements (Array.of_list operators) ;
     !domain
 
@@ -34,19 +34,19 @@
       new Domain.operator (String.uppercase name) parameters duration quality prec eff
 
   let create_problem name domain_name objects init goal =
-    Utils.eprint "%s..... " name ;
+    Utils.print "%s..... " name ;
     if domain_name <> !domain#name then begin
       Utils.eprint "\n\nProblem %s not for domain %s !\n\n" name !domain#name ;
-      exit 0 
+      exit 100
     end ;
     new Domain.problem name !domain objects init goal symb_set attribute_spaces !functions_value_list
   
   
   let create_constraints name domain_name constraints_list =
-    Utils.eprint "%s..... " name ;
+    Utils.print "%s..... " name ;
     if domain_name <> !domain#name then begin
       Utils.eprint "\n\Constraints %s not for domain %s !\n\n" name !domain#name ;
-      exit 0 
+      exit 101
     end ;
     new Domain.constraints name !domain constraints_list
 
