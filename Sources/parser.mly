@@ -11,7 +11,8 @@
 
   let functions_value_list = ref []
 
-  let parse_error s = print_endline s; Utils.eprint " Syntax error at line %i\n\n" !Lexer.line
+  let parse_error s =
+    Utils.eprint "line %i: %s\n" !Lexer.line s
 
   let symb_set = new SymbSet.t
   let attribute_spaces = new Typeset.attribute_space_set symb_set
