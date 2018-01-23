@@ -53,13 +53,7 @@ class t (problem:string) (domain:string) (depth : int) =
 
       (** CTE-NOOP **)
 
-      let cte_noop_bc = (* branch constraints *)
-        Array.fold_left (fun acc a -> if Array.for_all (fun f -> Array.mem f pdata#init_state) a#prec then acc else succ acc) 0 pdata#actions (* |{a / Pre(a) not included in I}| (1) *)
-        + Array.fold_left (fun acc fl -> if Array.mem fl pdata#init_state then acc else acc+1) 0 pdata#fluents (* |F-I| (2) *)
-        + Array.length pdata#goal (* |G|  (R3) *)
-        + 2*k * Array.fold_left (fun acc a -> acc + Array.length a#prec) 0 pdata#actions (* 2k * sum_a^A |Pre(a)| (R4,6) *)
-        + 2*k * Array.length pdata#fluents (* 2k * |F| (R5,7) *)
-      and cte_noop_nc = (* node constraints *)
+      let cte_noop_mutex = (* action mutex constraints *)
         (k+1) *
         Array.fold_left (fun acc a1 ->
             Array.fold_left (fun acc2 a2 ->
@@ -71,22 +65,19 @@ class t (problem:string) (domain:string) (depth : int) =
           ) 0 pdata#actions (* (k+1) * |Mutex| (R8) *)
         + (k+1) * Array.fold_left (fun acc f -> acc + Array.length f#deleters) 0 pdata#fluents (* (k+1) * sum_f^F |Deleters(f)| (R9) *)
       in
+      let cte_noop_bc = (* branch constraints *)
+        Array.fold_left (fun acc a -> if Array.for_all (fun f -> Array.mem f pdata#init_state) a#prec then acc else succ acc) 0 pdata#actions (* |{a / Pre(a) not included in I}| (1) *)
+        + Array.fold_left (fun acc fl -> if Array.mem fl pdata#init_state then acc else acc+1) 0 pdata#fluents (* |F-I| (2) *)
+        + Array.length pdata#goal (* |G|  (R3) *)
+        + 2*k * Array.fold_left (fun acc a -> acc + Array.length a#prec) 0 pdata#actions (* 2k * sum_a^A |Pre(a)| (R4,6) *)
+        + 2*k * Array.length pdata#fluents (* 2k * |F| (R5,7) *)
+      and cte_noop_nc = (* node constraints without mutex *)
+        cte_noop_mutex
+      in
 
       (** CTE-EFA **)
 
-      (* branch constraints (= in which b_i is used) *)
-      let cte_efa_bc =
-        Array.length pdata#goal (* |F| (1) *)
-        + Array.fold_left (fun acc a -> if Array.for_all (fun f -> Array.mem f pdata#init_state) a#prec then acc else succ acc) 0 pdata#actions (* |{a / Pre(a) not included in I}|  (2) *)
-        + 2*k * Array.fold_left (fun acc a -> acc + Array.length a#prec) 0 pdata#actions  (* 2k * sum_a^A |Pre(A)|  (4,5) *)
-        + Array.fold_left (fun acc fl -> if Array.mem fl pdata#init_state then acc else acc+1) 0 pdata#fluents (* |F-I| (6) *)
-        + 2*k * Array.length pdata#fluents (* 2k * |F| (7,8) *)
-        + Array.length pdata#init_state (* |I| (9) *)
-        + 2*k * Array.length pdata#fluents (* 2k (10,11) *)
-      (* node constraints (= b_i does not appear in these formulas) *)
-      and cte_efa_nc =
-        (k+1) * Array.fold_left (fun acc a -> acc + Array.length a#add + Array.length a#del) 0 pdata#actions (* (k+1) * sum_a^A(|Add(a)|+|Del(a)|)  (3) *)
-        +
+      let cte_efa_mutex = (* action mutex constraints *)
         (k+1) *
         Array.fold_left (fun acc a1 ->
             Array.fold_left (fun acc2 a2 ->
@@ -96,18 +87,26 @@ class t (problem:string) (domain:string) (depth : int) =
                 then begin (* Utils.print "Mutex{%s,%s}\n" a1#to_string a2#to_string; *) succ acc2 end else acc2
               ) acc pdata#actions
           ) 0 pdata#actions (* (k+1) * |Mutex| (12) *)
+      (* branch constraints (= in which b_i is used) *)
+      in
+      let cte_efa_bc =
+        Array.length pdata#goal (* |F| (1) *)
+        + Array.fold_left (fun acc a -> if Array.for_all (fun f -> Array.mem f pdata#init_state) a#prec then acc else succ acc) 0 pdata#actions (* |{a / Pre(a) not included in I}|  (2) *)
+        + 2*k * Array.fold_left (fun acc a -> acc + Array.length a#prec) 0 pdata#actions  (* 2k * sum_a^A |Pre(A)|  (4,5) *)
+        + Array.fold_left (fun acc fl -> if Array.mem fl pdata#init_state then acc else acc+1) 0 pdata#fluents (* |F-I| (6) *)
+        + 2*k * Array.length pdata#fluents (* 2k * |F| (7,8) *)
+        + Array.length pdata#init_state (* |I| (9) *)
+        + 2*k * Array.length pdata#fluents (* 2k (10,11) *)
+      (* node constraints without mutex (= b_i does not appear in these formulas) *)
+      and cte_efa_nc =
+        (k+1) * Array.fold_left (fun acc a -> acc + Array.length a#add + Array.length a#del) 0 pdata#actions (* (k+1) * sum_a^A(|Add(a)|+|Del(a)|)  (3) *)
+        + cte_efa_mutex
       in
 
       (** CTE-OPEN **)
 
-      let cte_open_bc = (* branch constraints *)
-        Array.length pdata#goal (* |G|  (1.2) *)
-        + k * Array.fold_left (fun acc fl -> if Array.mem fl pdata#init_state then acc else acc+1) 0 pdata#fluents (* k |F-I| (2.1) *)
-        + 2*k * Array.length pdata#fluents (* 2k |F| (2.2) *)
-        + 2*k * Array.fold_left (fun acc a -> acc + Array.length a#del) 0 pdata#actions (* 2k * sum_a^A |Del(a)| (3.1) *)
-      and cte_open_nc = (* node constraints *)
-        (k+1) * Array.fold_left (fun acc a -> acc + Array.length a#prec) 0 pdata#actions (* (k+1) * sum_a^A |Pre(a)| *)
-        + (k+1) *
+      let cte_open_mutex = (* action mutex constraints *)
+        (k+1) *
           Array.fold_left (fun acc a1 ->
               Array.fold_left (fun acc2 a2 ->
                   if a1#num >= a2#num then acc2
@@ -116,8 +115,17 @@ class t (problem:string) (domain:string) (depth : int) =
                   then begin (* Utils.print "Mutex{%s,%s}\n" a1#to_string a2#to_string; *) succ acc2 end else acc2
                 ) acc pdata#actions
             ) 0 pdata#actions (* (k+1) * |Mutex| (4) *)
+      in     
+      let cte_open_bc = (* branch constraints *)
+        Array.length pdata#goal (* |G|  (1.2) *)
+        + k * Array.fold_left (fun acc fl -> if Array.mem fl pdata#init_state then acc else acc+1) 0 pdata#fluents (* k |F-I| (2.1) *)
+        + 2*k * Array.length pdata#fluents (* 2k |F| (2.2) *)
+        + 2*k * Array.fold_left (fun acc a -> acc + Array.length a#del) 0 pdata#actions (* 2k * sum_a^A |Del(a)| (3.1) *)
+      and cte_open_nc = (* node constraints *)
+        (k+1) * Array.fold_left (fun acc a -> acc + Array.length a#prec) 0 pdata#actions (* (k+1) * sum_a^A |Pre(a)| *)
+        + cte_open_mutex
       in
-      Utils.print "CTE-NOOP (%d); branch constraints: %d; node constraints: %d\n" (cte_noop_bc + cte_noop_nc) cte_noop_bc cte_noop_nc;
-      Utils.print "CTE-EFA (%d); branch constraints: %d; node constraints: %d\n" (cte_efa_bc + cte_efa_nc) cte_efa_bc cte_efa_nc;
-      Utils.print "CTE-OPEN (%d); branch constraints: %d; node constraints: %d\n" (cte_open_bc + cte_open_nc) cte_open_bc cte_open_nc;
+      Utils.print "CTE-NOOP (%d); branch constraints: %d; node constraints (no mutex): %d; mutex: %d\n" (cte_noop_bc + cte_noop_nc + cte_noop_mutex) cte_noop_bc (cte_noop_nc - cte_noop_mutex) cte_noop_mutex;
+      Utils.print "CTE-EFA (%d); branch constraints: %d; node constraints (no mutex): %d; mutex: %d\n" (cte_efa_bc + cte_efa_nc + cte_efa_mutex) cte_efa_bc (cte_efa_nc - cte_efa_mutex) cte_efa_mutex;
+      Utils.print "CTE-OPEN (%d); branch constraints: %d; node constraints (no mutex): %d; mutex: %d\n" (cte_open_bc + cte_open_nc + cte_efa_mutex) cte_open_bc (cte_open_nc - cte_open_mutex) cte_open_mutex;
   end
