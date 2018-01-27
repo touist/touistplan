@@ -82,8 +82,8 @@ class t (problem:string) (domain:string) (depth : int) =
         Array.fold_left (fun acc a1 ->
             Array.fold_left (fun acc2 a2 ->
                 if a1#num >= a2#num then acc2
-                else if (Array.exists (fun f -> (Array.mem f a2#prec)||(Array.mem f a2#add)) a1#del)
-                     || (Array.exists (fun f -> (Array.mem f a1#prec)||(Array.mem f a1#add)) a2#del)
+                else if (Array.exists (fun f -> (Array.mem f a2#prec) (*||(Array.mem f a2#add)*) ) a1#del)
+                     || (Array.exists (fun f -> (Array.mem f a1#prec) (*||(Array.mem f a1#add)*) ) a2#del)
                 then begin (* Utils.print "Mutex{%s,%s}\n" a1#to_string a2#to_string; *) succ acc2 end else acc2
               ) acc pdata#actions
           ) 0 pdata#actions (* (k+1) * |Mutex| (12) *)
