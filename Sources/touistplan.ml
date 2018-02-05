@@ -110,7 +110,7 @@ let endl_string () = Utils.print "\n"
    given to finding the existence (i.e., increase the depth until the QBF is
    true) and to extracting the plan.
    [verbose] 0 -> not verbose, 1 -> more verbose, 2 -> even more verbose *)
-class t (problem:string) (domain:string) (options:string) (encoding : int) (solvernum : int) (incrmode : int) (incmin : int) (time_allowed : int) (verbose : int) =
+class t (problem:string) (domain:string) (options:string) (encoding : int) (solvernum : int) (nodewidth : int) (incrmode : int) (incmin : int) (time_allowed : int) (verbose : int) =
 object (self)
   inherit [fluent, action, plan] PlanningData.t problem domain "" as pdata
   inherit [fluent, action, plan] tsp_common
@@ -125,6 +125,8 @@ object (self)
   val mutable goals = []
   val mutable search_level = 0
 val mutable depth_counter = ref 0
+
+  val mutable nw = nodewidth
 
   val mutable constraintscalc = true
   val mutable branchc = 0
@@ -201,6 +203,15 @@ let stringrules = match encoding with
   | 203 -> "[SMT QF_RDL] Open Conditions (temporal)"
 in
 Utils.print "Select [LANGUAGE] EncodingRules: %s\n\n" stringrules;
+
+if nw >1 && encoding==0 then
+begin
+  Utils.print "Select node width to %d steps.\n\n" nw;
+end else
+begin
+  Utils.print "Ignore node width (not available with selected encoding rules).\n\n";
+  nw <- 1
+end;
 
 let solvername = match solvernum with
   | 0 -> if encoding<100 then "DepQBF" else if encoding<200 then "MiniSat" else "Yices"
@@ -312,7 +323,7 @@ ignore (command "rm solvedata/*.txt");
 (* Génération des quantificateurs *)
 
 let genquantifiers n nexistsb =
-if encoding == 0 then (* QBF-EFA *)
+if encoding == 0 && nw == 1 then (* QBF-EFA *)
 begin
  let quantifiersfile = Unix.openfile "solvedata/in.quantifiers.txt" [Unix.O_TRUNC;Unix.O_CREAT;Unix.O_WRONLY] 0o640 in
  let quantifierswrite s =
@@ -367,12 +378,36 @@ begin
   done;
   quantifierswrite "exists $A(0) for $A in $O:\nexists open($f,0) for $f in $F:\n";
  Unix.close quantifiersfile;
- end;
+ end
+else if encoding == 0 && nw > 1 then (* QBF-EFA with node width >1 *)
+begin
+ let quantifiersfile = Unix.openfile "solvedata/in.quantifiers.txt" [Unix.O_TRUNC;Unix.O_CREAT;Unix.O_WRONLY] 0o640 in
+ let quantifierswrite s =
+   ignore (Unix.write quantifiersfile (Bytes.of_string s) 0 (String.length s)) in
+  (* On définit le nombre d'étapes par noeud avant les quantificateurs *)
+  quantifierswrite (Printf.sprintf "$nodewidth = %d\n\n" nw);
+  for i = n downto nexistsb do
+   for j = 1 to nw do
+    quantifierswrite (Printf.sprintf "exists $A(%d,%d) for $A in $O:\nexists $f(%d,%d) for $f in $F:\n" i j i j);
+   done;
+   quantifierswrite (Printf.sprintf "exists b(%d):\n" i);
+  done;
+  for i = nexistsb - 1 downto 1 do
+   for j = 1 to nw do
+    quantifierswrite (Printf.sprintf "exists $A(%d,%d) for $A in $O:\nexists $f(%d,%d) for $f in $F:\n" i j i j);
+   done;
+   quantifierswrite (Printf.sprintf "forall b(%d):\n" i);
+  done;
+  for j = 1 to nw do
+   quantifierswrite (Printf.sprintf "exists $A(0,%d) for $A in $O:\nexists $f(0,%d) for $f in $F:\n" j j);
+  done;
+ Unix.close quantifiersfile;
+end;
 in
 
 (* Génération des formules non quantifiées *)
 
-if encoding == 0 then (* option QBF-EFA *)
+if encoding == 0 && nw == 1 then (* option QBF-EFA *)
 begin
  let qfformulafile = Unix.openfile "solvedata/in.qfformula.txt" [Unix.O_TRUNC;Unix.O_CREAT;Unix.O_WRONLY] 0o640 in
  let qfformulawrite s =
@@ -428,6 +463,28 @@ begin
     qfformulawrite "\n;; Protection des conditions ouvertes\n\n\\\and bigand $i in [1..$depth]:\n  bigand $f in $F:\n    (open($f,$i)\n    and not b($i) \n    and bigand $j in [1..$i-1]:\n      b($j)\n    end)\n    => bigand $A in $O when $f in $Del($A):\n      not $A(0)\n    end\n  end\nend\n";
     qfformulawrite "\n\n\\\and bigand $i in [1..$depth]:\n  bigand $f in $F:\n    (open($f,0)\n    and b($i) \n    and bigand $j in [1..$i-1]:\n      not b($j)\n    end)\n    => bigand $A in $O when $f in $Del($A):\n      not $A($i)\n    end\n  end\nend\n";
     qfformulawrite "\n;; Mutex\n\n\\\and\nbigand $i in [0..$depth]:\n  bigand $A in $O:\n    bigand $f in ($Add($A) union $Cond($A)):\n      bigand $B in $O when $A!=$B and $f in $Del($B):\n        not $A($i) or not $B($i)\n      end\n    end\n  end\nend\n";
+ Unix.close qfformulafile;
+end else if encoding == 0 && nw > 1 then (* option QBF-EFA with node width >1 *)
+begin
+ let qfformulafile = Unix.openfile "solvedata/in.qfformula.txt" [Unix.O_TRUNC;Unix.O_CREAT;Unix.O_WRONLY] 0o640 in
+ let qfformulawrite s =
+   ignore (Unix.write qfformulafile (Bytes.of_string s) 0 (String.length s)) in  
+    let efaprint fsrc fdst adddel adst bi bj = "\\\and\nbigand $i in [1..$depth]:\n  bigand $f in $F:\n      " ^ fsrc ^ " or " ^ fdst ^ "\n      or bigor $A in $O when $f in $" ^ adddel ^ "($A):\n         " ^ adst ^ "\n      end\n      or " ^ bi ^ "\n      or bigor $j in [1..$i-1]:\n         " ^ bj ^ "\n      end\n  end\nend\n" in
+    qfformulawrite "\n;; (QBF-EFA1.2) But vérifié pour la feuille la plus à droite (propagation si but atteint avant)\n\nbigand $f in $G:\n  $f(0,$nodewidth)\n  or bigor $i in [1..$depth]:\n    not b($i)\n  end\nend\n";
+    qfformulawrite "\n;; (QBF-EFA2.0) Conditions des actions de la première étape\n\n\\\and bigand $A in $O when not ($Cond($A) subset $I):\n  not $A(0,1)\n  or bigor $i in [1..$depth]:\n    b($i)\n  end\nend\n";
+    qfformulawrite "\n;; (QBF-EFA2.1) Effets des actions\n\n\\\and\nbigand $i in [0..$depth]:\n  bigand $m in [1..$nodewidth]:\n    bigand $A in $O:\n      bigand $f in $Add($A):\n        not $A($i,$m) or $f($i,$m)\n      end\n      and\n      bigand $f in $Del($A):\n        not $A($i,$m) or not $f($i,$m)\n      end\n    end\n  end\nend\n";
+    qfformulawrite "\n;; (QBF-EFA2.2) Conditions des actions (transition feuille -> noeud)\n\n\\\and\nbigand $i in [1..$depth]:\n  bigand $A in $O:\n    bigand $f in $Cond($A):\n      not $A($i,1)\n      or $f(0,$nodewidth)\n      or b($i)\n      or bigor $j in [1..$i-1]:\n         not b($j)\n      end\n    end\n  end\nend\n";
+    qfformulawrite "\n;; (QBF-EFA2.3) Conditions des actions (transition noeud -> feuille)\n\n\\\and\nbigand $i in [1..$depth]:\n  bigand $A in $O:\n    bigand $f in $Cond($A):\n      not $A(0,1)\n      or $f($i,$nodewidth)\n      or not b($i)\n      or bigor $j in [1..$i-1]:\n         b($j)\n      end\n    end\n  end\nend\n";
+    qfformulawrite "\n;; Conditions des actions (in node)\n\n\\\and\nbigand $i in [0..$depth]:\n  bigand $m in [2..$nodewidth]:\n    bigand $A in $O:\n      bigand $f in $Cond($A):\n        not $A($i,$m)\n        or $f($i,$m-1)\n      end\n    end\n  end\nend";
+    qfformulawrite "\n;; (QBF-EFA3.1.0) Frames-Axiomes d'ajout (état initial)\n\n\\\and bigand $f in ($F diff $I):\n  not $f(0,1)\n  or bigor $A in $O when ($f in $Add($A)) and ($Cond($A) subset $I):\n     $A(0,1)\n  end\n  or bigor $i in [1..$depth]:\n    b($i)\n  end\nend\n";
+    qfformulawrite (Printf.sprintf "\n;; (QBF-EFA3.1.1) Frames-axiomes d'ajout (transition feuille -> noeud)\n\n%s" (efaprint "$f(0,$nodewidth)" "not $f($i,1)" "Add" "$A($i,1)" "b($i)" "not b($j)"));
+    qfformulawrite (Printf.sprintf "\n;; (QBF-EFA3.1.2) Frames-axiomes d'ajout (transition noeud -> feuille)\n\n%s" (efaprint "$f($i,$nodewidth)" "not $f(0,1)" "Add" "$A(0,1)" "not b($i)" "b($j)"));
+    qfformulawrite "\n;; Frames-axiomes d'ajouts (in node)\n\\\and\nbigand $i in [0..$depth]:\n  bigand $m in [2..$nodewidth]:\n    bigand $f in $F:\n      $f($i,$m-1) or not $f($i,$m)\n      or bigor $A in $O when $f in $Add($A):\n         $A($i,$m)\n      end  \n    end\n  end\nend\n";
+    qfformulawrite "\n;; (QBF-EFA3.2.0) Frames-Axiomes de retrait (état initial)\n\n\\\and bigand $f in $I:\n  $f(0,1)\n  or bigor $A in $O when ($f in $Del($A)) and ($Cond($A) subset $I):\n     $A(0,1)\n  end\n  or bigor $i in [1..$depth]:\n    b($i)\n  end\nend\n";
+    qfformulawrite (Printf.sprintf "\n;; (QBF-EFA3.2.1) Frames-axiomes de retrait (transition feuille -> noeud)\n\n%s" (efaprint "not $f(0,$nodewidth)" "$f($i,1)" "Del" "$A($i,1)" "b($i)" "not b($j)"));
+    qfformulawrite (Printf.sprintf "\n;; (QBF-EFA3.2.2) Frames-axiomes de retrait (transition noeud -> feuille)\n\n%s" (efaprint "not $f($i,$nodewidth)" "$f(0,1)" "Del" "$A(0,1)" "not b($i)" "b($j)"));
+    qfformulawrite "\n;; Frames-axiomes de retrait (in node)\n\\\and\nbigand $i in [0..$depth]:\n  bigand $m in [2..$nodewidth]:\n    bigand $f in $F:\n      not $f($i,$m-1) or $f($i,$m)\n      or bigor $A in $O when $f in $Del($A):\n         $A($i,$m)\n      end  \n    end\n  end\nend";
+    qfformulawrite "\n;; (QBF-EFA4) Mutex (Forall-step semantics)\n\n\\\and\nbigand $i in [0..$depth]:\n  bigand $m in [1..$nodewidth]:\n    bigand $A in $O:\n      bigand $f in $Cond($A):\n        bigand $B in $O when $A!=$B and $f in $Del($B):\n          not $A($i,$m) or not $B($i,$m)\n        end\n      end\n    end\n  end\nend\n";
  Unix.close qfformulafile;
 end else if encoding == 100 then (* option SAT-EFA *)
 begin
