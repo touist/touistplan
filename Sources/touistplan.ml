@@ -201,6 +201,7 @@ let stringrules = match encoding with
   | 100 -> "[SAT] Explanatory Frame-axioms"
   | 103 -> "[SAT] Open Conditions"
   | 203 -> "[SMT QF_RDL] Open Conditions (temporal)"
+  | 213 -> "[SMT QF_RDL] Causal Links (temporal)"
 in
 Utils.print "Select [LANGUAGE] EncodingRules: %s\n\n" stringrules;
 
@@ -307,16 +308,28 @@ Array.iter (fun f -> Utils.print "%s(level[%d],neglevel[%d])\n" f#to_istring f#l
 
 if encoding == 0 then
 begin (* option QBF-EFA Nodes-Fluents-Actions Leafs-Fluents-Actions *)
-Utils.print "Searching solution with QBFPLAN (Explanatory Frame-Axioms)...\n\n";
+Utils.print "Searching solution with QBFPLAN (Explanatory Frame-Axioms [Gasquet et al., 2018])...\n\n";
 end else if encoding == 1 then
 begin (* option QBF-NOOP *)
 Utils.print "Searching solution with QBFPLAN (Noop Actions [Cashmore et al., 2012])...\n\n";
 end else if encoding == 2 then
 begin (* option QBF-EFA-NFLA Nodes-Fluents Leafs-Actions *)
 Utils.print "Searching solution with QBFPLAN (Explanatory Frame-Axioms, NFLA)...\n\n";
+end else if encoding == 3 then
+begin (* option QBF-OPEN *)
+Utils.print "Searching solution with QBFPLAN (Open Conditions [Gasquet et al., 2018])...\n\n";
 end else if encoding == 100 then
 begin (* option SAT-EFA *)
-Utils.print "Searching solution with SATPLAN (Explanatory Frame-Axioms)...\n\n";
+Utils.print "Searching solution with SATPLAN (Explanatory Frame-Axioms [Kautz & Selman, 1992])...\n\n";
+end else if encoding == 103 then
+begin (* option SAT-OPEN *)
+Utils.print "Searching solution with SATPLAN (Open Conditions [Gasquet et al., 2018])...\n\n";
+end else if encoding == 203 then
+begin (* option SMT-OPEN *)
+Utils.print "Searching solution with SMTPLAN (Open Conditions [Maris et al., 2018])...\n\n";
+end else if encoding == 213 then
+begin (* option SMT-LINK *)
+Utils.print "Searching solution with SMTPLAN (TLP-GP-2 Causal Links [Maris & Regnier, 2008])...\n\n";
 end;
 ignore (command "rm solvedata/*.txt");
 
@@ -536,6 +549,18 @@ begin
     qfformulawrite "\n;; Bornes\n(t_Init == 0.0)\nbigand $i in [1..$length]:\n  bigand $A in $O:\n    $A($i) =>\n    (bigand $f in $Cond($A):\n      (t_Init - $t_cond_begin($f,$A) <= t($A,$i) - 0.0)\n      \\\and (t_Goal - $t_cond_end($f,$A) >= t($A,$i) - 0.0)\n    end\n    \\\and bigand $f in $Add($A):\n      (t_Init - $t_add_begin($A,$f) <= t($A,$i) - 0.0)\n      \\\and (t_Goal - $t_add_end($A,$f) >= t($A,$i) - 0.0)\n    end\n    \\\and bigand $f in $Del($A):\n      (t_Init - $t_del_begin($A,$f) <= t($A,$i) - 0.0)\n      \\\and (t_Goal - $t_del_end($A,$f) >= t($A,$i) - 0.0)\n    end)\n    \\\and (not $A($i) => (t($A,$i) < t_Init - 1000.0))\n  end\nend\n";
     qfformulawrite "\n(t(A____Spy___,1) - t_Init == 1.0)\n";
  Unix.close qfformulafile;
+end else if encoding == 213 then (* option SMT-LINK *)
+begin
+ let qfformulafile = Unix.openfile "solvedata/in.qfformula.txt" [Unix.O_TRUNC;Unix.O_CREAT;Unix.O_WRONLY] 0o640 in
+ let qfformulawrite s =
+   ignore (Unix.write qfformulafile (Bytes.of_string s) 0 (String.length s)) in
+   qfformulawrite ";; SMT-LINK.0 : Production des buts par liens causaux\nbigand $f in $G:\n  bigor $i in [1..$length]:\n    bigor $A in $O when $f in $Add($A):\n      Link($A,$i,$f,Goal,$length+1)\n    end\n    or bigor $A in [Init] when $f in $I: Link($A,0,$f,Goal,$length+1) end\n  end\nend\n";
+   qfformulawrite "\n;; SMT-LINK.1 : Production des préconditions par liens causaux\n\nbigand $i in [1..$length]:\n  bigand $A in $O:\n    $A($i) => bigand $f in $Cond($A):\n      bigor $j in [1..$i-1]:\n        bigor $B in $O when $f in $Add($B):\n          Link($B,$j,$f,$A,$i)\n        end\n      end\n      or bigor $B in [Init] when $f in $I: Link($B,0,$f,$A,$i) end\n    end\n  end\nend\n";
+   qfformulawrite "\n;; SMT-LINK.2 : Activation des actions et ordre partiel\n\nbigand $i in [1..$length]:\n  bigand $j in [1..$i-1]:\n    bigand $A in $O:\n      bigand $B in $O:\n        bigand $f in $Cond($A) inter $Add($B):\n          Link($B,$j,$f,$A,$i) =>\n          ($B($j) and $A($i) and ((t($B,$j) - $t_cond_begin($f,$A)) <= (t($A,$i) - $t_add_begin($B,$f))))\n        end\n      end\n    end  \n  end\nend\nbigand $i in [1..$length]:\n  bigand $A in $O:\n    bigand $f in $G inter $Add($A):\n      Link($A,$i,$f,Goal,$length+1) =>\n      ($A($i) and (t($A,$i) - 0.0 <= t(Goal,$length+1) - $t_add_begin($A,$f)))\n    end\n  end\nend\n";
+   qfformulawrite "\n;; SMT-LINK.3 : Protection des liens causaux\n\nbigand $i in [1..$length]:\n  bigand $j in [1..$i-1]:\n    bigand $k in [1..$length]:\n      bigand $A in $O:\n        bigand $B in $O:\n          bigand $f in $Cond($A) inter $Add($B):\n            bigand $C in $O when ($i!=$k or $A!=$C) and $f in $Del($C):\n              (Link($B,$j,$f,$A,$i) and $C($k)) =>\n              ((t($C,$k) - $t_add_begin($B,$f) < t($B,$j) - $t_del_end($C,$f))\n              or (t($A,$i) - $t_del_begin($C,$f) < t($C,$k) - $t_cond_end($f,$A)))\n            end\n          end\n        end\n      end\n    end  \n  end\nend\nbigand $i in [1..$length]:\n  bigand $A in $O:\n    bigand $f in $Cond($A) inter $I:\n      bigand $j in [1..$length]:\n        bigand $B in $O when ($i!=$j or $A!=$B) and $f in $Del($B):\n          (Link(Init,0,$f,$A,$i) and $B($j)) =>\n          (t($A,$i) - $t_del_begin($B,$f) < t($B,$j) - $t_cond_end($f,$A))\n        end\n      end\n    end\n  end\nend\nbigand $i in [1..$length]:\n  bigand $A in $O:\n    bigand $f in $Add($A) inter $G:\n      bigand $j in [1..$length]:\n        bigand $B in $O when ($i!=$j or $A!=$B) and $f in $Del($B):\n          (Link($A,$i,$f,Goal,$length+1) and $B($j)) =>\n          (t($B,$j) - $t_add_begin($A,$f) < t($A,$i) - $t_del_end($B,$f))\n        end\n      end\n    end\n  end\nend\nbigand $i in [1..$length]:\n  bigand $f in $I inter $G:\n    bigand $A in $O when $f in $Del($A):\n      (not Link(Init,0,$f,Goal,$length+1)) or (not $A($i))\n    end\n  end\nend\n";
+   qfformulawrite "\n;; SMT-LINK.4 : Prévention des interactions négatives\n\nbigand $i in [1..$length]:\n  bigand $j in [1..$length]:\n    bigand $A in $O:\n      bigand $B in $O when $i!=$j or $A!=$B:\n        bigand $f in $Add($A) inter $Del($B):\n          ($A($i) and $B($j)) =>\n          ((t($A,$i) - $t_del_begin($B,$f) < t($B,$j) - $t_add_end($A,$f))\n          or (t($B,$j) - $t_add_begin($A,$f) < t($A,$i) - $t_del_end($B,$f)))\n        end\n      end\n    end\n  end\nend\n";
+   qfformulawrite "\n;; Bornes\n\n(t(Init,0) == 0.0)\nbigand $i in [1..$length]:\n  bigand $A in $O:\n    $A($i) =>\n    (bigand $f in $Cond($A):\n      (t(Init,0) - $t_cond_begin($f,$A) <= t($A,$i) - 0.0)\n      \\\and (t(Goal,$length+1) - $t_cond_end($f,$A) >= t($A,$i) - 0.0)\n    end\n    \\\and bigand $f in $Add($A):\n      (t(Init,0) - $t_add_begin($A,$f) <= t($A,$i) - 0.0)\n      \\\and (t(Goal,$length+1) - $t_add_end($A,$f) >= t($A,$i) - 0.0)\n    end\n    \\\and bigand $f in $Del($A):\n      (t(Init,0) - $t_del_begin($A,$f) <= t($A,$i) - 0.0)\n      \\\and (t(Goal,$length+1) - $t_del_end($A,$f) >= t($A,$i) - 0.0)\n    end)\n    \\\and (not $A($i) => (t($A,$i) < t(Init,0) - 1.0))\n  end\nend\n";
+ Unix.close qfformulafile;
 end;
 
 
@@ -603,14 +628,14 @@ if solvernum == 2 then touistcode := (command (Printf.sprintf "(echo '$depth = %
 if solvernum == 3 then touistcode := (command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') | %s touist --qbf -v --solver 'qute --partial-certificate --prefix-mode' - > solvedata/out.emodel.txt 2> solvedata/out.touisterr.txt" maxdepth atomsfiles addatom timeout_cmd));
 (* FICHIER DEBUG: *)  ignore (command (Printf.sprintf "(echo '$depth = %d' ; cat solvedata/in.sets.txt solvedata/in.quantifiers.txt ; cat solvedata/in.qfformula.txt%s ; echo '%s') > debug.touistl" maxdepth atomsfiles addatom));
   ignore (command (Printf.sprintf "((cat solvedata/out.emodel.txt | grep '1 ' | sed -e 's/1 /and /') ; (cat solvedata/out.emodel.txt | grep '0 ' | sed -e 's/0 /and not /')) > solvedata/in.atoms%d.txt" (branchdepth - 1)));
-if branchdepth <= maxdepth then ignore (command (Printf.sprintf "cat solvedata/in.atoms%d.txt | grep 'and A_' | grep '(%d)'" (branchdepth - 1) (branchdepth - 1)));
-if (encoding == 1) && (branchdepth <= maxdepth) then ignore (command (Printf.sprintf "cat solvedata/in.atoms%d.txt | grep 'and A_' | grep '(%d)'" (branchdepth - 1) (branchdepth)));
-for i = maxdepth downto branchdepth - 1 do
+if branchdepth <= maxdepth then ignore (command (Printf.sprintf "cat solvedata/in.atoms%d.txt | grep 'and A_' | grep '\\((%d\\)\\(,\\|)\\)'" (branchdepth - 1) (branchdepth - 1)));
+if (encoding == 1) && (branchdepth <= maxdepth) then ignore (command (Printf.sprintf "cat solvedata/in.atoms%d.txt | grep 'and A_' | grep '\\((%d\\)\\(,\\|)\\)'" (branchdepth - 1) (branchdepth)));
+(*for i = maxdepth downto branchdepth - 1 do
   command (Printf.sprintf "cat solvedata/out.emodel.txt | grep '? ' | grep '\\((\\|,\\)%d)'" i) |> ignore;
   if 0 = command (Printf.sprintf "cat solvedata/out.emodel.txt | grep '? ' | grep '\\((\\|,\\)%d)' | grep '\\(A_\\|F_\\)' >/dev/null" i)
   then (Printf.eprintf "Solver did not quantify one of the outer-existentially-quantified variable; cannot continue!";exit 100); (* when some outer quantified variable is not quantified *)
   flush stdout; flush stderr;
-done;
+done;*)
 !touistcode
 in
 
@@ -665,7 +690,7 @@ let extract_time = ref 0.0 in
 if !qbftrue then
 begin
   Utils.print "Solution found at depth %d.\n" !treedepth; flush stdout; flush stderr;
-  ignore (command (Printf.sprintf "cat solvedata/in.atoms%d.txt | grep 'and A_' | grep '(%d)'" !treedepth !treedepth));
+  ignore (command (Printf.sprintf "cat solvedata/in.atoms%d.txt | grep 'and A_' | grep '\\((%d\\)\\(,\\|)\\)'" !treedepth !treedepth));
   flush stdout; flush stderr;
   try let (extr_time,_) = Utils.my_time2bis (fun () -> extract !treedepth (Unix.gettimeofday ())) in extract_time := extr_time
   with Timeout -> (Utils.eprint "Timeout when extracting\n"; exit 125)

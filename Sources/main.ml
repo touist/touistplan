@@ -1,4 +1,4 @@
-let encoding_list = ["qbf-efa";"qbf-noop";"qbf-efa-nfla";"qbf-open";"sat";"sat-efa";"sat-open";"sat-efa-select";"smt-open"]
+let encoding_list = ["qbf-efa";"qbf-noop";"qbf-efa-nfla";"qbf-open";"sat";"sat-efa";"sat-open";"sat-efa-select";"smt-open";"smt-link"]
 and solvers_list = ["depqbf"; "rareqs"; "caqe"; "qute"; "minisat"; "glucose"; "glucose-syrup"; "picosat"; "lingeling"]
 and mode = ref "touistplan"
 and encoding = ref "qbf-efa"
@@ -120,4 +120,5 @@ PROBLEM: strips planning problem expressed in (typed) PDDL
     | "sat-open" -> (new Touistplan.t !problem !domain !options 103 solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
     | "sat-efa-select" -> (new Touistplan.t !problem !domain !options 150 solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
     | "smt-open" -> (new Touistplan.t !problem !domain !options 203 solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
+    | "smt-link" -> (new Touistplan.t !problem !domain !options 213 solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
     | _ -> failwith "encoding impossible (tell the dev)"
