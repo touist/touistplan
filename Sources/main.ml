@@ -2,6 +2,7 @@ let encoding_list = ["qbf-efa";"qbf-noop";"qbf-efa-nfla";"qbf-open";"sat";"sat-e
 and solvers_list = ["depqbf"; "rareqs"; "caqe"; "qute"; "minisat"; "glucose"; "glucose-syrup"; "picosat"; "lingeling"]
 and mode = ref "touistplan"
 and encoding = ref "qbf-efa"
+and inputencoding = ref ""
 and domain = ref ""
 and problem = ref ""
 and constraints = ref ""
@@ -18,7 +19,7 @@ and nodewidth = ref 1
 
 let () =
   let usage = "\
-Usage: "^Sys.argv.(0)^" [-e ENC] [-s SOLVER] DOMAIN PROBLEM [-c CONSTR] [--timeout SECONDS]
+Usage: "^Sys.argv.(0)^" [-e ENC] [-insat ENC_FILE] [-s SOLVER] DOMAIN PROBLEM [-c CONSTR] [--timeout SECONDS]
 
 This is the TouISTPLAN planner.
 
@@ -33,6 +34,8 @@ PROBLEM: strips planning problem expressed in (typed) PDDL
         "\t- qbf-efa : QBFPLAN with Explanatory Frame-Axioms (default)\n"^
         "\t- qbf-noop : QBFPLAN with No-op Actions\n"^
         "\t- sat-efa : SATPLAN with Explanatory Frame-Axioms"));
+    ("-insat", Arg.Set_string inputencoding,
+     "ENC_FILE: SAT encoding text file (expressed in TouIST language)");
     ("-s", Arg.Symbol (solvers_list, fun s -> solver:=s), ": solver choice");
     ("-c", Arg.Set_string constraints,
      "CONSTR: strips planning constraints expressed in (typed) Extended-PDDL");
@@ -110,15 +113,17 @@ PROBLEM: strips planning problem expressed in (typed) PDDL
   match !count with
   | Some i -> (new CountConstraints.t !problem !domain i)#search
   | _ ->
+    if (String.length !inputencoding) > 0 then (new Touistplan.t !problem !domain !options 1100 !inputencoding solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
+    else
     match !encoding with
-    | "qbf-efa" -> (new Touistplan.t !problem !domain !options 0 solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
-    | "qbf-noop" -> (new Touistplan.t !problem !domain !options 1 solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
-    | "qbf-efa-nfla" -> (new Touistplan.t !problem !domain !options 2 solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
-    | "qbf-open" -> (new Touistplan.t !problem !domain !options 3 solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
-    | "sat" -> (new Touistplan.t !problem !domain !options 100 solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
-    | "sat-efa" -> (new Touistplan.t !problem !domain !options 100 solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
-    | "sat-open" -> (new Touistplan.t !problem !domain !options 103 solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
-    | "sat-efa-select" -> (new Touistplan.t !problem !domain !options 150 solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
-    | "smt-open" -> (new Touistplan.t !problem !domain !options 203 solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
-    | "smt-link" -> (new Touistplan.t !problem !domain !options 213 solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
+    | "qbf-efa" -> (new Touistplan.t !problem !domain !options 0 !inputencoding solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
+    | "qbf-noop" -> (new Touistplan.t !problem !domain !options 1 !inputencoding solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
+    | "qbf-efa-nfla" -> (new Touistplan.t !problem !domain !options 2 !inputencoding solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
+    | "qbf-open" -> (new Touistplan.t !problem !domain !options 3 !inputencoding solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
+    | "sat" -> (new Touistplan.t !problem !domain !options 100 !inputencoding solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
+    | "sat-efa" -> (new Touistplan.t !problem !domain !options 100 !inputencoding solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
+    | "sat-open" -> (new Touistplan.t !problem !domain !options 103 !inputencoding solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
+    | "sat-efa-select" -> (new Touistplan.t !problem !domain !options 150 !inputencoding solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
+    | "smt-open" -> (new Touistplan.t !problem !domain !options 203 !inputencoding solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
+    | "smt-link" -> (new Touistplan.t !problem !domain !options 213 !inputencoding solver_code !nodewidth !incrmode !incmin !timeout !verbose)#search
     | _ -> failwith "encoding impossible (tell the dev)"

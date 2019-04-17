@@ -110,7 +110,7 @@ let endl_string () = Utils.print "\n"
    given to finding the existence (i.e., increase the depth until the QBF is
    true) and to extracting the plan.
    [verbose] 0 -> not verbose, 1 -> more verbose, 2 -> even more verbose *)
-class t (problem:string) (domain:string) (options:string) (encoding : int) (solvernum : int) (nodewidth : int) (incrmode : int) (incmin : int) (time_allowed : int) (verbose : int) =
+class t (problem:string) (domain:string) (options:string) (encoding : int) (inputencoding : string) (solvernum : int) (nodewidth : int) (incrmode : int) (incmin : int) (time_allowed : int) (verbose : int) =
 object (self)
   inherit [fluent, action, plan] PlanningData.t problem domain "" as pdata
   inherit [fluent, action, plan] tsp_common
@@ -202,6 +202,7 @@ let stringrules = match encoding with
   | 103 -> "[SAT] Open Conditions"
   | 203 -> "[SMT QF_RDL] Open Conditions (temporal)"
   | 213 -> "[SMT QF_RDL] Causal Links (temporal)"
+  | 1100 -> "[SAT] Input Encoding Rules from " ^ inputencoding
 in
 Utils.print "Select [LANGUAGE] EncodingRules: %s\n\n" stringrules;
 
@@ -215,7 +216,7 @@ begin
 end;
 
 let solvername = match solvernum with
-  | 0 -> if encoding<100 then "DepQBF" else if encoding<200 then "MiniSat" else "Yices"
+  | 0 -> if encoding<100 then "DepQBF" else if (encoding<200) || (encoding>=1000) then "MiniSat" else "Yices"
   | 1 -> "RAReQS"
   | 2 -> "CAQE"
   | 3 -> "Qute"
@@ -330,6 +331,9 @@ Utils.print "Searching solution with SMTPLAN (Open Conditions [Maris et al., 201
 end else if encoding == 213 then
 begin (* option SMT-LINK *)
 Utils.print "Searching solution with SMTPLAN (TLP-GP-2 Causal Links [Maris & Regnier, 2008])...\n\n";
+end else if encoding == 1100 then
+begin (* option SAT with input file *)
+Utils.print "Searching solution with SATPLAN (Encoding from %s)...\n\n" inputencoding;
 end;
 ignore (command "rm solvedata/*.txt");
 
@@ -554,13 +558,18 @@ begin
  let qfformulafile = Unix.openfile "solvedata/in.qfformula.txt" [Unix.O_TRUNC;Unix.O_CREAT;Unix.O_WRONLY] 0o640 in
  let qfformulawrite s =
    ignore (Unix.write qfformulafile (Bytes.of_string s) 0 (String.length s)) in
-   qfformulawrite ";; SMT-LINK.0 : Production des buts par liens causaux\nbigand $f in $G:\n  bigor $i in [1..$length]:\n    bigor $A in $O when $f in $Add($A):\n      Link($A,$i,$f,Goal,$length+1)\n    end\n    or bigor $A in [Init] when $f in $I: Link($A,0,$f,Goal,$length+1) end\n  end\nend\n";
+   qfformulawrite ";; INIT VARIABLES\n\n(t(Init,0) == 0.0)\n(t(Spy_variable) - 1.0 == t(Init,0))\n";
+   qfformulawrite "\n;; SMT-LINK.0 : Production des buts par liens causaux\nbigand $f in $G:\n  bigor $i in [1..$length]:\n    bigor $A in $O when $f in $Add($A):\n      Link($A,$i,$f,Goal,$length+1)\n    end\n    or bigor $A in [Init] when $f in $I: Link($A,0,$f,Goal,$length+1) end\n  end\nend\n";
    qfformulawrite "\n;; SMT-LINK.1 : Production des préconditions par liens causaux\n\nbigand $i in [1..$length]:\n  bigand $A in $O:\n    $A($i) => bigand $f in $Cond($A):\n      bigor $j in [1..$i-1]:\n        bigor $B in $O when $f in $Add($B):\n          Link($B,$j,$f,$A,$i)\n        end\n      end\n      or bigor $B in [Init] when $f in $I: Link($B,0,$f,$A,$i) end\n    end\n  end\nend\n";
    qfformulawrite "\n;; SMT-LINK.2 : Activation des actions et ordre partiel\n\nbigand $i in [1..$length]:\n  bigand $j in [1..$i-1]:\n    bigand $A in $O:\n      bigand $B in $O:\n        bigand $f in $Cond($A) inter $Add($B):\n          Link($B,$j,$f,$A,$i) =>\n          ($B($j) and $A($i) and ((t($B,$j) - $t_cond_begin($f,$A)) <= (t($A,$i) - $t_add_begin($B,$f))))\n        end\n      end\n    end  \n  end\nend\nbigand $i in [1..$length]:\n  bigand $A in $O:\n    bigand $f in $G inter $Add($A):\n      Link($A,$i,$f,Goal,$length+1) =>\n      ($A($i) and (t($A,$i) - 0.0 <= t(Goal,$length+1) - $t_add_begin($A,$f)))\n    end\n  end\nend\n";
    qfformulawrite "\n;; SMT-LINK.3 : Protection des liens causaux\n\nbigand $i in [1..$length]:\n  bigand $j in [1..$i-1]:\n    bigand $k in [1..$length]:\n      bigand $A in $O:\n        bigand $B in $O:\n          bigand $f in $Cond($A) inter $Add($B):\n            bigand $C in $O when ($i!=$k or $A!=$C) and $f in $Del($C):\n              (Link($B,$j,$f,$A,$i) and $C($k)) =>\n              ((t($C,$k) - $t_add_begin($B,$f) < t($B,$j) - $t_del_end($C,$f))\n              or (t($A,$i) - $t_del_begin($C,$f) < t($C,$k) - $t_cond_end($f,$A)))\n            end\n          end\n        end\n      end\n    end  \n  end\nend\nbigand $i in [1..$length]:\n  bigand $A in $O:\n    bigand $f in $Cond($A) inter $I:\n      bigand $j in [1..$length]:\n        bigand $B in $O when ($i!=$j or $A!=$B) and $f in $Del($B):\n          (Link(Init,0,$f,$A,$i) and $B($j)) =>\n          (t($A,$i) - $t_del_begin($B,$f) < t($B,$j) - $t_cond_end($f,$A))\n        end\n      end\n    end\n  end\nend\nbigand $i in [1..$length]:\n  bigand $A in $O:\n    bigand $f in $Add($A) inter $G:\n      bigand $j in [1..$length]:\n        bigand $B in $O when ($i!=$j or $A!=$B) and $f in $Del($B):\n          (Link($A,$i,$f,Goal,$length+1) and $B($j)) =>\n          (t($B,$j) - $t_add_begin($A,$f) < t($A,$i) - $t_del_end($B,$f))\n        end\n      end\n    end\n  end\nend\nbigand $i in [1..$length]:\n  bigand $f in $I inter $G:\n    bigand $A in $O when $f in $Del($A):\n      (not Link(Init,0,$f,Goal,$length+1)) or (not $A($i))\n    end\n  end\nend\n";
    qfformulawrite "\n;; SMT-LINK.4 : Prévention des interactions négatives\n\nbigand $i in [1..$length]:\n  bigand $j in [1..$length]:\n    bigand $A in $O:\n      bigand $B in $O when $i!=$j or $A!=$B:\n        bigand $f in $Add($A) inter $Del($B):\n          ($A($i) and $B($j)) =>\n          ((t($A,$i) - $t_del_begin($B,$f) < t($B,$j) - $t_add_end($A,$f))\n          or (t($B,$j) - $t_add_begin($A,$f) < t($A,$i) - $t_del_end($B,$f)))\n        end\n      end\n    end\n  end\nend\n";
-   qfformulawrite "\n;; Bornes\n\n(t(Init,0) == 0.0)\nbigand $i in [1..$length]:\n  bigand $A in $O:\n    $A($i) =>\n    (bigand $f in $Cond($A):\n      (t(Init,0) - $t_cond_begin($f,$A) <= t($A,$i) - 0.0)\n      \\\and (t(Goal,$length+1) - $t_cond_end($f,$A) >= t($A,$i) - 0.0)\n    end\n    \\\and bigand $f in $Add($A):\n      (t(Init,0) - $t_add_begin($A,$f) <= t($A,$i) - 0.0)\n      \\\and (t(Goal,$length+1) - $t_add_end($A,$f) >= t($A,$i) - 0.0)\n    end\n    \\\and bigand $f in $Del($A):\n      (t(Init,0) - $t_del_begin($A,$f) <= t($A,$i) - 0.0)\n      \\\and (t(Goal,$length+1) - $t_del_end($A,$f) >= t($A,$i) - 0.0)\n    end)\n    \\\and (not $A($i) => (t($A,$i) < t(Init,0) - 1.0))\n  end\nend\n";
+   qfformulawrite "\n;; Bornes\n\nbigand $i in [1..$length]:\n  bigand $A in $O:\n    $A($i) =>\n    (bigand $f in $Cond($A):\n      (t(Init,0) - $t_cond_begin($f,$A) <= t($A,$i) - 0.0)\n      \\\and (t(Goal,$length+1) - $t_cond_end($f,$A) >= t($A,$i) - 0.0)\n    end\n    \\\and bigand $f in $Add($A):\n      (t(Init,0) - $t_add_begin($A,$f) <= t($A,$i) - 0.0)\n      \\\and (t(Goal,$length+1) - $t_add_end($A,$f) >= t($A,$i) - 0.0)\n    end\n    \\\and bigand $f in $Del($A):\n      (t(Init,0) - $t_del_begin($A,$f) <= t($A,$i) - 0.0)\n      \\\and (t(Goal,$length+1) - $t_del_end($A,$f) >= t($A,$i) - 0.0)\n    end)\n    \\\and (not $A($i) => (t($A,$i) < t(Init,0) - 1.0))\n  end\nend\n";
  Unix.close qfformulafile;
+end else if encoding == 1100 then (* option SAT encoding file *)
+begin
+   let copyfile = (command (Printf.sprintf "cp %s solvedata/in.qfformula.txt" inputencoding)) in
+   if copyfile != 0 then exit copyfile;
 end;
 
 
@@ -705,7 +714,7 @@ end;
 
 
 (** START SATPLAN-SOLVE **)
-if encoding < 200 then
+if (encoding < 200) || (encoding>=1000) then
 begin
 
 let touistsolvesat length timeout =

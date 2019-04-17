@@ -16,7 +16,6 @@ external/
 solvers/
 
 solvedata/
-Sources/lexer.ml
 node_modules/
 *.tex
 
@@ -253,9 +252,7 @@ QBFPlanSlides.pdf
 
 ### OCaml ###
 *.annot
-*.cmo
 *.cma
-*.cmi
 *.a
 *.o
 *.cmx
@@ -274,3 +271,11 @@ setup.data
 setup.log
 
 # End of https://www.gitignore.io/api/ocaml
+/IPC5-domains.tgz
+/qdimacs-gripper-2.qdimacs
+/satplan-gripper1-unsat.dimacs
+/satplan-gripper1.dimacs
+/satplan-gripper2.dimacs
+/satplan-gripper3.dimacs
+/satplan-gripper6.cnf
+/satplan-hardgripperunsat.cnf
